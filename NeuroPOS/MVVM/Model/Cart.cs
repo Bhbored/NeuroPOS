@@ -1,4 +1,5 @@
-﻿using SQLiteNetExtensions.Attributes;
+﻿using SQLite;
+using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,9 @@ namespace NeuroPOS.MVVM.Model
 {
     public class Cart :Entity
     {
+        [Ignore]
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product> Products { get; set; }
+        public List<Product>? Products { get; set; }
         public bool Confirmed { get; set; } // Indicates if the cart has been confirmed for checkout
 
         public double Subtotal { get; set; }
@@ -19,7 +21,7 @@ namespace NeuroPOS.MVVM.Model
         public double Total { get; set; } // Total amount after applying discounts or taxes
 
         [OneToOne(CascadeOperations = CascadeOperation.All)]
-        public Transaction Transaction { get; set; } // Associated transaction for the cart
+        public Transaction? Transaction { get; set; } // Associated transaction for the cart
 
 
     }

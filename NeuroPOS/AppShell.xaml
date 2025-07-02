@@ -3,12 +3,49 @@
     x:Class="NeuroPOS.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:NeuroPOS"
-    Title="NeuroPOS">
+    xmlns:Pages="clr-namespace:NeuroPOS.MVVM.View"
+    Shell.FlyoutBackgroundColor="#F6F8FB"
+    Shell.FlyoutBehavior="Locked"
+    Shell.FlyoutWidth="60">
 
+    <!--  App Icon at the top (as a MenuItem)  -->
+    <!--<Shell.FlyoutHeader>
+    <Image
+    HeightRequest="100"
+    Source="icon.jpeg"
+    WidthRequest="100" />
+    </Shell.FlyoutHeader>-->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate Pages:HomePage}"
+        FlyoutIcon="home.png"
+        Route="HomePage" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Pages:TransactionPage}"
+        FlyoutIcon="transaction.png"
+        Route="TransactionPage" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Pages:InventoryPage}"
+        FlyoutIcon="inventory.png"
+        Route="InventoryPage" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Pages:ContactsPage}"
+        FlyoutIcon="contacts.png"
+        Route="ContactsPage" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Pages:CreditPage}"
+        FlyoutIcon="credit.png"
+        Route="CreditPage" />
+
+
+    <Shell.FlyoutFooter>
+        <Image
+            Margin="0,0,0,25"
+            Aspect="AspectFit"
+            HeightRequest="20"
+            HorizontalOptions="Center"
+            Source="support.png"
+            WidthRequest="20" />
+    </Shell.FlyoutFooter>
+
 
 </Shell>

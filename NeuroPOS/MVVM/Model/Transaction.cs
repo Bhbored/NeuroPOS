@@ -21,8 +21,9 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Person))]
         public int? PersonId { get; set; }
 
+        [Ignore]
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product> TransactionItems { get; set; }
+        public List<Product>? TransactionItems { get; set; }
         public bool IsPaid { get; set; } // Indicates if the transaction has been paid to add to the cashRegister
         [Ignore]
         public string Icon => TransactionType == "buy" ? "redcart.png" : "greencart.png";

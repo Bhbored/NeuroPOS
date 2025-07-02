@@ -1,9 +1,9 @@
-﻿using NeuroPOS.MVVM.Model;
-using SQLite;
+﻿using SQLite;
+using NeuroPOS.Data;
+using NeuroPOS.MVVM.Model;
 using SQLiteNetExtensions.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -15,7 +15,7 @@ namespace NeuroPOS.Data
          IBaseRepository<T> where T : Entity, new()
     {
         SQLiteConnection connection;
-        public string StatusMessage { get; set; }
+        public string StatusMessage { get; set; } = "";
 
         public BaseRepository()
         {
@@ -23,162 +23,130 @@ namespace NeuroPOS.Data
                  new SQLiteConnection(Constants.DatabasePath,
                  Constants.Flags);
             connection.CreateTable<T>();
-            Debug.WriteLine($"Table for {typeof(T).Name} ensured created.");
         }
-        #region delete
 
         public void DeleteItem(T item)
         {
             try
             {
+                //connection.Delete(item);
                 connection.Delete(item, true);
-                Debug.WriteLine($"Deleted {typeof(T).Name} with Id={item.Id}");
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error deleting {typeof(T).Name} with Id={item.Id}: {ex.Message}");
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
         }
-        #endregion
 
-        #region select
+        public void Dispose()
+        {
+            connection.Close();
+        }
+
         public T GetItem(int id)
         {
             try
             {
-                var item = connection.Table<T>().FirstOrDefault(x => x.Id == id);
-                if (item != null)
-                    Debug.WriteLine($"Fetched {typeof(T).Name} with Id={id}");
-                else
-                    Debug.WriteLine($"{typeof(T).Name} with Id={id} not found");
-                return item;
+                return
+                     connection.Table<T>()
+                     .FirstOrDefault(x => x.Id == id);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error fetching {typeof(T).Name} with Id={id}: {ex.Message}");
-                return null;
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
+            return null;
         }
 
         public T GetItem(Expression<Func<T, bool>> predicate)
         {
             try
             {
-                var item = connection.Table<T>().Where(predicate).FirstOrDefault();
-                Debug.WriteLine(item != null
-                    ? $"Fetched {typeof(T).Name} by predicate."
-                    : $"{typeof(T).Name} not found by predicate.");
-                return item;
+                return connection.Table<T>()
+                     .Where(predicate).FirstOrDefault();
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error fetching {typeof(T).Name} by predicate: {ex.Message}");
-                return null;
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
+            return null;
         }
 
         public List<T> GetItems()
         {
             try
             {
-                var items = connection.Table<T>().ToList();
-                Debug.WriteLine($"Fetched {items.Count} {typeof(T).Name}(s) from DB");
-                return items;
+                return connection.Table<T>().ToList();
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error fetching {typeof(T).Name}s: {ex.Message}");
-                return null;
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
+            return null;
         }
 
         public List<T> GetItems(Expression<Func<T, bool>> predicate)
         {
             try
             {
-                var items = connection.Table<T>().Where(predicate).ToList();
-                Debug.WriteLine($"Fetched {items.Count} {typeof(T).Name}(s) by predicate");
-                return items;
+                return connection.Table<T>().Where(predicate).ToList();
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error fetching {typeof(T).Name}s by predicate: {ex.Message}");
-                return null;
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
+            return null;
         }
 
-
-        #endregion
-
-
-        public void Dispose()
-        {
-            connection.Close();
-            Debug.WriteLine($"Connection closed for {typeof(T).Name} repository.");
-        }
-
-        #region add /update
         public void SaveItem(T item)
         {
+            int result = 0;
             try
             {
-                int result;
                 if (item.Id != 0)
                 {
-                    result = connection.Update(item);
-                    StatusMessage = $"{result} row(s) updated";
-                    Debug.WriteLine($"Updated {typeof(T).Name} with Id={item.Id}");
+                    result =
+                         connection.Update(item);
+                    StatusMessage =
+                         $"{result} row(s) updated";
                 }
                 else
                 {
                     result = connection.Insert(item);
-                    StatusMessage = $"{result} row(s) added";
-                    Debug.WriteLine($"Inserted new {typeof(T).Name} with Id={item.Id}");
+                    StatusMessage =
+                         $"{result} row(s) added";
                 }
+
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error saving {typeof(T).Name}: {ex.Message}");
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
         }
 
         public void SaveItemWithChildren(T item, bool recursive = false)
         {
-            try
-            {
-                connection.InsertWithChildren(item, recursive);
-                Debug.WriteLine($"Inserted {typeof(T).Name} with children (recursive={recursive}), Id={item.Id}");
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error inserting {typeof(T).Name} with children: {ex.Message}");
-            }
+            connection.InsertWithChildren(item, recursive);
         }
 
         public List<T> GetItemsWithChildren()
         {
             try
             {
-                var items = connection.GetAllWithChildren<T>().ToList();
-                Debug.WriteLine($"Fetched {items.Count} {typeof(T).Name}(s) with children");
-                return items;
+                return connection.GetAllWithChildren<T>().ToList();
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error fetching {typeof(T).Name}s with children: {ex.Message}");
-                return null;
+                StatusMessage =
+                     $"Error: {ex.Message}";
             }
+            return null;
         }
-
-        #endregion
-
     }
 }

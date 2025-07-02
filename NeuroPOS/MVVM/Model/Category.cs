@@ -1,4 +1,5 @@
-﻿using SQLiteNetExtensions.Attributes;
+﻿using SQLite;
+using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace NeuroPOS.MVVM.Model
         public string ImageUrl { get; set; } // URL to the category image
         public int ProductCount { get; set; }
 
+        [Ignore]
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product> Products { get; set; }
     }

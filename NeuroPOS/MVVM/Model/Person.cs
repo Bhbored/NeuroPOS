@@ -1,4 +1,5 @@
-﻿using SQLiteNetExtensions.Attributes;
+﻿using SQLite;
+using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace NeuroPOS.MVVM.Model
         public DateTime DateAdded { get; set; }
         public double AmountOwed { get; set; }
 
+        [Ignore]
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Transaction> PersonTransactions { get; set; }
     }
