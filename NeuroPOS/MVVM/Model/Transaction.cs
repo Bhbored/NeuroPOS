@@ -12,6 +12,7 @@ namespace NeuroPOS.MVVM.Model
     public class Transaction : Entity
     {
         public DateTime Date { get; set; }
+
         [Ignore]
         public string HumanDate { get => Date.Humanize(); }
         public string TransactionType { get; set; } // "buy" or "sell"
@@ -21,7 +22,6 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Person))]
         public int? PersonId { get; set; }
 
-        [Ignore]
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product>? TransactionItems { get; set; }
         public bool IsPaid { get; set; } // Indicates if the transaction has been paid to add to the cashRegister

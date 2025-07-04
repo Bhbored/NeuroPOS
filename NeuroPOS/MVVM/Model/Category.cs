@@ -15,8 +15,8 @@ namespace NeuroPOS.MVVM.Model
         public string ImageUrl { get; set; } // URL to the category image
         public int ProductCount { get; set; }
 
-        [Ignore]
+      
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product> Products { get; set; }
+        public List<Product>? Products { get; set; }
     }
 }

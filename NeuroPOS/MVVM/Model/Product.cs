@@ -20,7 +20,6 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Category))]
         public int? CategoryId { get; set; }  // Keep this if you want to do queries based on the ID
 
-        [Ignore]
         [ManyToOne]
         public Category Category { get; set; }
 

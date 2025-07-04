@@ -10,7 +10,7 @@ namespace NeuroPOS.MVVM.Model
 {
     public class Cart :Entity
     {
-        [Ignore]
+       
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product>? Products { get; set; }
         public bool Confirmed { get; set; } // Indicates if the cart has been confirmed for checkout
@@ -22,6 +22,10 @@ namespace NeuroPOS.MVVM.Model
 
         [OneToOne(CascadeOperations = CascadeOperation.All)]
         public Transaction? Transaction { get; set; } // Associated transaction for the cart
+
+        [ForeignKey(typeof(Order))]
+        public int OrderId { get; set; }
+
 
 
     }

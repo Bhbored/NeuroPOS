@@ -28,6 +28,10 @@
         FlyoutIcon="inventory.png"
         Route="InventoryPage" />
     <ShellContent
+        ContentTemplate="{DataTemplate Pages:OrdersPage}"
+        FlyoutIcon="orders.png"
+        Route="OrdersPage" />
+    <ShellContent
         ContentTemplate="{DataTemplate Pages:ContactsPage}"
         FlyoutIcon="contacts.png"
         Route="ContactsPage" />

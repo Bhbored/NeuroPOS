@@ -18,9 +18,9 @@ namespace NeuroPOS.MVVM.Model
         public double creditAmount { get; set; } 
         public double AmountSold { get; set; } // Total amount sold to the contact
 
-        [Ignore]
+        
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Transaction> Transactions { get; set; } // List of transactions associated with the contact
+        public List<Transaction>? Transactions { get; set; } // List of transactions associated with the contact
 
     }
 }

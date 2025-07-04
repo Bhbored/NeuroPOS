@@ -14,10 +14,11 @@ namespace NeuroPOS
         public static BaseRepository<Person>? PersonRepo { get; private set; }
         public static BaseRepository<Product>? ProductRepo { get; private set; }
         public static BaseRepository<Transaction>? TransactionRepo { get; private set; }
+        public static BaseRepository<Order>? OrderRepo { get; private set; }
         #endregion
         public App(BaseRepository<Cart> _cart, BaseRepository<CashRegister> _cashregister, BaseRepository<Category> _category,
             BaseRepository<Contact> _contact, BaseRepository<Person> _person, BaseRepository<Product> _product,
-            BaseRepository<Transaction> _transaction)
+            BaseRepository<Transaction> _transaction, BaseRepository<Order> _order )
         {
             InitializeComponent();
             CartRepo = _cart;
@@ -27,6 +28,7 @@ namespace NeuroPOS
             PersonRepo = _person;
             ProductRepo = _product;
             TransactionRepo = _transaction;
+            OrderRepo = _order;
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

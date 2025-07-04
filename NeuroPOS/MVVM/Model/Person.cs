@@ -14,8 +14,8 @@ namespace NeuroPOS.MVVM.Model
         public DateTime DateAdded { get; set; }
         public double AmountOwed { get; set; }
 
-        [Ignore]
+   
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Transaction> PersonTransactions { get; set; }
+        public List<Transaction>? PersonTransactions { get; set; }
     }
 }
