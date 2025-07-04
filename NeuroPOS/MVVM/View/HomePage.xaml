@@ -2,7 +2,255 @@
 <ContentPage
     x:Class="NeuroPOS.MVVM.View.HomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    BackgroundColor="{StaticResource NPLightBg}">
+    <Grid ColumnDefinitions=".75*,.25*">
+        <!--  Left Column: Top Bar, Filter Bar, Product List  -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,*">
+            <!--  Top Bar: Title and Search (white background)  -->
+            <Grid
+                Grid.Row="0"
+                Padding="24,24,24,16"
+                BackgroundColor="White"
+                ColumnDefinitions="Auto,*"
+                VerticalOptions="Start">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="24"
+                    Text="NeuroPOS"
+                    TextColor="{StaticResource NPPrimaryBlue}"
+                    VerticalOptions="Center" />
+                <Entry
+                    Grid.Column="1"
+                    Margin="24,0,0,0"
+                    BackgroundColor="{StaticResource NPCardBg}"
+                    FontFamily="PoppinsRegular"
+                    FontSize="16"
+                    HeightRequest="40"
+                    HorizontalOptions="Fill"
+                    Placeholder="Search products..."
+                    PlaceholderColor="{StaticResource NPTextMuted}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+            </Grid>
+            <!--  Divider below top bar  -->
+            <BoxView
+                Grid.Row="1"
+                BackgroundColor="{StaticResource NPDivider}"
+                HeightRequest="1"
+                HorizontalOptions="Fill"
+                VerticalOptions="End" />
+            <!--  Everything below top bar: filter bar + product list, all with NPDivider background  -->
+            <Grid
+                Grid.Row="2"
+                Padding="0,0,0,0"
+                BackgroundColor="{StaticResource NPLightBg}"
+                RowDefinitions="Auto,*">
+                <!--  Filter Bar  -->
+                <HorizontalStackLayout
+                    Grid.Row="0"
+                    Margin="0,10,0,0"
+                    Padding="24,0,24,0"
+                    Spacing="8">
+                    <Border
+                        Padding="12,4"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        Stroke="{StaticResource NPDivider}"
+                        StrokeThickness="1">
+                        <Label
+                            StyleClass="NormalText"
+                            Text="All"
+                            TextColor="{StaticResource NPPrimaryBlue}" />
+                    </Border>
+                    <Border
+                        Padding="12,4"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        Stroke="{StaticResource NPDivider}"
+                        StrokeThickness="1">
+                        <Label
+                            StyleClass="NormalText"
+                            Text="Fruits"
+                            TextColor="{StaticResource NPTextMain}" />
+                    </Border>
+                    <Border
+                        Padding="12,4"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        Stroke="{StaticResource NPDivider}"
+                        StrokeThickness="1">
+                        <Label
+                            StyleClass="NormalText"
+                            Text="Beverages"
+                            TextColor="{StaticResource NPTextMain}" />
+                    </Border>
+                    <Border
+                        Padding="12,4"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        Stroke="{StaticResource NPDivider}"
+                        StrokeThickness="1">
+                        <Label
+                            StyleClass="NormalText"
+                            Text="Snacks"
+                            TextColor="{StaticResource NPTextMain}" />
+                    </Border>
+                </HorizontalStackLayout>
+                <!--  Product CollectionView  -->
+                <syncfusion:SfListView
+                    x:Name="ProductListView"
+                    Grid.Row="1"
+                    Margin="24,10,24,0"
+                    AutoFitMode="Height"
+                    ItemSize="250"
+                    ItemSpacing="16"
+                    ItemTemplate="{StaticResource MainTemplate}"
+                    ItemsSource="{Binding Products}"
+                    Orientation="Vertical">
 
-    <Grid ColumnDefinitions=".75*,.25*" />
+                    <syncfusion:SfListView.ItemsLayout>
+                        <syncfusion:GridLayout SpanCount="3" />
+                    </syncfusion:SfListView.ItemsLayout>
+                </syncfusion:SfListView>
+
+
+            </Grid>
+        </Grid>
+        <!--  Right Column: Order Summary  -->
+        <Border
+            Grid.Column="1"
+            BackgroundColor="{StaticResource NPDivider}"
+            StrokeShape="RoundRectangle 24"
+            StrokeThickness="0">
+            <Grid Padding="0,0,0,0" RowDefinitions="Auto,4,*,4,Auto">
+                <!--  Header  -->
+                <StackLayout
+                    Grid.Row="0"
+                    Padding="24,24,24,8"
+                    BackgroundColor="{StaticResource NPDivider}"
+                    Spacing="2">
+                    <Label
+                        StyleClass="TitleText"
+                        Text="Current Order"
+                        TextColor="{StaticResource NPTextMain}" />
+                    <Label
+                        StyleClass="SubtitleText"
+                        Text="{Binding OrderDateTime}"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                </StackLayout>
+                <!--  Divider above order items (card width)  -->
+                <BoxView
+                    Grid.Row="1"
+                    BackgroundColor="{StaticResource NPDivider}"
+                    HeightRequest="1"
+                    HorizontalOptions="Center"
+                    WidthRequest="320" />
+                <!--  Order Items Card  -->
+                <Border
+                    Grid.Row="2"
+                    Margin="24,0,24,0"
+                    Padding="0,8,0,8"
+                    BackgroundColor="White"
+                    StrokeShape="RoundRectangle 18"
+                    StrokeThickness="0">
+                    <CollectionView ItemsSource="{Binding CurrentOrderItems}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0,8" ColumnDefinitions="40,*,Auto">
+                                    <Image
+                                        Aspect="AspectFill"
+                                        HeightRequest="40"
+                                        Source="{Binding ImageUrl}"
+                                        WidthRequest="40" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label
+                                            StyleClass="NormalText"
+                                            Text="{Binding Name}"
+                                            TextColor="{StaticResource NPTextMain}" />
+                                        <Label
+                                            StyleClass="SubtitleText"
+                                            Text="{Binding Quantity}"
+                                            TextColor="{StaticResource NPTextSecondary}" />
+                                        <Label
+                                            StyleClass="SubtitleText"
+                                            Text="{Binding Price, StringFormat='${0:C}'}"
+                                            TextColor="{StaticResource NPTextSecondary}" />
+                                    </VerticalStackLayout>
+                                    <Label
+                                        Grid.Column="2"
+                                        StyleClass="NormalText"
+                                        Text="{Binding Total, StringFormat='${0:C}'}"
+                                        TextColor="{StaticResource NPTextMain}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
+                <!--  Divider below order items (card width)  -->
+                <BoxView
+                    Grid.Row="3"
+                    BackgroundColor="{StaticResource NPDivider}"
+                    HeightRequest="1"
+                    HorizontalOptions="Center"
+                    WidthRequest="320" />
+                <!--  Summary and Action Buttons (panel background)  -->
+                <StackLayout
+                    Grid.Row="4"
+                    Padding="24,16,24,16"
+                    BackgroundColor="{StaticResource NPDivider}">
+                    <Grid RowDefinitions="Auto,Auto,Auto">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Label
+                            StyleClass="NormalText"
+                            Text="Subtotal"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Label
+                            Grid.Column="1"
+                            StyleClass="NormalText"
+                            Text="{Binding Subtotal, StringFormat='${0:F2}'}"
+                            TextColor="{StaticResource NPTextMain}" />
+                        <Label
+                            Grid.Row="1"
+                            StyleClass="NormalText"
+                            Text="Tax (5%)"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            StyleClass="NormalText"
+                            Text="{Binding Tax, StringFormat='${0:F2}'}"
+                            TextColor="{StaticResource NPTextMain}" />
+                        <Label
+                            Grid.Row="2"
+                            StyleClass="TitleText"
+                            Text="Total"
+                            TextColor="{StaticResource NPTextMain}" />
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            StyleClass="TitleText"
+                            Text="{Binding Total, StringFormat='${0:F2}'}"
+                            TextColor="{StaticResource NPPrimaryBlue}" />
+                    </Grid>
+                    <HorizontalStackLayout Margin="0,16,0,0" Spacing="12">
+                        <Button
+                            BackgroundColor="{StaticResource NPTextMain}"
+                            CornerRadius="8"
+                            FontFamily="PoppinsBold"
+                            HeightRequest="48"
+                            Text="Cash"
+                            TextColor="White" />
+                        <Button
+                            BackgroundColor="{StaticResource NPAccentYellow}"
+                            CornerRadius="8"
+                            FontFamily="PoppinsBold"
+                            HeightRequest="48"
+                            Text="On Tab"
+                            TextColor="White" />
+                    </HorizontalStackLayout>
+                </StackLayout>
+            </Grid>
+        </Border>
+    </Grid>
 </ContentPage>

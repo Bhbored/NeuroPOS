@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <DataTemplate x:Key="MainTemplate">
+        <Border
+            Margin="8"
+            Padding="0"
+            Stroke="{StaticResource NPDivider}"
+            StyleClass="CardStyle">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16" />
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="4">
+                <Border
+                    Padding="0"
+                    BackgroundColor="Transparent"
+                    Stroke="{StaticResource Gray100}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="2">
+                    <Image
+                        Aspect="AspectFill"
+                        HeightRequest="140"
+                        Source="{Binding ImageUrl}"
+                        WidthRequest="140" />
+                </Border>
+
+
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="TitleText"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="SubtitleText"
+                    Text="{Binding Price, StringFormat='${0:F2}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="NormalText"
+                    Text="{Binding Stock}"
+                    TextColor="{Binding Stock}" />
+            </VerticalStackLayout>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

@@ -1,5 +1,6 @@
 ﻿using NeuroPOS.Data;
 using NeuroPOS.MVVM.Model;
+using Syncfusion.Licensing;
 using Contact = NeuroPOS.MVVM.Model.Contact;
 
 namespace NeuroPOS
@@ -21,6 +22,7 @@ namespace NeuroPOS
             BaseRepository<Transaction> _transaction, BaseRepository<Order> _order )
         {
             InitializeComponent();
+            SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXlceHRTQ2ZYWUN/XkFWYEk=");
             CartRepo = _cart;
             CashRegisterRepo = _cashregister;
             CategoryRepo = _category;

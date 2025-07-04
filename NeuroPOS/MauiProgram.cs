@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NeuroPOS.Data;
 using NeuroPOS.MVVM.Model;
+using Syncfusion.Maui.Core.Hosting;
 using Contact = NeuroPOS.MVVM.Model.Contact;
 
 namespace NeuroPOS
@@ -14,10 +15,9 @@ namespace NeuroPOS
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
+                .ConfigureSyncfusionCore()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     fonts.AddFont("Poppins-Regular.ttf", "PoppinsRegular");
                     fonts.AddFont("Poppins-Bold.ttf", "PoppinsBold");
                 });
