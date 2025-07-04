@@ -8,5 +8,6 @@ public partial class HomePage : ContentPage
 		InitializeComponent();
 
         BindingContext = new HomeVM();
+        this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
     }
 }

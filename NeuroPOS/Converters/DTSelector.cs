@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NeuroPOS.MVVM.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,14 @@ namespace NeuroPOS.Converters
     {
         protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
         {
-            throw new NotImplementedException();
+            if (item is not Product product)
+                return null;
+
+            var key = product == null ? "NoProductsTemplate" : "MainTemplate";
+
+            Application.Current.Resources.TryGetValue(key, out var template);
+            return template as DataTemplate;
+
         }
     }
 }

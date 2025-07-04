@@ -3,8 +3,13 @@
     x:Class="NeuroPOS.MVVM.View.HomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:DataTemplates="clr-namespace:NeuroPOS.Converters"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
     BackgroundColor="{StaticResource NPLightBg}">
+    <ContentPage.Resources>
+        <DataTemplates:DTSelector x:Key="TemplateSelector" />
+    </ContentPage.Resources>
+
     <Grid ColumnDefinitions=".75*,.25*">
         <!--  Left Column: Top Bar, Filter Bar, Product List  -->
         <Grid Grid.Column="0" RowDefinitions="Auto,*">
@@ -96,19 +101,47 @@
                 </HorizontalStackLayout>
                 <!--  Product CollectionView  -->
                 <syncfusion:SfListView
-                    x:Name="ProductListView"
+                    x:Name="listView"
                     Grid.Row="1"
                     Margin="24,10,24,0"
                     AutoFitMode="Height"
                     ItemSize="250"
                     ItemSpacing="16"
-                    ItemTemplate="{StaticResource MainTemplate}"
+                    ItemTemplate="{StaticResource TemplateSelector}"
                     ItemsSource="{Binding Products}"
-                    Orientation="Vertical">
+                    Orientation="Vertical"
+                    SelectionBackground="LightCyan"
+                    SelectionGesture="Tap"
+                    SelectionMode="Multiple">
 
                     <syncfusion:SfListView.ItemsLayout>
                         <syncfusion:GridLayout SpanCount="3" />
                     </syncfusion:SfListView.ItemsLayout>
+                    <syncfusion:SfListView.EmptyView>
+                        <VerticalStackLayout
+                            Padding="30"
+                            HorizontalOptions="Center"
+                            Spacing="12"
+                            VerticalOptions="Center">
+
+                            <!--  Placeholder animation image  -->
+                            <Image
+                                Aspect="AspectFit"
+                                Background="Transparent"
+                                BackgroundColor="Transparent"
+                                HeightRequest="160"
+                                IsAnimationPlaying="True"
+                                Source="noproduct.gif" />
+
+                            <!--  Message  -->
+                            <Label
+                                FontSize="16"
+                                HorizontalTextAlignment="Center"
+                                StyleClass="TitleText"
+                                Text="No products have been added yet."
+                                TextColor="{StaticResource NPTextSecondary}" />
+                        </VerticalStackLayout>
+                    </syncfusion:SfListView.EmptyView>
                 </syncfusion:SfListView>
 
 
@@ -151,6 +184,13 @@
                     BackgroundColor="White"
                     StrokeShape="RoundRectangle 18"
                     StrokeThickness="0">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="Black"
+                            Opacity="0.3"
+                            Radius="12"
+                            Offset="5,5" />
+                    </Border.Shadow>
                     <CollectionView ItemsSource="{Binding CurrentOrderItems}" SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
@@ -184,13 +224,6 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </Border>
-                <!--  Divider below order items (card width)  -->
-                <BoxView
-                    Grid.Row="3"
-                    BackgroundColor="{StaticResource NPDivider}"
-                    HeightRequest="1"
-                    HorizontalOptions="Center"
-                    WidthRequest="320" />
                 <!--  Summary and Action Buttons (panel background)  -->
                 <StackLayout
                     Grid.Row="4"

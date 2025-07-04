@@ -12,14 +12,15 @@ namespace NeuroPOS.MVVM.ViewModel
     [AddINotifyPropertyChangedInterface]
     public class HomeVM
     {
+        
         public HomeVM() {
             
-        }
+    }
 
         #region Properties
 
-        public ObservableCollection<Product> Products { get; set; } = [ 
-           new() {
+        public ObservableCollection<Product> Products { get; set; } = [
+           new () {
                 Name = "Laptop",
                 Price = 999.99,
                 Stock = 10,
@@ -32,21 +33,77 @@ namespace NeuroPOS.MVVM.ViewModel
                 Stock = 50,
                 DateAdded = DateTime.Now.AddDays(-2)
             },
-            new ()
+            new()
             {
                 Name = "Keyboard",
                 Price = 45.99,
                 Stock = 30,
                 DateAdded = DateTime.Now
             },
-            new ()
+            new()
             {
                 Name = "Monitor",
                 Price = 199.99,
                 Stock = 15,
                 DateAdded = DateTime.Now.AddDays(-1)
             },
-            new ()
+            new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
+            {
+                Name = "Headphones",
+                Price = 79.99,
+                Stock = 25,
+                DateAdded = DateTime.Now.AddDays(-3)
+            },
+        new()
             {
                 Name = "Headphones",
                 Price = 79.99,
@@ -55,8 +112,12 @@ namespace NeuroPOS.MVVM.ViewModel
             }];
         #endregion
         #region Methods
-            
-    
+        public void LoadDB()
+        {
+
+        }
+
+
         #endregion
 
     }
