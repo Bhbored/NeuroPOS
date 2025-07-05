@@ -3,79 +3,112 @@ using NeuroPOS.MVVM.ViewModel;
 using Syncfusion.Maui.DataSource.Extensions;
 using Syncfusion.Maui.Inputs;
 using System.Collections.ObjectModel;
+
 namespace NeuroPOS.MVVM.View;
 
 public partial class HomePage : ContentPage
 {
-
-    SfAutocomplete editor = null;
     public HomePage()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         BindingContext = new HomeVM();
         this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
     }
 
     private void autocomplete_SelectionChanged(object sender, Syncfusion.Maui.Inputs.SelectionChangedEventArgs e)
     {
-        if (autocomplete != null && autocomplete.SelectedValue is IList<object> value)
+        try
         {
-            selectedValue.Text = value.Count.ToString();
+            if (autocomplete != null)
+            {
+                // Update selected count
+                selectedValue.Text = autocomplete.SelectedItems?.Count.ToString() ?? "0";
+
+                // Get the ViewModel
+                var vm = BindingContext as HomeVM;
+
+                // Create a new list to avoid reference issues
+                var selectedProducts = new List<object>();
+                if (autocomplete.SelectedItems != null)
+                {
+                    foreach (var item in autocomplete.SelectedItems)
+                    {
+                        if (item is Product product)
+                        {
+                            selectedProducts.Add(product);
+                        }
+                    }
+                }
+
+                // Update the selected products in ViewModel
+                vm.SelectedProducts = selectedProducts;
+
+                // Apply filtering
+                if (listView.DataSource != null)
+                {
+                    listView.DataSource.Filter = FilterProducts;
+                    listView.DataSource.RefreshFilter();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in selection changed: {ex.Message}");
+            // Optionally show an alert to the user
+            // await DisplayAlert("Error", "An error occurred while filtering products", "OK");
         }
     }
 
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        if(sender is not Border border)
+        if (sender is not Border border)
             return;
         var vm = BindingContext as HomeVM;
-        if(vm.SortState == HomeVM.SortDirectionState.Ascending)
+        if (vm.SortState == HomeVM.SortDirectionState.Ascending)
         {
             Icon.Source = "ascending.png";
         }
-        else if(vm.SortState == HomeVM.SortDirectionState.Descending)
+        else if (vm.SortState == HomeVM.SortDirectionState.Descending)
         {
             Icon.Source = "descending.png";
         }
         else { Icon.Source = ""; }
     }
 
-    private void autocomplete_SelectionChanged(object sender, EventArgs e)
-    {
-
-        editor = sender as SfAutocomplete;
-        if(listView.DataSource != null)
-        {
-            listView.DataSource.Filter = FilterProducts;
-            listView.DataSource.RefreshFilter();
-        }
-
-
-
-    }
     private bool FilterProducts(object obj)
     {
-            if (editor == null || string.IsNullOrEmpty(editor.Text))
+        try
         {
-            return true; // No filter applied
+            if (obj is not Product product)
+                return false;
+
+            var vm = BindingContext as HomeVM;
+
+            // If no items are selected, show all products
+            if (vm?.SelectedProducts == null || vm.SelectedProducts.Count == 0)
+            {
+                return true;
+            }
+
+            // Check if the product matches any of the selected items
+            foreach (var selectedItem in vm.SelectedProducts)
+            {
+                if (selectedItem is Product selectedProduct)
+                {
+                    if (product.Id == selectedProduct.Id ||
+                        product.Name.Equals(selectedProduct.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
-        var product = obj as Product;
-        List<Product> products = new List<Product>();
-        foreach (var item in autocomplete.SelectedItems)
+        catch (Exception ex)
         {
-            products.Add(item as Product);
+            Console.WriteLine($"Error in filter: {ex.Message}");
+            return true; // Default to showing the product if there's an error
         }
-        foreach (var item in products)
-        {
-            if (product.Name.ToLower().Contains(item.Name.ToLower()) || product.Id == item.Id) ;
-        return true; // Product matches the filter criteria
-
-        }
-        return false;
-        
-
-
     }
-
-   
 }
