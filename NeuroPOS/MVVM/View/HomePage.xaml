@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:DataTemplates="clr-namespace:NeuroPOS.Converters"
     xmlns:data="clr-namespace:Syncfusion.Maui.DataSource;assembly=Syncfusion.Maui.DataSource"
+    xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
     BackgroundColor="{StaticResource NPLightBg}">
     <ContentPage.Resources>
@@ -27,18 +28,40 @@
                     Text="NeuroPOS"
                     TextColor="{StaticResource NPPrimaryBlue}"
                     VerticalOptions="Center" />
-                <Entry
-                    Grid.Column="1"
-                    Margin="24,0,0,0"
-                    BackgroundColor="{StaticResource NPCardBg}"
-                    FontFamily="PoppinsRegular"
-                    FontSize="16"
-                    HeightRequest="40"
-                    HorizontalOptions="Fill"
-                    Placeholder="Search products..."
-                    PlaceholderColor="{StaticResource NPTextMuted}"
-                    TextColor="{StaticResource NPTextMain}"
-                    VerticalOptions="Center" />
+                <VerticalStackLayout Grid.Column="1">
+                    <Border
+                        Margin="24,0,0,0"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        HeightRequest="40"
+                        HorizontalOptions="Start"
+                        StrokeShape="RoundRectangle 5"
+                        VerticalOptions="Center"
+                        WidthRequest="600">
+                        <editors:SfAutocomplete
+                            x:Name="autocomplete"
+                            DisplayMemberPath="Name"
+                            EnableAutoSize="True"
+                            HighlightedTextColor="{StaticResource NPPrimaryBlue}"
+                            HighlightedTextFontAttributes="Bold"
+                            ItemsSource="{Binding Products}"
+                            MaxDropDownHeight="250"
+                            Placeholder="Search Product ..."
+                            SelectedValue="{Binding SelectedProducts, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            SelectionChanged="autocomplete_SelectionChanged"
+                            SelectionMode="Multiple"
+                            Stroke="Transparent"
+                            StyleClass="TitleText"
+                            TextHighlightMode="FirstOccurrence"
+                            TextMemberPath="Name"
+                            TokensWrapMode="Wrap" />
+                    </Border>
+                    <HorizontalStackLayout Margin="24,10,0,-20" Spacing="10">
+                        <Label StyleClass="TitleText" Text="Selected Items :" />
+                        <Label x:Name="selectedValue" StyleClass="TitleText" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
             </Grid>
             <!--  Divider below top bar  -->
             <BoxView
@@ -117,12 +140,19 @@
                         Stroke="{StaticResource NPDivider}"
                         StrokeShape="RoundRectangle 25"
                         StrokeThickness="1">
-                        <Label
-                            StyleClass="NormalText"
-                            Text="{Binding SortLabel}"
-                            TextColor="{StaticResource NPLightBg}" />
+                        <HorizontalStackLayout Spacing="5">
+                            <Image
+                                x:Name="Icon"
+                                Aspect="AspectFill"
+                                VerticalOptions="Center"
+                                WidthRequest="20" />
+                            <Label
+                                StyleClass="NormalText"
+                                Text="{Binding SortLabel}"
+                                TextColor="{StaticResource NPLightBg}" />
+                        </HorizontalStackLayout>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ToggleSortCommand}" />
+                            <TapGestureRecognizer Command="{Binding ToggleSortCommand}" Tapped="TapGestureRecognizer_Tapped" />
                         </Border.GestureRecognizers>
                     </Border>
                 </HorizontalStackLayout>
