@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <?xaml-comp compile="true" ?>
-<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters">
+    <Converters:StockConverter x:Key="StockConverter" />
     <!--  normal Template for ListView  -->
     <DataTemplate x:Key="MainTemplate">
         <Border
@@ -48,58 +52,65 @@
                 <Label
                     Margin="16,0,0,0"
                     StyleClass="NormalText"
-                    Text="{Binding Stock}"
-                    TextColor="{Binding Stock}" />
+                    Text="{Binding Stock, Converter={StaticResource StockConverter}}"
+                    TextColor="{StaticResource NPStockGreen}" />
             </VerticalStackLayout>
         </Border>
     </DataTemplate>
-    <!--  NoProductsTemplate  -->
-    <DataTemplate x:Key="NoProductsTemplate">
-        <VerticalStackLayout
-            Padding="30"
-            HorizontalOptions="Center"
-            Spacing="12"
-            VerticalOptions="Center">
+    <!--  LowStcok Template  -->
+    <DataTemplate x:Key="LowstockTemplate">
+        <Border
+            Margin="8"
+            BackgroundColor="#ca9cf7"
+            Stroke="{StaticResource NPDivider}"
+            StyleClass="CardStyle">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.3"
+                    Radius="12"
+                    Offset="5,5" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="4">
+                <Border
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Fill"
+                    Stroke="{StaticResource Gray100}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="2">
+                    <Image
+                        Aspect="AspectFit"
+                        HeightRequest="160"
+                        Source="{Binding ImageUrl}"
+                        WidthRequest="140" />
+                </Border>
 
-            <!--  Placeholder animation image  -->
-            <Image
-                Aspect="AspectFit"
-                HeightRequest="160"
-                IsAnimationPlaying="True"
-                Source="noproduct.gif" />
 
-            <!--  Message  -->
-            <Label
-                FontSize="16"
-                HorizontalTextAlignment="Center"
-                StyleClass="TitleText"
-                Text="No products have been added yet."
-                TextColor="{StaticResource NPTextSecondary}" />
-        </VerticalStackLayout>
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="TitleText"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="SubtitleText"
+                    Text="{Binding Price, StringFormat='${0:F2}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="NormalText"
+                    Text="{Binding Stock, Converter={StaticResource StockConverter}}"
+                    TextColor="{StaticResource NPStockRed}" />
+            </VerticalStackLayout>
+        </Border>
     </DataTemplate>
-    <!--  NoItemsFoundTemplate  -->
-    <DataTemplate x:Key="NoItemsFoundTemplate">
-        <VerticalStackLayout
-            Padding="30"
-            HorizontalOptions="Center"
-            Spacing="12"
-            VerticalOptions="Center">
 
-            <!--  Search failure animation image  -->
-            <Image
-                Aspect="AspectFit"
-                HeightRequest="160"
-                Source="no_results.png" />
-
-            <!--  Message  -->
-            <Label
-                FontFamily="PoppinsMedium"
-                FontSize="16"
-                HorizontalTextAlignment="Center"
-                Text="No items match your search."
-                TextColor="{StaticResource NPTextMuted}" />
-        </VerticalStackLayout>
-    </DataTemplate>
 
 
 

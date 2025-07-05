@@ -14,7 +14,7 @@ namespace NeuroPOS.Converters
             if (item is not Product product)
                 return null;
 
-            var key = product == null ? "NoProductsTemplate" : "MainTemplate";
+            var key = product.Stock<=5 ? "LowstockTemplate" : "MainTemplate";
 
             Application.Current.Resources.TryGetValue(key, out var template);
             return template as DataTemplate;

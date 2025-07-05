@@ -105,6 +105,7 @@
                     Grid.Row="1"
                     Margin="24,10,24,0"
                     AutoFitMode="Height"
+                    EnableFadeOnScroll="True"
                     ItemSize="250"
                     ItemSpacing="16"
                     ItemTemplate="{StaticResource TemplateSelector}"

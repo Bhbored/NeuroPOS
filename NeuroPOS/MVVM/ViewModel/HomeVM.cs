@@ -37,7 +37,7 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 Name = "Keyboard",
                 Price = 45.99,
-                Stock = 30,
+                Stock = 5,
                 DateAdded = DateTime.Now
             },
             new()
@@ -51,7 +51,7 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 Name = "Headphones",
                 Price = 79.99,
-                Stock = 25,
+                Stock = 3,
                 DateAdded = DateTime.Now.AddDays(-3)
             },
         new()
