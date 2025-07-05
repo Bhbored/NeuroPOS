@@ -61,7 +61,7 @@
     <DataTemplate x:Key="LowstockTemplate">
         <Border
             Margin="8"
-            BackgroundColor="#ca9cf7"
+            BackgroundColor="#FBEAEA"
             Stroke="{StaticResource NPDivider}"
             StyleClass="CardStyle">
             <Border.StrokeShape>
