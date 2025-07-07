@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeuroPOS.MVVM.Popups.DatePickerPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:picker="clr-namespace:Syncfusion.Maui.Picker;assembly=Syncfusion.Maui.Picker"
+    BackgroundColor="{StaticResource NPCardBg}">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="18">
+            <Label
+                FontAttributes="Bold"
+                FontSize="20"
+                HorizontalOptions="Center"
+                StyleClass="TitleText"
+                Text="Select Date &amp; Time Range" />
+            <!--  Start Date & Time  -->
+            <Label StyleClass="SubtitleText" Text="Start Date &amp; Time" />
+            <picker:SfDateTimePicker WidthRequest="260" />
+            <Label
+                FontSize="13"
+                Text="No start selected"
+                TextColor="{StaticResource NPTextSecondary}" />
+            <!--  End Date & Time  -->
+            <Label StyleClass="SubtitleText" Text="End Date &amp; Time" />
+            <picker:SfDateTimePicker WidthRequest="260" />
+            <Label
+                FontSize="13"
+                Text="No end selected"
+                TextColor="{StaticResource NPTextSecondary}" />
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="16">
+                <Button
+                    BackgroundColor="{StaticResource NPTextMutedBrush}"
+                    Text="Cancel"
+                    TextColor="White"
+                    WidthRequest="100" />
+                <Button
+                    BackgroundColor="{StaticResource NPPrimaryBlueBrush}"
+                    Text="Apply Filter"
+                    TextColor="White"
+                    WidthRequest="140" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

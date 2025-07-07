@@ -25,7 +25,7 @@ namespace NeuroPOS.MVVM.Model
         #region Ignore Properties
 
         [Ignore]
-        public string Icon => TransactionType == "buy" ? "redcart.png" : "greencart.png";
+        public string Icon => TransactionType == "Buy" ? "redcart.png" : "greencart.png";
 
         [Ignore]
         public string HumanDate { get => Date.Humanize(); }

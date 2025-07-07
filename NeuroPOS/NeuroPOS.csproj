@@ -67,6 +67,8 @@
 		<PackageReference Include="Syncfusion.Maui.DataGrid" Version="30.1.38" />
 		<PackageReference Include="Syncfusion.Maui.Inputs" Version="30.1.38" />
 		<PackageReference Include="Syncfusion.Maui.ListView" Version="30.1.38" />
+		<PackageReference Include="Syncfusion.Maui.Picker" Version="30.1.38" />
+		<PackageReference Include="Syncfusion.Maui.Popup" Version="30.1.38" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -80,6 +82,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="MVVM\Popups\DatePickerPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="MVVM\View\ContactsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

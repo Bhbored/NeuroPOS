@@ -1,7 +1,161 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="NeuroPOS.MVVM.View.TransactionPage"
-             Title="TransactionPage">
+<ContentPage
+    x:Class="NeuroPOS.MVVM.View.TransactionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+    BackgroundColor="{StaticResource NPLightBg}">
+    <ContentPage.Resources>
+        <Converters:TransactionTypeToColorConverter x:Key="TransactionTypeToColorConverter" />
 
+    </ContentPage.Resources>
+
+    <!--  Main background  -->
+
+
+    <VerticalStackLayout Padding="32,32,32,24" Spacing="24">
+        <!--  Title Section  -->
+        <Label
+            Margin="0,0,0,2"
+            FontSize="28"
+            StyleClass="TitleText"
+            Text="Transactions" />
+        <Label
+            Margin="0,0,0,18"
+            FontSize="16"
+            StyleClass="SubtitleText"
+            Text="View and manage all transactions" />
+
+        <!--  Floating Filter Bar  -->
+        <Border
+            Margin="0,0,0,10"
+            Padding="18,10"
+            BackgroundColor="White"
+            StrokeShape="RoundRectangle 16">
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.10"
+                    Radius="10"
+                    Offset="0,2" />
+            </Border.Shadow>
+            <HorizontalStackLayout Spacing="12">
+                <Entry
+                    BackgroundColor="{StaticResource NPLightBg}"
+                    HeightRequest="36"
+                    HorizontalOptions="Fill"
+                    Placeholder="Search transactions..." />
+                <Button
+                    Padding="16,0"
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="36"
+                    Text="Date Range"
+                    TextColor="White" />
+                <Button
+                    Padding="16,0"
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="36"
+                    Text="Status"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!--  Card with shadow for DataGrid  -->
+        <Border
+            Padding="0,0,0,10"
+            BackgroundColor="{StaticResource NPCardBg}"
+            HeightRequest="500"
+            StrokeThickness="1"
+            StyleClass="CardStyle">
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.15"
+                    Radius="16"
+                    Offset="0,4" />
+            </Border.Shadow>
+            <VerticalStackLayout>
+                <!--  DataGrid Section  -->
+                <syncfusion:SfDataGrid
+                    x:Name="TransactionDataGrid"
+                    Margin="15,10,15,0"
+                    AutoGenerateColumnsMode="None"
+                    BackgroundColor="{StaticResource NPCardBg}"
+                    ColumnWidthMode="Fill"
+                    GridLinesVisibility="Horizontal"
+                    HeaderGridLinesVisibility="Horizontal"
+                    HeaderRowHeight="44"
+                    ItemsSource="{Binding FilteredTransactions}"
+                    RowHeight="48"
+                    SelectionMode="None">
+                    <syncfusion:SfDataGrid.Columns>
+                        <!--  Transaction ID  -->
+                        <syncfusion:DataGridTextColumn HeaderText="TRANSACTION ID" MappingName="Id" />
+                        <!--  Transaction Type with colored background  -->
+                        <syncfusion:DataGridTemplateColumn HeaderText="TYPE" MappingName="TransactionType">
+                            <syncfusion:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Padding="6,2"
+                                        BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeToColorConverter}}"
+                                        HeightRequest="30"
+                                        StrokeShape="RoundRectangle 10"
+                                        WidthRequest="90">
+                                        <Label
+                                            FontSize="13"
+                                            HorizontalOptions="Center"
+                                            StyleClass="SubtitleText"
+                                            Text="{Binding TransactionType}"
+                                            TextColor="White"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </syncfusion:DataGridTemplateColumn.CellTemplate>
+                        </syncfusion:DataGridTemplateColumn>
+                        <!--  Date  -->
+                        <syncfusion:DataGridTextColumn HeaderText="DATE" MappingName="FormattedDate" />
+                        <!--  Time  -->
+                        <syncfusion:DataGridTextColumn HeaderText="TIME" MappingName="FormattedTime" />
+                        <!--  Items  -->
+                        <syncfusion:DataGridNumericColumn
+                            Format="N0"
+                            HeaderText="ITEMS"
+                            MappingName="ItemCount" />
+                        <!--  Total Amount  -->
+                        <syncfusion:DataGridNumericColumn
+                            Format="C2"
+                            HeaderText="TOTAL AMOUNT"
+                            MappingName="TotalAmount" />
+                        <!--  Status  -->
+                        <syncfusion:DataGridTemplateColumn HeaderText="STATUS" MappingName="Status">
+                            <syncfusion:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Padding="6,2"
+                                        BackgroundColor="LightGreen"
+                                        HeightRequest="30"
+                                        StrokeShape="RoundRectangle 5"
+                                        WidthRequest="150">
+                                        <Label
+                                            FontSize="13"
+                                            HorizontalOptions="Center"
+                                            StyleClass="SubtitleText"
+                                            Text="{Binding Status}"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                </DataTemplate>
+                            </syncfusion:DataGridTemplateColumn.CellTemplate>
+                        </syncfusion:DataGridTemplateColumn>
+                        <!--  View Details Button  -->
+                        <syncfusion:DataGridTemplateColumn HeaderText=" " />
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
 </ContentPage>

@@ -15,6 +15,7 @@ public partial class HomePage : ContentPage
         this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
     }
 
+    #region filering logic
     private void autocomplete_SelectionChanged(object sender, Syncfusion.Maui.Inputs.SelectionChangedEventArgs e)
     {
         try
@@ -59,22 +60,6 @@ public partial class HomePage : ContentPage
         }
     }
 
-    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-    {
-        if (sender is not Border border)
-            return;
-        var vm = BindingContext as HomeVM;
-        if (vm.SortState == HomeVM.SortDirectionState.Ascending)
-        {
-            Icon.Source = "ascending.png";
-        }
-        else if (vm.SortState == HomeVM.SortDirectionState.Descending)
-        {
-            Icon.Source = "descending.png";
-        }
-        else { Icon.Source = ""; }
-    }
-
     private bool FilterProducts(object obj)
     {
         try
@@ -111,4 +96,24 @@ public partial class HomePage : ContentPage
             return true; // Default to showing the product if there's an error
         }
     }
+    #endregion
+
+
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e) //dynamic Icon
+    {
+        if (sender is not Border border)
+            return;
+        var vm = BindingContext as HomeVM;
+        if (vm.SortState == HomeVM.SortDirectionState.Ascending)
+        {
+            Icon.Source = "ascending.png";
+        }
+        else if (vm.SortState == HomeVM.SortDirectionState.Descending)
+        {
+            Icon.Source = "descending.png";
+        }
+        else { Icon.Source = ""; }
+    }
+
+    
 }
