@@ -61,7 +61,10 @@ namespace NeuroPOS.MVVM.ViewModel
             new Product() { Id = 25, Name = "Tablet Stand", Price = 19.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-2) }
         };
 
-        public DataSource DataSource { get; set; }
+        public DataSource DataSource { get; set; } = new DataSource()
+        {
+            Source = new ObservableCollection<Product>()
+        };
 
         private SortDirectionState _sortState = SortDirectionState.None;
         public SortDirectionState SortState

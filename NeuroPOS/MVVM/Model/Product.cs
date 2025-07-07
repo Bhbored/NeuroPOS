@@ -18,19 +18,6 @@ namespace NeuroPOS.MVVM.Model
         public double Price { get; set; }
         public int Stock { get; set; }
         public DateTime DateAdded { get; set; }
-
-        [Ignore]
-        public string FormattedDate => DateAdded.ToString("dd/MM/yyyy");
-        public string ImageUrl
-        {
-            get => string.IsNullOrWhiteSpace(imageUrl) ? "emptyproduct.png" : imageUrl;
-            set => imageUrl = value;
-        }
-
-
-        [ForeignKey(typeof(Category))]
-        public int? CategoryId { get; set; }  // Keep this if you want to do queries based on the ID
-
         public string CategoryName
         {
             get
@@ -39,17 +26,35 @@ namespace NeuroPOS.MVVM.Model
             }
         }
 
+
+        #region Fields
+
+        private string imageUrl;
+        #endregion
+
+        #region Ignore Properties
+        [Ignore]
+        public string FormattedDate => DateAdded.ToString("dd/MM/yyyy");
+     
+        [Ignore]
+        public string ImageUrl
+        {
+            get => string.IsNullOrWhiteSpace(imageUrl) ? "emptyproduct.png" : imageUrl;
+            set => imageUrl = value;
+        }
+
+        #endregion
+
+        #region foreign keys
+        [ForeignKey(typeof(Category))]
+        public int? CategoryId { get; set; }  // Keep this if you want to do queries based on the ID
+
         [ForeignKey(typeof(Transaction))]
         public int? TransactionId { get; set; }
 
         [ForeignKey(typeof(Cart))]
         public int? CartId { get; set; }
-
-
-
-
-
-        private string imageUrl;
+        #endregion
     }
 
 }
