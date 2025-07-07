@@ -1,4 +1,5 @@
 ﻿using Humanizer;
+using PropertyChanged;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
 using System;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace NeuroPOS.MVVM.Model
 {
+    [AddINotifyPropertyChangedInterface]
     public class Transaction : Entity
     {
         public DateTime Date { get; set; }

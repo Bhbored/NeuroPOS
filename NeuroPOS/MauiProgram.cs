@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using NeuroPOS.Data;
 using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.ViewModel;
 using Syncfusion.Maui.Core.Hosting;
 using Contact = NeuroPOS.MVVM.Model.Contact;
 
@@ -33,6 +34,9 @@ namespace NeuroPOS
             builder.Services.AddSingleton<BaseRepository<Product>>();
             builder.Services.AddSingleton<BaseRepository<Transaction>>();
             builder.Services.AddSingleton<BaseRepository<Order>>();
+            builder.Services.AddSingleton<HomeVM>();
+            builder.Services.AddSingleton<TransactionVM>();
+            builder.Services.AddSingleton<InventoryVM>();
             return builder.Build();
         }
     }

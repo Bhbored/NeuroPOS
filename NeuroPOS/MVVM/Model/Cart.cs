@@ -1,32 +1,42 @@
 ﻿using SQLite;
 using SQLiteNetExtensions.Attributes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NeuroPOS.MVVM.Model
 {
-    public class Cart :Entity
+    public class Cart : Entity
     {
-       
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product>? Products { get; set; }
-        public bool Confirmed { get; set; } // Indicates if the cart has been confirmed for checkout
+        public List<Product>? Products { get; set; } = new List<Product>();
+        public bool Confirmed { get; set; }
 
-        public double Subtotal { get; set; }
-        public double Tax { get; set; } = 0; // Total tax applied to the cart
-        public double Discount { get; set; } // Total discount applied to the cart
-        public double Total { get; set; } // Total amount after applying discounts or taxes
+       
+        public double Subtotal => Products?.Sum(p => p.Price * p.Stock) ?? 0;
+        public double Tax
+        {
+            get => tax;
+            set => tax = value >= 0 ? value : 0;
+        }
+
+        public double Discount
+        {
+            get => discount;
+            set => discount = value >= 0 ? value : 0;
+        }
+        public double Total => Subtotal + Tax - Discount;
 
         [OneToOne(CascadeOperations = CascadeOperation.All)]
-        public Transaction? Transaction { get; set; } // Associated transaction for the cart
+        public Transaction? Transaction { get; set; }
 
+        #region Foreign Keys
         [ForeignKey(typeof(Order))]
         public int OrderId { get; set; }
+        #endregion
 
-
-
+        #region Private Fields
+        private double tax;
+        private double discount;
+        #endregion
     }
 }

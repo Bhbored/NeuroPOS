@@ -4,9 +4,9 @@ namespace NeuroPOS.MVVM.View;
 
 public partial class TransactionPage : ContentPage
 {
-	public TransactionPage()
+	public TransactionPage(TransactionVM vm)
 	{
 		InitializeComponent();
-		BindingContext = new TransactionVM();
+		BindingContext = vm;
 	}
 }

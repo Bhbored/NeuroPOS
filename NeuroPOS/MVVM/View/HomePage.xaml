@@ -4,9 +4,12 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:DataTemplates="clr-namespace:NeuroPOS.Converters"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
     xmlns:data="clr-namespace:Syncfusion.Maui.DataSource;assembly=Syncfusion.Maui.DataSource"
     xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    x:DataType="VM:HomeVM"
     BackgroundColor="{StaticResource NPLightBg}">
     <ContentPage.Resources>
         <DataTemplates:DTSelector x:Key="TemplateSelector" />
@@ -32,11 +35,9 @@
                     <Border
                         Margin="24,0,0,0"
                         BackgroundColor="{StaticResource NPCardBg}"
-                        HeightRequest="40"
-                        HorizontalOptions="Start"
+                        HorizontalOptions="Fill"
                         StrokeShape="RoundRectangle 5"
-                        VerticalOptions="Center"
-                        WidthRequest="600">
+                        VerticalOptions="Start">
                         <editors:SfAutocomplete
                             x:Name="autocomplete"
                             DisplayMemberPath="Name"
@@ -54,7 +55,8 @@
                             StyleClass="TitleText"
                             TextHighlightMode="FirstOccurrence"
                             TextMemberPath="Name"
-                            TokensWrapMode="Wrap" />
+                            TokensWrapMode="Wrap"
+                            VerticalOptions="Start" />
                     </Border>
                     <HorizontalStackLayout Margin="24,10,0,-20" Spacing="10">
                         <Label StyleClass="TitleText" Text="Selected Items :" />
@@ -170,7 +172,8 @@
                     ItemTemplate="{StaticResource TemplateSelector}"
                     ItemsSource="{Binding DataSource.DisplayItems}"
                     Orientation="Vertical"
-                    SelectionBackground="Transparent"
+                    SelectedItems="{Binding SelectedItems}"
+                    SelectionBackground="Red"
                     SelectionGesture="Tap"
                     SelectionMode="Multiple">
                     <syncfusion:SfListView.ItemsLayout>

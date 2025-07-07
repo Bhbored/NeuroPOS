@@ -8,11 +8,12 @@ namespace NeuroPOS.MVVM.View;
 
 public partial class HomePage : ContentPage
 {
-    public HomePage()
+    public HomePage(HomeVM vm)
     {
         InitializeComponent();
-        BindingContext = new HomeVM();
+        BindingContext = vm;
         this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
+        vm.SelectedItems.Clear();//intially clear selected items
     }
 
     #region filering logic
@@ -98,8 +99,8 @@ public partial class HomePage : ContentPage
     }
     #endregion
 
-
-    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e) //dynamic Icon
+    //dynamic Icon
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e) 
     {
         if (sender is not Border border)
             return;
@@ -115,5 +116,5 @@ public partial class HomePage : ContentPage
         else { Icon.Source = ""; }
     }
 
-    
+
 }

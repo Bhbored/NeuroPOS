@@ -13,29 +13,31 @@ namespace NeuroPOS.MVVM.Model
     [AddINotifyPropertyChangedInterface]
     public class Product : Entity
     {
-      
+
         public string Name { get; set; }
         public double Price { get; set; }
         public int Stock { get; set; }
         public DateTime DateAdded { get; set; }
+  
+
         public string CategoryName
         {
-            get
-            {
-                return CategoryName ?? "Uncategorized";
-            }
+            get => string.IsNullOrWhiteSpace(categoryName) ? "Uncategorized" : categoryName;
+            set => categoryName = value;
         }
+
 
 
         #region Fields
 
         private string imageUrl;
+        private string categoryName;
         #endregion
 
         #region Ignore Properties
         [Ignore]
         public string FormattedDate => DateAdded.ToString("dd/MM/yyyy");
-     
+
         [Ignore]
         public string ImageUrl
         {

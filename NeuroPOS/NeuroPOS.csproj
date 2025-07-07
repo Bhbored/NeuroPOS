@@ -64,6 +64,7 @@
 		<PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
 		<PackageReference Include="SQLiteNetExtensions.Async" Version="2.1.0" />
 		<PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="2.1.11" />
+		<PackageReference Include="Syncfusion.Maui.Core" Version="30.1.38" />
 		<PackageReference Include="Syncfusion.Maui.DataGrid" Version="30.1.38" />
 		<PackageReference Include="Syncfusion.Maui.Inputs" Version="30.1.38" />
 		<PackageReference Include="Syncfusion.Maui.ListView" Version="30.1.38" />
@@ -76,12 +77,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="MVVM\Controls\CurrentDate.xaml.cs">
+	    <DependentUpon>CurrentDate.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="MVVM\View\InventoryPage.xaml.cs">
 	    <DependentUpon>InventoryPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="MVVM\Controls\CurrentDate.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="MVVM\Popups\DatePickerPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

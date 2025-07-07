@@ -16,7 +16,7 @@ namespace NeuroPOS.MVVM.ViewModel
     {
         public HomeVM()
         {
-            _ = SortProduct();
+          SortProduct();
         }
 
         #region Enums
@@ -31,6 +31,7 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Properties
+        public ObservableCollection<object> SelectedItems { get; set; } = [];
         public IList<object> SelectedProducts { get; set; } = [];
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>
         {
@@ -139,12 +140,11 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #region Tasks
 
-        public async Task SortProduct()
+        public void SortProduct()
         {
             DataSource = new DataSource() { Source = Products };
             DataSource.Refresh();
-            await Task.Delay(10000);
-            DataSource.Refresh();
+
         }
         #endregion
     }
