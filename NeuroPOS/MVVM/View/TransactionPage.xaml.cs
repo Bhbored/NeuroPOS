@@ -1,3 +1,4 @@
+using NeuroPOS.MVVM.Popups;
 using NeuroPOS.MVVM.ViewModel;
 
 namespace NeuroPOS.MVVM.View;
@@ -9,4 +10,6 @@ public partial class TransactionPage : ContentPage
 		InitializeComponent();
 		BindingContext = vm;
 	}
+
+  
 }

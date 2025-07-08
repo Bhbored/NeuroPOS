@@ -8,10 +8,19 @@ using NeuroPOS.MVVM.Model;
 
 namespace NeuroPOS.MVVM.ViewModel
 {
+
+    
     public class InventoryVM
     {
-        // Test data for InventoryPage
-        public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>
+
+        public ObservableCollection<Product> Products { get; set; } = [];
+        public InventoryVM()
+        {
+            LoadData();
+        }
+        public ObservableCollection<Product> LoadData()
+        {
+             Products = new ObservableCollection<Product>
         {
             new Product { Name = "Organic Apples", Price = 1.99, Stock = 150, DateAdded = DateTime.Now.AddDays(-10), CategoryName = "Produce" },
             new Product { Name = "Whole Wheat Bread", Price = 3.49, Stock = 75, DateAdded = DateTime.Now.AddDays(-8), CategoryName = "Bakery" },
@@ -19,5 +28,8 @@ namespace NeuroPOS.MVVM.ViewModel
             new Product { Name = "Ground Beef", Price = 5.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-4), CategoryName = "Meat" },
             new Product { Name = "Salmon Fillet", Price = 9.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-2), CategoryName = "Seafood" },
         };
+            return Products;
+        }
+      
     }
 }

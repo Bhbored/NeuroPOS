@@ -6,7 +6,8 @@
     xmlns:local="clr-namespace:NeuroPOS.MVVM.Model"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
     BackgroundColor="{StaticResource NPLightBg}">
-    <VerticalStackLayout Padding="0,0,0,0" Spacing="0">
+
+    <VerticalStackLayout Padding="0" Spacing="0">
         <!--  Page Title and Description  -->
         <Label
             Margin="32,32,0,0"
@@ -20,13 +21,9 @@
         <!--  Search and Action Bar  -->
         <HorizontalStackLayout Margin="32,0,32,0" Spacing="12">
             <Border
-                BackgroundColor="White"
                 HeightRequest="44"
                 HorizontalOptions="Fill"
-                Stroke="{StaticResource NPDivider}"
-                StrokeThickness="1"
-                StyleClass="CardStyle"
-                VerticalOptions="Center">
+                StyleClass="CardStyle">
                 <HorizontalStackLayout Padding="12,0" Spacing="8">
                     <Image
                         HeightRequest="20"
@@ -42,14 +39,12 @@
                 </HorizontalStackLayout>
             </Border>
             <Button
-                BackgroundColor="White"
                 HeightRequest="44"
                 StyleClass="CardStyle"
                 Text="Filter"
                 TextColor="{StaticResource NPTextMain}"
                 WidthRequest="60" />
             <Button
-                BackgroundColor="White"
                 HeightRequest="44"
                 StyleClass="CardStyle"
                 Text="Sort"
@@ -57,7 +52,7 @@
                 WidthRequest="60" />
         </HorizontalStackLayout>
 
-        <!--  Add Product / Category Buttons  -->
+        <!--  Add Product/Category Buttons  -->
         <HorizontalStackLayout
             Margin="32,18,32,0"
             HorizontalOptions="End"
@@ -71,7 +66,6 @@
                 TextColor="White"
                 WidthRequest="140" />
             <Button
-                BackgroundColor="White"
                 HeightRequest="44"
                 StyleClass="CardStyle"
                 Text="Add Category"
@@ -79,45 +73,36 @@
                 WidthRequest="130" />
         </HorizontalStackLayout>
 
-        <!--  DataGrid Card  -->
-        <Border
-            Margin="32,24,32,0"
-            Padding="0"
-            BackgroundColor="{StaticResource NPCardBg}"
-            StrokeThickness="1"
-            StyleClass="CardStyle">
-            <Border.Shadow>
-                <Shadow
-                    Brush="Black"
-                    Opacity="0.08"
-                    Radius="12"
-                    Offset="0,2" />
-            </Border.Shadow>
+        <!--  DataGrid  -->
+        <Border Margin="32,24,32,0" StyleClass="CardStyle">
             <syncfusion:SfDataGrid
                 x:Name="InventoryDataGrid"
                 AutoGenerateColumnsMode="None"
-                BackgroundColor="{StaticResource NPCardBg}"
                 GridLinesVisibility="None"
                 HeaderGridLinesVisibility="None"
                 HeaderRowHeight="44"
                 ItemsSource="{Binding Products}"
                 RowHeight="56"
                 SelectionMode="None">
+
                 <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:DataGridTemplateColumn Width="40" HeaderText="">
+                    <!--  Checkbox Column  -->
+                    <syncfusion:DataGridTemplateColumn Width="40">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="False" />
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
+
+                    <!--  Product Column  -->
                     <syncfusion:DataGridTemplateColumn Width="220" HeaderText="PRODUCT">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout Spacing="12">
                                     <Image
                                         HeightRequest="36"
-                                        Source="emptyproduct.png"
+                                        Source="{Binding ImageUrl}"
                                         WidthRequest="36" />
                                     <VerticalStackLayout Spacing="0">
                                         <Label
@@ -127,29 +112,27 @@
                                             TextColor="{StaticResource NPTextMain}" />
                                         <Label
                                             FontSize="13"
-                                            Text="#0000"
+                                            Text="{Binding FormattedDate}"
                                             TextColor="{StaticResource NPTextSecondary}" />
                                     </VerticalStackLayout>
                                 </HorizontalStackLayout>
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
+
+                    <!--  Category Column  -->
                     <syncfusion:DataGridTemplateColumn Width="110" HeaderText="CATEGORY">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border
-                                    Margin="0,0,0,0"
-                                    Padding="8,2"
-                                    BackgroundColor="{StaticResource NPCardBg}"
-                                    StrokeThickness="0">
-                                    <Label
-                                        FontSize="13"
-                                        Text="{Binding CategoryName}"
-                                        TextColor="{StaticResource NPTextMain}" />
-                                </Border>
+                                <Label
+                                    FontSize="13"
+                                    Text="{Binding CategoryName}"
+                                    TextColor="{StaticResource NPTextMain}" />
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
+
+                    <!--  Stock Level Column  -->
                     <syncfusion:DataGridTemplateColumn Width="140" HeaderText="STOCK LEVEL">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -166,19 +149,23 @@
                             </DataTemplate>
                         </syncfusion:DataGridTemplateColumn.CellTemplate>
                     </syncfusion:DataGridTemplateColumn>
+
+                    <!--  Price Column  -->
                     <syncfusion:DataGridTextColumn
                         Width="100"
                         HeaderText="PRICE"
                         MappingName="Price" />
-                    <syncfusion:DataGridTemplateColumn Width="80" HeaderText="">
+
+                    <!--  Actions Column  -->
+                    <syncfusion:DataGridTemplateColumn Width="80">
                         <syncfusion:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout HorizontalOptions="End" Spacing="12">
-                                    <Image
+                                    <ImageButton
                                         HeightRequest="20"
                                         Source="edit.png"
                                         WidthRequest="20" />
-                                    <Image
+                                    <ImageButton
                                         HeightRequest="20"
                                         Source="delete.png"
                                         WidthRequest="20" />
