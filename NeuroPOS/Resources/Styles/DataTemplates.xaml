@@ -3,8 +3,7 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
-    xmlns:Pages="clr-namespace:NeuroPOS.MVVM.View">
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters">
     <Converters:StockConverter x:Key="StockConverter" />
     <!--  normal Template for ListView  -->
     <DataTemplate x:Key="MainTemplate">
@@ -109,121 +108,6 @@
                     Text="{Binding Stock, Converter={StaticResource StockConverter}}"
                     TextColor="{StaticResource NPStockRed}" />
             </VerticalStackLayout>
-        </Border>
-    </DataTemplate>
-    <!--  cart Template  -->
-    <DataTemplate x:Key="CartItemTemplate">
-        <Border
-            Padding="12"
-            BackgroundColor="#F8F9FA"
-            Stroke="#E9ECEF"
-            StrokeShape="RoundRectangle 12"
-            StrokeThickness="1">
-            <Grid
-                ColumnDefinitions="60,*,Auto"
-                RowDefinitions="Auto"
-                VerticalOptions="Fill">
-                <!--  Product Image  -->
-                <Border
-                    Grid.Column="0"
-                    BackgroundColor="White"
-                    HeightRequest="60"
-                    StrokeShape="RoundRectangle 8"
-                    VerticalOptions="Start"
-                    WidthRequest="60">
-                    <Image
-                        Margin="4"
-                        Aspect="AspectFit"
-                        Source="{Binding ImageUrl}" />
-                </Border>
-
-                <!--  Product Info  -->
-                <VerticalStackLayout
-                    Grid.Column="1"
-                    Margin="12,0,8,0"
-                    Spacing="6"
-                    VerticalOptions="Fill">
-                    <Label
-                        FontFamily="PoppinsBold"
-                        FontSize="15"
-                        LineBreakMode="TailTruncation"
-                        Text="{Binding Name}"
-                        TextColor="{StaticResource NPTextMain}"
-                        VerticalOptions="Start" />
-
-                    <Label
-                        FontFamily="PoppinsBold"
-                        FontSize="14"
-                        Text="{Binding Price, StringFormat='{0:C}'}"
-                        TextColor="{StaticResource NPPrimaryBlue}"
-                        VerticalOptions="Start" />
-
-                    <!--  Quantity Controls  -->
-                    <HorizontalStackLayout
-                        Margin="0,6,0,0"
-                        Spacing="8"
-                        VerticalOptions="End">
-                        <!--  Decrease Quantity Button  -->
-                        <Button
-                            Padding="0"
-                            BackgroundColor="{StaticResource NPTextSecondary}"
-                            Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.DecrementQuantityCommand}"
-                            CommandParameter="{Binding .}"
-                            CornerRadius="12"
-                            FontFamily="PoppinsBold"
-                            FontSize="14"
-                            HeightRequest="24"
-                            Text="−"
-                            TextColor="White"
-                            WidthRequest="24" />
-                        <!--  Quantity Display  -->
-                        <Border
-                            Padding="8,4"
-                            BackgroundColor="White"
-                            MinimumWidthRequest="32"
-                            Stroke="#E0E0E0"
-                            StrokeShape="RoundRectangle 8"
-                            StrokeThickness="1">
-                            <Label
-                                FontFamily="PoppinsBold"
-                                FontSize="13"
-                                HorizontalTextAlignment="Center"
-                                Text="{Binding Stock}"
-                                TextColor="{StaticResource NPTextMain}"
-                                VerticalTextAlignment="Center" />
-                        </Border>
-                        <!--  Increase Quantity Button  -->
-                        <Button
-                            Padding="0"
-                            BackgroundColor="{StaticResource NPPrimaryBlue}"
-                            Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.IncrementQuantityCommand}"
-                            CommandParameter="{Binding .}"
-                            CornerRadius="12"
-                            FontFamily="PoppinsBold"
-                            FontSize="14"
-                            HeightRequest="24"
-                            Text="+"
-                            TextColor="White"
-                            WidthRequest="24" />
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-
-                <!--  Remove Button  -->
-                <Button
-                    Grid.Column="2"
-                    Padding="0"
-                    BackgroundColor="#FF6B6B"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.RemoveFromCartCommand}"
-                    CommandParameter="{Binding .}"
-                    CornerRadius="15"
-                    FontFamily="PoppinsBold"
-                    FontSize="18"
-                    HeightRequest="30"
-                    Text="×"
-                    TextColor="White"
-                    VerticalOptions="Start"
-                    WidthRequest="30" />
-            </Grid>
         </Border>
     </DataTemplate>
 
