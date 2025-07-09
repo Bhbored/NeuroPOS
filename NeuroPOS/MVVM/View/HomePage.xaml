@@ -3,18 +3,20 @@
     x:Class="NeuroPOS.MVVM.View.HomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:DataTemplates="clr-namespace:NeuroPOS.Converters"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
     xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
     xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
     xmlns:data="clr-namespace:Syncfusion.Maui.DataSource;assembly=Syncfusion.Maui.DataSource"
     xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    x:Name="HomePageView"
     x:DataType="VM:HomeVM"
     BackgroundColor="{StaticResource NPLightBg}">
     <ContentPage.Resources>
-        <DataTemplates:DTSelector x:Key="TemplateSelector" />
-        <DataTemplates:IntToBoolConverter x:Key="IntToBoolConverter" />
-        <DataTemplates:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter" />
+        <Converters:DTSelector x:Key="TemplateSelector" />
+        <Converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+        <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter" />
+        <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
     </ContentPage.Resources>
 
     <Grid ColumnDefinitions=".75*,.25*">
@@ -93,55 +95,18 @@
                 BackgroundColor="{StaticResource NPLightBg}"
                 ColumnDefinitions=".7*,.3*"
                 RowDefinitions="Auto,*">
-                <!--  Filter Bar  -->
-                <HorizontalStackLayout
+                <!--  Category Filter Bar (Dynamic CollectionView)  -->
+                <CollectionView
+                    x:Name="CategoriesCollectionView"
                     Grid.Row="0"
                     Grid.Column="0"
-                    Margin="0,10,0,0"
-                    Padding="24,0,24,0"
-                    Spacing="8">
-                    <Border
-                        Padding="12,4"
-                        BackgroundColor="{StaticResource NPCardBg}"
-                        Stroke="{StaticResource NPDivider}"
-                        StrokeThickness="1">
-                        <Label
-                            StyleClass="NormalText"
-                            Text="All"
-                            TextColor="{StaticResource NPPrimaryBlue}" />
-                    </Border>
-                    <Border
-                        Padding="12,4"
-                        BackgroundColor="{StaticResource NPCardBg}"
-                        Stroke="{StaticResource NPDivider}"
-                        StrokeThickness="1">
-                        <Label
-                            StyleClass="NormalText"
-                            Text="Fruits"
-                            TextColor="{StaticResource NPTextMain}" />
-                    </Border>
-                    <Border
-                        Padding="12,4"
-                        BackgroundColor="{StaticResource NPCardBg}"
-                        Stroke="{StaticResource NPDivider}"
-                        StrokeThickness="1">
-                        <Label
-                            StyleClass="NormalText"
-                            Text="Beverages"
-                            TextColor="{StaticResource NPTextMain}" />
-                    </Border>
-                    <Border
-                        Padding="12,4"
-                        BackgroundColor="{StaticResource NPCardBg}"
-                        Stroke="{StaticResource NPDivider}"
-                        StrokeThickness="1">
-                        <Label
-                            StyleClass="NormalText"
-                            Text="Snacks"
-                            TextColor="{StaticResource NPTextMain}" />
-                    </Border>
-
-                </HorizontalStackLayout>
+                    Margin="24,10,0,0"
+                    ItemTemplate="{StaticResource CategoryTemplateSelector}"
+                    ItemsSource="{Binding Categories}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
+                    </CollectionView.ItemsLayout>
+                </CollectionView>
                 <!--  sort and clear buttons  -->
                 <HorizontalStackLayout
                     Grid.Row="0"

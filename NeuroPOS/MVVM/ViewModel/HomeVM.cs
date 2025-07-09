@@ -31,6 +31,7 @@ namespace NeuroPOS.MVVM.ViewModel
             Descending
         }
 
+
         #endregion
 
         #region Properties
@@ -55,6 +56,29 @@ namespace NeuroPOS.MVVM.ViewModel
         }
         public ObservableCollection<object> SelectedItems { get; set; } = [];
         public IList<object> SelectedProducts { get; set; } = [];
+
+        private ObservableCollection<Category> _categories = new ObservableCollection<Category>
+{
+        new Category { Name = "Fruits", State = "Active Categorie" },
+        new Category { Name = "Vegetables" },
+        new Category { Name = "Drinks" },
+        new Category { Name = "Snacks" }
+    };
+
+        public ObservableCollection<Category> Categories
+        {
+            get => _categories;
+            set
+            {
+                if (_categories != value)
+                {
+                    _categories = value;
+                    OnPropertyChanged(); // This notifies the UI that Categories itself changed
+                }
+            }
+        }
+
+
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>
         {
             new Product() { Id = 1, Name = "Laptop", Price = 999.99, Stock = 10, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
@@ -103,6 +127,7 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
+
         public string SortLabel => SortState switch
         {
             SortDirectionState.Ascending => "Sort: A → Z",
@@ -137,27 +162,14 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #region Methods
 
+
         private void OnCurrentOrderItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            Console.WriteLine($"[DEBUG] OnCurrentOrderItemsChanged triggered. Action: {e.Action}");
-            Console.WriteLine($"[DEBUG] Current item count: {CurrentOrderItems.Count}");
+           
 
-            if (e.NewItems != null)
-            {
-                Console.WriteLine($"[DEBUG] New items added: {e.NewItems.Count}");
-                foreach (var item in e.NewItems)
-                {
-                    if (item is Product product)
-                    {
-                        Console.WriteLine($"[DEBUG] - Added item: {product.Name}");
-                    }
-                }
-            }
+           
 
-            if (e.OldItems != null)
-            {
-                Console.WriteLine($"[DEBUG] Old items removed: {e.OldItems.Count}");
-            }
+          
 
             // Trigger property change notifications for calculated properties
             OnPropertyChanged(nameof(Subtotal));
@@ -165,7 +177,7 @@ namespace NeuroPOS.MVVM.ViewModel
             OnPropertyChanged(nameof(Total));
             OnPropertyChanged(nameof(HasSelectedItems));
 
-            Console.WriteLine($"[DEBUG] Subtotal: {Subtotal}, Tax: {Tax}, Total: {Total}");
+            
         }
 
         public void NotifySelectionChanged()
@@ -177,8 +189,7 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-                Console.WriteLine($"[DEBUG] AddToCurrentOrder called for: {product.Name}, ID: {product.Id}, fromListViewSelection: {fromListViewSelection}");
-                Console.WriteLine($"[DEBUG] Current cart items count BEFORE: {CurrentOrderItems.Count}");
+              
 
                 // Check if product is already in the order
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
@@ -196,9 +207,9 @@ namespace NeuroPOS.MVVM.ViewModel
                         CategoryName = product.CategoryName
                     };
 
-                    Console.WriteLine($"[DEBUG] Creating new cart item: Name={newOrderItem.Name}, Price={newOrderItem.Price}, ImageUrl={newOrderItem.ImageUrl}");
+                   
                     CurrentOrderItems.Add(newOrderItem);
-                    Console.WriteLine($"[DEBUG] Added new item. Total items in order: {CurrentOrderItems.Count}");
+                    
 
                     // Only add to ListView selection if this wasn't called from ListView selection event
                     if (!fromListViewSelection && PageReference is ContentPage page)
@@ -210,14 +221,14 @@ namespace NeuroPOS.MVVM.ViewModel
                             if (originalProduct != null && !listView.SelectedItems.Contains(originalProduct))
                             {
                                 listView.SelectedItems.Add(originalProduct);
-                                Console.WriteLine($"[DEBUG] Added {product.Name} to ListView selection");
+                                
 
                                 // Update the selectedValue display (ListView selection counter only)
                                 var selectedValueLabel = page.FindByName("selectedValue") as Label;
                                 if (selectedValueLabel != null)
                                 {
                                     selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
-                                    Console.WriteLine($"[DEBUG] Updated selectedValue display to {listView.SelectedItems.Count}");
+                                   
                                 }
 
                                 // Add to SelectedItems collection for HasSelectedItems property
@@ -225,7 +236,7 @@ namespace NeuroPOS.MVVM.ViewModel
                                 {
                                     SelectedItems.Add(originalProduct);
                                     OnPropertyChanged(nameof(HasSelectedItems));
-                                    Console.WriteLine($"[DEBUG] Added to SelectedItems collection. Count: {SelectedItems.Count}");
+                                  
                                 }
                             }
                         }
@@ -238,25 +249,22 @@ namespace NeuroPOS.MVVM.ViewModel
                 {
                     // Increase quantity if already exists
                     existingItem.Stock += 1;
-                    Console.WriteLine($"[DEBUG] Increased quantity for {product.Name}. New quantity: {existingItem.Stock}");
+                   
                 }
             }
-            else
-            {
-                Console.WriteLine("[DEBUG] AddToCurrentOrder called with null product!");
-            }
+           
         }
 
         public void RemoveFromCurrentOrder(Product product)
         {
             if (product != null)
             {
-                Console.WriteLine($"[DEBUG] Removing product from order: {product.Name}");
+               
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
                     CurrentOrderItems.Remove(existingItem);
-                    Console.WriteLine($"[DEBUG] Removed item. Total items in order: {CurrentOrderItems.Count}");
+                  
 
                     // Also remove from ListView selection (prevent event recursion)
                     if (PageReference is ContentPage page)
@@ -276,7 +284,7 @@ namespace NeuroPOS.MVVM.ViewModel
                             if (originalProduct != null && listView.SelectedItems.Contains(originalProduct))
                             {
                                 listView.SelectedItems.Remove(originalProduct);
-                                Console.WriteLine($"[DEBUG] Removed {product.Name} from ListView selection");
+                               
                             }
 
                             // Update the selectedValue display (ListView selection counter only)
@@ -284,7 +292,7 @@ namespace NeuroPOS.MVVM.ViewModel
                             if (selectedValueLabel != null)
                             {
                                 selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
-                                Console.WriteLine($"[DEBUG] Updated selectedValue display to {listView.SelectedItems.Count}");
+                                
                             }
 
                             // Reconnect the selection changed event
@@ -300,7 +308,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     if (selectedProduct != null)
                     {
                         SelectedItems.Remove(selectedProduct);
-                        Console.WriteLine($"[DEBUG] Removed from SelectedItems collection");
+                      
                     }
 
                     // Notify property changes
@@ -313,12 +321,12 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-                Console.WriteLine($"[DEBUG] Incrementing quantity for: {product.Name}");
+               
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
                     existingItem.Stock += 1;
-                    Console.WriteLine($"[DEBUG] New quantity: {existingItem.Stock}");
+                   
 
                     // Trigger property change notifications for calculated properties
                     OnPropertyChanged(nameof(Subtotal));
@@ -332,12 +340,12 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-                Console.WriteLine($"[DEBUG] Decrementing quantity for: {product.Name}");
+               
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null && existingItem.Stock > 1)
                 {
                     existingItem.Stock -= 1;
-                    Console.WriteLine($"[DEBUG] New quantity: {existingItem.Stock}");
+                  
 
                     // Trigger property change notifications for calculated properties
                     OnPropertyChanged(nameof(Subtotal));
@@ -354,7 +362,7 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public void ClearAllSelections()
         {
-            Console.WriteLine("[DEBUG] Clearing all selections");
+           
 
             // Clear the ListView selections
             SelectedItems.Clear();
@@ -376,7 +384,6 @@ namespace NeuroPOS.MVVM.ViewModel
                     }
 
                     listView.SelectedItems?.Clear();
-                    Console.WriteLine("[DEBUG] Cleared ListView selection through page reference");
 
                     // Reconnect the selection changed event
                     if (homePage != null)
@@ -390,7 +397,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 if (selectedValueLabel != null)
                 {
                     selectedValueLabel.Text = "0";
-                    Console.WriteLine("[DEBUG] Updated selectedValue display to 0");
+                    
                 }
 
                 // Note: We don't clear searchFilterValue here as it's for autocomplete filtering, not ListView selection
@@ -399,7 +406,7 @@ namespace NeuroPOS.MVVM.ViewModel
             // Notify property changes
             OnPropertyChanged(nameof(HasSelectedItems));
 
-            Console.WriteLine($"[DEBUG] Selections cleared. Cart items: {CurrentOrderItems.Count}, Selected items: {SelectedItems.Count}");
+            
         }
 
         // Property to check if any items are selected (for the clear button visibility)
@@ -447,6 +454,7 @@ namespace NeuroPOS.MVVM.ViewModel
             // If SortState == None, keep it unsorted.
         }
 
+
         public void LoadDB()
         {
             // Implement DB loading here if needed
@@ -487,6 +495,24 @@ namespace NeuroPOS.MVVM.ViewModel
             ClearAllSelections();
         });
 
+        public ICommand SwitchCategoryState => new Command<string>((name) =>
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+            var selected = Categories.FirstOrDefault(c => c.Name == name);
+            if (selected == null)
+                return;
+
+            foreach (var category in Categories)
+                category.State = "Inactive Categorie";
+
+            selected.State = "Active Categorie";
+
+            // Force UI to refresh DataTemplateSelector
+            Categories = new ObservableCollection<Category>(Categories);
+        });
+
         #endregion
 
         #region Tasks
@@ -498,5 +524,8 @@ namespace NeuroPOS.MVVM.ViewModel
 
         }
         #endregion
+
+
+
     }
 }

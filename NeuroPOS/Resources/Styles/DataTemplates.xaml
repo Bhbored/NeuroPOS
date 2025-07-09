@@ -3,7 +3,8 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Converters="clr-namespace:NeuroPOS.Converters">
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:Pages="clr-namespace:NeuroPOS.MVVM.View">
     <Converters:StockConverter x:Key="StockConverter" />
     <!--  normal Template for ListView  -->
     <DataTemplate x:Key="MainTemplate">
@@ -111,7 +112,52 @@
         </Border>
     </DataTemplate>
 
+    <!--  Active Category Template  -->
+    <DataTemplate x:Key="ActiveCategoryTemplate">
+        <Border
+            Margin="4"
+            Padding="12,8"
+            BackgroundColor="{StaticResource NPPrimaryBlue}"
+            Stroke="{StaticResource NPPrimaryBlue}"
+            StrokeShape="RoundRectangle 8"
+            StrokeThickness="2">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.SwitchCategoryState}" CommandParameter="{Binding Name}" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="8">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="{Binding Name}"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Border>
+    </DataTemplate>
+    <!--  Inactive Category Template  -->
+    <DataTemplate x:Key="InactiveCategoryTemplate">
+        <Border
+            Margin="4"
+            Padding="12,8"
+            BackgroundColor="{StaticResource NPCardBg}"
+            Stroke="{StaticResource NPDivider}"
+            StrokeShape="RoundRectangle 8"
+            StrokeThickness="1">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.SwitchCategoryState}" CommandParameter="{Binding Name}" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="8">
+                <Label
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Border>
+    </DataTemplate>
 
-
+    <!--  CategoryTemplateSelector defined AFTER the templates it references  -->
+    <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
 
 </ResourceDictionary>

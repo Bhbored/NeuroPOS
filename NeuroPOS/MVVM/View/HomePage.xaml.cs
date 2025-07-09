@@ -1,4 +1,4 @@
-using NeuroPOS.MVVM.Model;
+   using NeuroPOS.MVVM.Model;
 using NeuroPOS.MVVM.ViewModel;
 using Syncfusion.Maui.DataSource.Extensions;
 using Syncfusion.Maui.Inputs;
@@ -25,19 +25,18 @@ public partial class HomePage : ContentPage
         // Store reference to this page in the ViewModel for callbacks
         vm.PageReference = this;
 
-        Console.WriteLine($"[DEBUG] HomePage initialized with separate counters");
+       
     }
 
     public void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
     {
         try
         {
-            Console.WriteLine("[DEBUG] ListView_SelectionChanged triggered");
+           
             var vm = BindingContext as HomeVM;
             if (vm != null)
             {
                 var listView = sender as Syncfusion.Maui.ListView.SfListView;
-                Console.WriteLine($"[DEBUG] ViewModel found. Current ListView SelectedItems count: {listView?.SelectedItems?.Count ?? 0}");
 
                 // Update the selected count display based on actual ListView selection (for cart)
                 selectedValue.Text = listView?.SelectedItems?.Count.ToString() ?? "0";
@@ -65,12 +64,10 @@ public partial class HomePage : ContentPage
                 // Add newly selected items to current order
                 if (e.AddedItems != null)
                 {
-                    Console.WriteLine($"[DEBUG] AddedItems count: {e.AddedItems.Count}");
                     foreach (var item in e.AddedItems)
                     {
                         if (item is Product product)
                         {
-                            Console.WriteLine($"[DEBUG] Calling AddToCurrentOrder for: {product.Name}");
                             // Check if this product is already in the cart before adding
                             var existingCartItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                             if (existingCartItem == null)
@@ -81,52 +78,37 @@ public partial class HomePage : ContentPage
                             {
                                 // If already in cart, just increment quantity
                                 vm.IncrementQuantity(existingCartItem);
-                                Console.WriteLine($"[DEBUG] Product {product.Name} already in cart, incremented quantity");
                             }
                         }
                         else
                         {
-                            Console.WriteLine($"[DEBUG] AddedItem is not a Product: {item?.GetType().Name}");
                         }
                     }
                 }
-                else
-                {
-                    Console.WriteLine("[DEBUG] No AddedItems");
-                }
+               
 
                 // Remove unselected items from current order (but avoid infinite loop by not calling RemoveFromCurrentOrder)
                 if (e.RemovedItems != null)
                 {
-                    Console.WriteLine($"[DEBUG] RemovedItems count: {e.RemovedItems.Count}");
                     foreach (var item in e.RemovedItems)
                     {
                         if (item is Product product)
                         {
-                            Console.WriteLine($"[DEBUG] Removing from cart only (not triggering ListView update): {product.Name}");
                             var existingItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                             if (existingItem != null)
                             {
                                 vm.CurrentOrderItems.Remove(existingItem);
-                                Console.WriteLine($"[DEBUG] Removed item from cart. Total items in order: {vm.CurrentOrderItems.Count}");
                             }
                         }
                     }
                 }
-                else
-                {
-                    Console.WriteLine("[DEBUG] No RemovedItems");
-                }
+                
 
                 // Notify that selection has changed for HasSelectedItems property
                 vm.NotifySelectionChanged();
 
-                Console.WriteLine($"[DEBUG] Selection changed. SelectedItems count: {vm.SelectedItems?.Count ?? 0}, HasSelectedItems: {vm.HasSelectedItems}");
             }
-            else
-            {
-                Console.WriteLine("[DEBUG] ViewModel is null!");
-            }
+           
         }
         catch (Exception ex)
         {
@@ -144,7 +126,6 @@ public partial class HomePage : ContentPage
             {
                 // Update the search filter count display - shows how many items selected in autocomplete
                 searchFilterValue.Text = autocomplete.SelectedItems?.Count.ToString() ?? "0";
-                Console.WriteLine($"[DEBUG] Updated searchFilterValue to: {autocomplete.SelectedItems?.Count ?? 0}");
 
                 // Get the ViewModel
                 var vm = BindingContext as HomeVM;
@@ -172,7 +153,6 @@ public partial class HomePage : ContentPage
                     listView.DataSource.RefreshFilter();
                 }
 
-                Console.WriteLine($"[DEBUG] Autocomplete filter applied. Search filter count: {selectedProducts.Count}");
             }
         }
         catch (Exception ex)
@@ -237,6 +217,8 @@ public partial class HomePage : ContentPage
         }
         else { Icon.Source = ""; }
     }
+
+
 
 
 }
