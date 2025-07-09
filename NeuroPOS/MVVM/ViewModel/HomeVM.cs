@@ -18,7 +18,6 @@ namespace NeuroPOS.MVVM.ViewModel
     {
         public HomeVM()
         {
-            CurrentOrderItems = new ObservableCollection<Product>();
             SortProduct();
         }
 
@@ -36,7 +35,7 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #region Properties
 
-        private ObservableCollection<Product> _currentOrderItems;
+        private ObservableCollection<Product> _currentOrderItems = new ObservableCollection<Product>();
 
         public ObservableCollection<Product> CurrentOrderItems
         {
@@ -44,26 +43,44 @@ namespace NeuroPOS.MVVM.ViewModel
             set
             {
                 if (_currentOrderItems != null)
+                {
                     _currentOrderItems.CollectionChanged -= OnCurrentOrderItemsChanged;
+                    // Unsubscribe from individual item property changes
+                    foreach (var item in _currentOrderItems)
+                    {
+                        if (item is INotifyPropertyChanged notifyItem)
+                            notifyItem.PropertyChanged -= OnOrderItemPropertyChanged;
+                    }
+                }
 
                 _currentOrderItems = value;
 
                 if (_currentOrderItems != null)
+                {
                     _currentOrderItems.CollectionChanged += OnCurrentOrderItemsChanged;
+                    // Subscribe to individual item property changes
+                    foreach (var item in _currentOrderItems)
+                    {
+                        if (item is INotifyPropertyChanged notifyItem)
+                            notifyItem.PropertyChanged += OnOrderItemPropertyChanged;
+                    }
+                }
 
                 OnPropertyChanged();
+                NotifyCalculatedPropertiesChanged();
             }
         }
         public ObservableCollection<object> SelectedItems { get; set; } = [];
         public IList<object> SelectedProducts { get; set; } = [];
 
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>
-{
-        new Category { Name = "Fruits", State = "Active Categorie" },
-        new Category { Name = "Vegetables" },
-        new Category { Name = "Drinks" },
-        new Category { Name = "Snacks" }
-    };
+        {
+            new Category { Id = 1, Name = "Fruits"},
+            new Category { Id = 2, Name = "Vegetables" },
+            new Category { Id = 3, Name = "Drinks" },
+            new Category { Id = 4, Name = "Snacks" }
+        };
+
 
         public ObservableCollection<Category> Categories
         {
@@ -78,35 +95,40 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>
-        {
-            new Product() { Id = 1, Name = "Laptop", Price = 999.99, Stock = 10, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 2, Name = "Mouse", Price = 25.50, Stock = 50, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 3, Name = "Keyboard", Price = 45.99, Stock = 5, DateAdded = DateTime.Now, ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 4, Name = "Monitor", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-1), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 5, Name = "Headphones", Price = 79.99, Stock = 3, DateAdded = DateTime.Now.AddDays(-3), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 6, Name = "Wireless Earbuds", Price = 59.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 7, Name = "Smart Watch", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-10), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 8, Name = "Bluetooth Speaker", Price = 89.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 9, Name = "USB-C Cable", Price = 12.99, Stock = 100, DateAdded = DateTime.Now.AddDays(-7), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 10, Name = "Power Bank", Price = 39.99, Stock = 40, DateAdded = DateTime.Now.AddDays(-14), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 11, Name = "Laptop Stand", Price = 29.99, Stock = 25, DateAdded = DateTime.Now.AddDays(-1), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 12, Name = "Mechanical Keyboard", Price = 129.99, Stock = 10, DateAdded = DateTime.Now.AddDays(-21), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 13, Name = "Gaming Mouse", Price = 49.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-4), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 14, Name = "Monitor", Price = 249.99, Stock = 8, DateAdded = DateTime.Now.AddDays(-12), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 15, Name = "Desk Lamp", Price = 34.99, Stock = 20, DateAdded = DateTime.Now.AddDays(-6), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 16, Name = "External SSD", Price = 119.99, Stock = 12, DateAdded = DateTime.Now.AddDays(-9), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 17, Name = "Wireless Charger", Price = 24.99, Stock = 45, DateAdded = DateTime.Now.AddDays(-3), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 18, Name = "Noise Cancelling Headphones", Price = 299.99, Stock = 5, DateAdded = DateTime.Now.AddDays(-15), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 19, Name = "Webcam", Price = 79.99, Stock = 18, DateAdded = DateTime.Now.AddDays(-8), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 20, Name = "Microphone", Price = 149.99, Stock = 7, DateAdded = DateTime.Now.AddDays(-11), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 21, Name = "Smartphone Holder", Price = 9.99, Stock = 60, DateAdded = DateTime.Now.AddDays(-1), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 22, Name = "HDMI Cable", Price = 14.99, Stock = 75, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 23, Name = "Router", Price = 129.99, Stock = 9, DateAdded = DateTime.Now.AddDays(-17), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 24, Name = "Fitness Tracker", Price = 79.99, Stock = 22, DateAdded = DateTime.Now.AddDays(-4), ImageUrl = "emptyproduct.png" },
-            new Product() { Id = 25, Name = "Tablet Stand", Price = 19.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" }
-        };
+{
+    new Product() { Id = 1, Name = "Laptop", CategoryName = "Fruits", Price = 999.99, Stock = 10, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 2, Name = "Mouse", CategoryName = "Fruits", Price = 25.50, Stock = 50, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 3, Name = "Keyboard", CategoryName = "Vegetables", Price = 45.99, Stock = 5, DateAdded = DateTime.Now, ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 4, Name = "Monitor", CategoryName = "Vegetables", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-1), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 5, Name = "Headphones", CategoryName = "Drinks", Price = 79.99, Stock = 3, DateAdded = DateTime.Now.AddDays(-3), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 6, Name = "Wireless Earbuds", CategoryName = "Drinks", Price = 59.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 7, Name = "Smart Watch", CategoryName = "Snacks", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-10), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 8, Name = "Bluetooth Speaker", CategoryName = "Snacks", Price = 89.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 9, Name = "Tablet", CategoryName = "Fruits", Price = 499.99, Stock = 20, DateAdded = DateTime.Now.AddDays(-7), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 10, Name = "Smartphone", CategoryName = "Fruits", Price = 799.99, Stock = 25, DateAdded = DateTime.Now.AddDays(-4), ImageUrl = "emptyproduct.png" },
+      new Product() { Id = 1, Name = "Apple", CategoryName = "Fruits", Price = 0.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
+    new Product() { Id = 2, Name = "Banana", CategoryName = "Fruits", Price = 0.49, Stock = 100, DateAdded = DateTime.Now.AddDays(-1) },
+    new Product() { Id = 3, Name = "Orange", CategoryName = "Fruits", Price = 0.79, Stock = 75, DateAdded = DateTime.Now.AddDays(-3) },
+    
+    // Vegetables (CategoryId = 2)
+    new Product() { Id = 4, Name = "Carrot", CategoryName = "Vegetables", Price = 0.89, Stock = 60, DateAdded = DateTime.Now.AddDays(-4) },
+    new Product() { Id = 5, Name = "Broccoli", CategoryName = "Vegetables", Price = 1.29, Stock = 40, DateAdded = DateTime.Now.AddDays(-5) },
+    new Product() { Id = 6, Name = "Spinach", CategoryName = "Vegetables", Price = 1.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-1) },
+    
+    // Drinks (CategoryId = 3)
+    new Product() { Id = 7, Name = "Water", CategoryName = "Drinks", Price = 1.49, Stock = 200, DateAdded = DateTime.Now.AddDays(-7) },
+    new Product() { Id = 8, Name = "Orange Juice", CategoryName = "Drinks", Price = 2.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
+    new Product() { Id = 9, Name = "Soda", CategoryName = "Drinks", Price = 1.79, Stock = 80, DateAdded = DateTime.Now.AddDays(-3) },
+    
+    // Snacks (CategoryId = 4)
+    new Product() { Id = 10, Name = "Chips", CategoryName = "Snacks", Price = 2.49, Stock = 45, DateAdded = DateTime.Now.AddDays(-4) },
+    new Product() { Id = 11, Name = "Cookies", CategoryName = "Snacks", Price = 3.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-6) },
+    new Product() { Id = 12, Name = "Nuts", CategoryName = "Snacks", Price = 4.49, Stock = 25, DateAdded = DateTime.Now.AddDays(-1) },
+
+};
+
+
 
         public DataSource DataSource { get; set; } = new DataSource()
         {
@@ -137,13 +159,34 @@ namespace NeuroPOS.MVVM.ViewModel
         };
 
         // Calculated properties for order summary
-        public double Subtotal => CurrentOrderItems?.Sum(item => item.Price * item.Stock) ?? 0;
+        public double Subtotal
+        {
+            get
+            {
+                var result = CurrentOrderItems?.Sum(item => item.Price * item.Stock) ?? 0;
+                return result;
+            }
+        }
 
-        public double Tax => Subtotal * 0.05; // 5% tax as shown in XAML
+        public double Tax
+        {
+            get
+            {
+                var result = Subtotal * 0.05;
+                return result;
+            }
+        }
 
         public double Discount { get; set; } = 0; // Allow user to set discount
 
-        public double Total => Subtotal + Tax - Discount;
+        public double Total
+        {
+            get
+            {
+                var result = Subtotal + Tax - Discount;
+                return result;
+            }
+        }
 
         public string OrderDateTime => DateTime.Now.ToString("MMM dd, yyyy - hh:mm tt");
 
@@ -165,19 +208,61 @@ namespace NeuroPOS.MVVM.ViewModel
 
         private void OnCurrentOrderItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-           
 
-           
+            // Handle subscription/unsubscription for added/removed items
+            if (e.NewItems != null)
+            {
+                Console.WriteLine($"[DEBUG] Adding {e.NewItems.Count} new items to property change subscriptions");
+                foreach (var item in e.NewItems)
+                {
+                    if (item is INotifyPropertyChanged notifyItem)
+                    {
+                        notifyItem.PropertyChanged += OnOrderItemPropertyChanged;
+                    }
+                }
+            }
 
-          
+            if (e.OldItems != null)
+            {
+                Console.WriteLine($"[DEBUG] Removing {e.OldItems.Count} items from property change subscriptions");
+                foreach (var item in e.OldItems)
+                {
+                    if (item is INotifyPropertyChanged notifyItem)
+                        notifyItem.PropertyChanged -= OnOrderItemPropertyChanged;
+                }
+            }
 
             // Trigger property change notifications for calculated properties
+            NotifyCalculatedPropertiesChanged();
+            OnPropertyChanged(nameof(HasSelectedItems));
+        }
+
+        private void OnOrderItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // When any property of an order item changes (especially Stock), update calculated properties
+            if (e.PropertyName == nameof(Product.Stock) || e.PropertyName == nameof(Product.Price))
+            {
+
+                NotifyCalculatedPropertiesChanged();
+            }
+        }
+
+        public void NotifyCalculatedPropertiesChanged()
+        {
+
+
+            if (CurrentOrderItems != null)
+            {
+                foreach (var item in CurrentOrderItems)
+                {
+                    Console.WriteLine($"[DEBUG] Cart Item: {item.Name}, Price: {item.Price}, Stock: {item.Stock}, Total: {item.Price * item.Stock}");
+                }
+            }
+
+
             OnPropertyChanged(nameof(Subtotal));
             OnPropertyChanged(nameof(Tax));
             OnPropertyChanged(nameof(Total));
-            OnPropertyChanged(nameof(HasSelectedItems));
-
-            
         }
 
         public void NotifySelectionChanged()
@@ -189,7 +274,7 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-              
+
 
                 // Check if product is already in the order
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
@@ -207,9 +292,14 @@ namespace NeuroPOS.MVVM.ViewModel
                         CategoryName = product.CategoryName
                     };
 
-                   
+                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Creating new item: {newOrderItem.Name}, Price: {newOrderItem.Price}, Stock: {newOrderItem.Stock}");
                     CurrentOrderItems.Add(newOrderItem);
-                    
+                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Item added, CurrentOrderItems.Count: {CurrentOrderItems.Count}");
+
+                    // FORCE notification for calculated properties after adding item
+                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Forcing calculated properties notification");
+                    NotifyCalculatedPropertiesChanged();
+
 
                     // Only add to ListView selection if this wasn't called from ListView selection event
                     if (!fromListViewSelection && PageReference is ContentPage page)
@@ -221,14 +311,14 @@ namespace NeuroPOS.MVVM.ViewModel
                             if (originalProduct != null && !listView.SelectedItems.Contains(originalProduct))
                             {
                                 listView.SelectedItems.Add(originalProduct);
-                                
+
 
                                 // Update the selectedValue display (ListView selection counter only)
                                 var selectedValueLabel = page.FindByName("selectedValue") as Label;
                                 if (selectedValueLabel != null)
                                 {
                                     selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
-                                   
+
                                 }
 
                                 // Add to SelectedItems collection for HasSelectedItems property
@@ -236,7 +326,7 @@ namespace NeuroPOS.MVVM.ViewModel
                                 {
                                     SelectedItems.Add(originalProduct);
                                     OnPropertyChanged(nameof(HasSelectedItems));
-                                  
+
                                 }
                             }
                         }
@@ -248,23 +338,33 @@ namespace NeuroPOS.MVVM.ViewModel
                 else
                 {
                     // Increase quantity if already exists
+                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Existing item {existingItem.Name}, incrementing from {existingItem.Stock} to {existingItem.Stock + 1}");
                     existingItem.Stock += 1;
-                   
+
+                    // FORCE notification for calculated properties after incrementing existing item
+                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Forcing calculated properties notification for existing item");
+                    NotifyCalculatedPropertiesChanged();
                 }
             }
-           
+
         }
 
         public void RemoveFromCurrentOrder(Product product)
         {
             if (product != null)
             {
-               
+                Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder: Attempting to remove {product.Name}");
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
+                    Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder: Found item {existingItem.Name}, removing from cart");
                     CurrentOrderItems.Remove(existingItem);
-                  
+                    Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder: Item removed, CurrentOrderItems.Count: {CurrentOrderItems.Count}");
+
+                    // FORCE notification for calculated properties after removing item
+                    Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder - Forcing calculated properties notification");
+                    NotifyCalculatedPropertiesChanged();
+
 
                     // Also remove from ListView selection (prevent event recursion)
                     if (PageReference is ContentPage page)
@@ -284,7 +384,7 @@ namespace NeuroPOS.MVVM.ViewModel
                             if (originalProduct != null && listView.SelectedItems.Contains(originalProduct))
                             {
                                 listView.SelectedItems.Remove(originalProduct);
-                               
+
                             }
 
                             // Update the selectedValue display (ListView selection counter only)
@@ -292,7 +392,7 @@ namespace NeuroPOS.MVVM.ViewModel
                             if (selectedValueLabel != null)
                             {
                                 selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
-                                
+
                             }
 
                             // Reconnect the selection changed event
@@ -308,7 +408,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     if (selectedProduct != null)
                     {
                         SelectedItems.Remove(selectedProduct);
-                      
+
                     }
 
                     // Notify property changes
@@ -321,17 +421,16 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-               
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
+                    Console.WriteLine($"[DEBUG] IncrementQuantity: Before - Stock: {existingItem.Stock}");
                     existingItem.Stock += 1;
-                   
+                    Console.WriteLine($"[DEBUG] IncrementQuantity: After - Stock: {existingItem.Stock}");
 
-                    // Trigger property change notifications for calculated properties
-                    OnPropertyChanged(nameof(Subtotal));
-                    OnPropertyChanged(nameof(Tax));
-                    OnPropertyChanged(nameof(Total));
+                    // FORCE manual notification to test if bindings work
+                    Console.WriteLine($"[DEBUG] IncrementQuantity: Forcing manual notification");
+                    NotifyCalculatedPropertiesChanged();
                 }
             }
         }
@@ -340,17 +439,16 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-               
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null && existingItem.Stock > 1)
                 {
+                    Console.WriteLine($"[DEBUG] DecrementQuantity: Before - Stock: {existingItem.Stock}");
                     existingItem.Stock -= 1;
-                  
+                    Console.WriteLine($"[DEBUG] DecrementQuantity: After - Stock: {existingItem.Stock}");
 
-                    // Trigger property change notifications for calculated properties
-                    OnPropertyChanged(nameof(Subtotal));
-                    OnPropertyChanged(nameof(Tax));
-                    OnPropertyChanged(nameof(Total));
+                    // FORCE manual notification to test if bindings work
+                    Console.WriteLine($"[DEBUG] DecrementQuantity: Forcing manual notification");
+                    NotifyCalculatedPropertiesChanged();
                 }
                 else if (existingItem != null && existingItem.Stock == 1)
                 {
@@ -362,13 +460,19 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public void ClearAllSelections()
         {
-           
+            Console.WriteLine($"[DEBUG] ClearAllSelections: Before clear - CurrentOrderItems.Count: {CurrentOrderItems.Count}");
 
             // Clear the ListView selections
             SelectedItems.Clear();
 
             // Clear the cart
             CurrentOrderItems.Clear();
+
+            Console.WriteLine($"[DEBUG] ClearAllSelections: After clear - CurrentOrderItems.Count: {CurrentOrderItems.Count}");
+
+            // Force notification of calculated properties
+            Console.WriteLine($"[DEBUG] ClearAllSelections: Forcing calculated properties notification");
+            NotifyCalculatedPropertiesChanged();
 
             // Clear ListView selection through page reference (prevent event recursion)
             if (PageReference is ContentPage page)
@@ -397,7 +501,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 if (selectedValueLabel != null)
                 {
                     selectedValueLabel.Text = "0";
-                    
+
                 }
 
                 // Note: We don't clear searchFilterValue here as it's for autocomplete filtering, not ListView selection
@@ -406,7 +510,7 @@ namespace NeuroPOS.MVVM.ViewModel
             // Notify property changes
             OnPropertyChanged(nameof(HasSelectedItems));
 
-            
+
         }
 
         // Property to check if any items are selected (for the clear button visibility)
@@ -454,11 +558,37 @@ namespace NeuroPOS.MVVM.ViewModel
             // If SortState == None, keep it unsorted.
         }
 
+        public int? GetCatId(string categoryName)
+        {
+            var match = Categories.FirstOrDefault(c =>
+                c.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+
+            return match?.Id;
+        }
+
+
 
         public void LoadDB()
         {
             // Implement DB loading here if needed
         }
+
+        private bool FilterByActiveCategory(object obj)
+        {
+            if (obj is not Product product)
+                return false;
+
+            var activeCategory = Categories.FirstOrDefault(c => c.State == "Active Categorie");
+            if (activeCategory == null)
+                return true;
+
+            // Compare category names case-insensitively
+            return string.Equals(product.CategoryName, activeCategory.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+
+
+
 
         #endregion
 
@@ -497,21 +627,33 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public ICommand SwitchCategoryState => new Command<string>((name) =>
         {
-            if (string.IsNullOrWhiteSpace(name))
-                return;
+            if (name == "All")
+            {
+                foreach (var category in Categories)
+                    category.State = "Inactive Categorie";
+                Categories = new ObservableCollection<Category>(Categories);
+            }
+            else
+            {
+                var selected = Categories.FirstOrDefault(c => c.Name == name);
+                foreach (var category in Categories)
+                    category.State = "Inactive Categorie";
 
-            var selected = Categories.FirstOrDefault(c => c.Name == name);
-            if (selected == null)
-                return;
+                selected.State = "Active Categorie";
+                Categories = new ObservableCollection<Category>(Categories);
+                DataSource.Filter = FilterByActiveCategory;
+            }
 
-            foreach (var category in Categories)
-                category.State = "Inactive Categorie";
-
-            selected.State = "Active Categorie";
-
-            // Force UI to refresh DataTemplateSelector
-            Categories = new ObservableCollection<Category>(Categories);
+            // Force refresh
+            DataSource.RefreshFilter();
+            OnPropertyChanged(nameof(DataSource));
         });
+
+
+
+
+
+
 
         #endregion
 

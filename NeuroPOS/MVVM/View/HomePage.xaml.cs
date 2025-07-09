@@ -1,4 +1,4 @@
-   using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.Model;
 using NeuroPOS.MVVM.ViewModel;
 using Syncfusion.Maui.DataSource.Extensions;
 using Syncfusion.Maui.Inputs;
@@ -25,14 +25,14 @@ public partial class HomePage : ContentPage
         // Store reference to this page in the ViewModel for callbacks
         vm.PageReference = this;
 
-       
+
     }
 
     public void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
     {
         try
         {
-           
+
             var vm = BindingContext as HomeVM;
             if (vm != null)
             {
@@ -85,9 +85,9 @@ public partial class HomePage : ContentPage
                         }
                     }
                 }
-               
 
-                // Remove unselected items from current order (but avoid infinite loop by not calling RemoveFromCurrentOrder)
+
+                // Remove unselected items from current order 
                 if (e.RemovedItems != null)
                 {
                     foreach (var item in e.RemovedItems)
@@ -97,18 +97,28 @@ public partial class HomePage : ContentPage
                             var existingItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                             if (existingItem != null)
                             {
+                                // Direct removal to avoid ListView manipulation loops
                                 vm.CurrentOrderItems.Remove(existingItem);
+
+                                // Also remove from SelectedItems collection
+                                var selectedProduct = vm.SelectedItems.FirstOrDefault(x => x is Product p && p.Id == product.Id);
+                                if (selectedProduct != null)
+                                {
+                                    vm.SelectedItems.Remove(selectedProduct);
+                                }
                             }
                         }
                     }
+                    // Update calculations after removing items
+                    vm.NotifyCalculatedPropertiesChanged();
                 }
-                
+
 
                 // Notify that selection has changed for HasSelectedItems property
                 vm.NotifySelectionChanged();
 
             }
-           
+
         }
         catch (Exception ex)
         {

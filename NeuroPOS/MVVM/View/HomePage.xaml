@@ -95,18 +95,45 @@
                 BackgroundColor="{StaticResource NPLightBg}"
                 ColumnDefinitions=".7*,.3*"
                 RowDefinitions="Auto,*">
-                <!--  Category Filter Bar (Dynamic CollectionView)  -->
-                <CollectionView
-                    x:Name="CategoriesCollectionView"
+                <!--  Category Filter Bar (Dynamic CollectionView + All Button)  -->
+                <HorizontalStackLayout
                     Grid.Row="0"
                     Grid.Column="0"
                     Margin="24,10,0,0"
-                    ItemTemplate="{StaticResource CategoryTemplateSelector}"
-                    ItemsSource="{Binding Categories}">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
-                    </CollectionView.ItemsLayout>
-                </CollectionView>
+                    Spacing="8"
+                    VerticalOptions="Center">
+                    <Border
+                        Margin="4"
+                        Padding="12,8"
+                        BackgroundColor="{StaticResource NPAccentYellow}"
+                        Stroke="{StaticResource NPAccentYellow}"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="2">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="14"
+                                Text="All"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SwitchCategoryState}" CommandParameter="All" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <CollectionView
+                        x:Name="CategoriesCollectionView"
+                        ItemTemplate="{StaticResource CategoryTemplateSelector}"
+                        ItemsSource="{Binding Categories}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
+                        </CollectionView.ItemsLayout>
+                    </CollectionView>
+
+                    <!--  All Products Button  -->
+
+
+                </HorizontalStackLayout>
                 <!--  sort and clear buttons  -->
                 <HorizontalStackLayout
                     Grid.Row="0"
