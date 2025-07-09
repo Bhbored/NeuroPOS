@@ -173,11 +173,11 @@ namespace NeuroPOS.MVVM.ViewModel
             OnPropertyChanged(nameof(HasSelectedItems));
         }
 
-        public void AddToCurrentOrder(Product product)
+        public void AddToCurrentOrder(Product product, bool fromListViewSelection = false)
         {
             if (product != null)
             {
-                Console.WriteLine($"[DEBUG] AddToCurrentOrder called for: {product.Name}, ID: {product.Id}");
+                Console.WriteLine($"[DEBUG] AddToCurrentOrder called for: {product.Name}, ID: {product.Id}, fromListViewSelection: {fromListViewSelection}");
                 Console.WriteLine($"[DEBUG] Current cart items count BEFORE: {CurrentOrderItems.Count}");
 
                 // Check if product is already in the order
@@ -199,6 +199,37 @@ namespace NeuroPOS.MVVM.ViewModel
                     Console.WriteLine($"[DEBUG] Creating new cart item: Name={newOrderItem.Name}, Price={newOrderItem.Price}, ImageUrl={newOrderItem.ImageUrl}");
                     CurrentOrderItems.Add(newOrderItem);
                     Console.WriteLine($"[DEBUG] Added new item. Total items in order: {CurrentOrderItems.Count}");
+
+                    // Only add to ListView selection if this wasn't called from ListView selection event
+                    if (!fromListViewSelection && PageReference is ContentPage page)
+                    {
+                        var listView = page.FindByName("listView") as Syncfusion.Maui.ListView.SfListView;
+                        if (listView != null)
+                        {
+                            var originalProduct = DataSource.DisplayItems?.Cast<Product>().FirstOrDefault(p => p.Id == product.Id);
+                            if (originalProduct != null && !listView.SelectedItems.Contains(originalProduct))
+                            {
+                                listView.SelectedItems.Add(originalProduct);
+                                Console.WriteLine($"[DEBUG] Added {product.Name} to ListView selection");
+
+                                // Update the selectedValue display (ListView selection counter only)
+                                var selectedValueLabel = page.FindByName("selectedValue") as Label;
+                                if (selectedValueLabel != null)
+                                {
+                                    selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
+                                    Console.WriteLine($"[DEBUG] Updated selectedValue display to {listView.SelectedItems.Count}");
+                                }
+
+                                // Add to SelectedItems collection for HasSelectedItems property
+                                if (!SelectedItems.Contains(originalProduct))
+                                {
+                                    SelectedItems.Add(originalProduct);
+                                    OnPropertyChanged(nameof(HasSelectedItems));
+                                    Console.WriteLine($"[DEBUG] Added to SelectedItems collection. Count: {SelectedItems.Count}");
+                                }
+                            }
+                        }
+                    }
 
                     // Force property change notification
                     OnPropertyChanged(nameof(CurrentOrderItems));
@@ -226,6 +257,54 @@ namespace NeuroPOS.MVVM.ViewModel
                 {
                     CurrentOrderItems.Remove(existingItem);
                     Console.WriteLine($"[DEBUG] Removed item. Total items in order: {CurrentOrderItems.Count}");
+
+                    // Also remove from ListView selection (prevent event recursion)
+                    if (PageReference is ContentPage page)
+                    {
+                        var listView = page.FindByName("listView") as Syncfusion.Maui.ListView.SfListView;
+                        if (listView != null && listView.SelectedItems != null)
+                        {
+                            // Temporarily disconnect the selection changed event
+                            var homePage = page as NeuroPOS.MVVM.View.HomePage;
+                            if (homePage != null)
+                            {
+                                listView.SelectionChanged -= homePage.ListView_SelectionChanged;
+                            }
+
+                            // Find the original product in the DataSource and remove it from selection
+                            var originalProduct = DataSource.DisplayItems?.Cast<Product>().FirstOrDefault(p => p.Id == product.Id);
+                            if (originalProduct != null && listView.SelectedItems.Contains(originalProduct))
+                            {
+                                listView.SelectedItems.Remove(originalProduct);
+                                Console.WriteLine($"[DEBUG] Removed {product.Name} from ListView selection");
+                            }
+
+                            // Update the selectedValue display (ListView selection counter only)
+                            var selectedValueLabel = page.FindByName("selectedValue") as Label;
+                            if (selectedValueLabel != null)
+                            {
+                                selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
+                                Console.WriteLine($"[DEBUG] Updated selectedValue display to {listView.SelectedItems.Count}");
+                            }
+
+                            // Reconnect the selection changed event
+                            if (homePage != null)
+                            {
+                                listView.SelectionChanged += homePage.ListView_SelectionChanged;
+                            }
+                        }
+                    }
+
+                    // Also remove from SelectedItems collection
+                    var selectedProduct = SelectedItems.FirstOrDefault(x => x is Product p && p.Id == product.Id);
+                    if (selectedProduct != null)
+                    {
+                        SelectedItems.Remove(selectedProduct);
+                        Console.WriteLine($"[DEBUG] Removed from SelectedItems collection");
+                    }
+
+                    // Notify property changes
+                    OnPropertyChanged(nameof(HasSelectedItems));
                 }
             }
         }
@@ -283,16 +362,42 @@ namespace NeuroPOS.MVVM.ViewModel
             // Clear the cart
             CurrentOrderItems.Clear();
 
-            // Clear ListView selection through page reference
+            // Clear ListView selection through page reference (prevent event recursion)
             if (PageReference is ContentPage page)
             {
                 var listView = page.FindByName("listView") as Syncfusion.Maui.ListView.SfListView;
                 if (listView != null)
                 {
+                    // Temporarily disconnect the selection changed event
+                    var homePage = page as NeuroPOS.MVVM.View.HomePage;
+                    if (homePage != null)
+                    {
+                        listView.SelectionChanged -= homePage.ListView_SelectionChanged;
+                    }
+
                     listView.SelectedItems?.Clear();
                     Console.WriteLine("[DEBUG] Cleared ListView selection through page reference");
+
+                    // Reconnect the selection changed event
+                    if (homePage != null)
+                    {
+                        listView.SelectionChanged += homePage.ListView_SelectionChanged;
+                    }
                 }
+
+                // Update the selected count display (only the ListView selection counter)
+                var selectedValueLabel = page.FindByName("selectedValue") as Label;
+                if (selectedValueLabel != null)
+                {
+                    selectedValueLabel.Text = "0";
+                    Console.WriteLine("[DEBUG] Updated selectedValue display to 0");
+                }
+
+                // Note: We don't clear searchFilterValue here as it's for autocomplete filtering, not ListView selection
             }
+
+            // Notify property changes
+            OnPropertyChanged(nameof(HasSelectedItems));
 
             Console.WriteLine($"[DEBUG] Selections cleared. Cart items: {CurrentOrderItems.Count}, Selected items: {SelectedItems.Count}");
         }
@@ -311,7 +416,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 {
                     if (item is Product product)
                     {
-                        AddToCurrentOrder(product);
+                        AddToCurrentOrder(product, fromListViewSelection: false);
                     }
                 }
                 // Clear selection after adding

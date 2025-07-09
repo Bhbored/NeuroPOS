@@ -15,14 +15,20 @@ public partial class HomePage : ContentPage
         this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
         vm.SelectedItems.Clear();//intially clear selected items
 
+        // Initialize display counters
+        searchFilterValue.Text = "0"; // Search filter starts with 0 items selected
+        selectedValue.Text = "0"; // No items selected initially
+
         // Add event handler for ListView selection changes
         this.listView.SelectionChanged += ListView_SelectionChanged;
 
         // Store reference to this page in the ViewModel for callbacks
         vm.PageReference = this;
+
+        Console.WriteLine($"[DEBUG] HomePage initialized with separate counters");
     }
 
-    private void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
+    public void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
     {
         try
         {
@@ -30,10 +36,31 @@ public partial class HomePage : ContentPage
             var vm = BindingContext as HomeVM;
             if (vm != null)
             {
-                Console.WriteLine($"[DEBUG] ViewModel found. Current SelectedItems count: {vm.SelectedItems?.Count ?? 0}");
+                var listView = sender as Syncfusion.Maui.ListView.SfListView;
+                Console.WriteLine($"[DEBUG] ViewModel found. Current ListView SelectedItems count: {listView?.SelectedItems?.Count ?? 0}");
 
-                // Update the selected count display
-                selectedValue.Text = vm.SelectedItems?.Count.ToString() ?? "0";
+                // Update the selected count display based on actual ListView selection (for cart)
+                selectedValue.Text = listView?.SelectedItems?.Count.ToString() ?? "0";
+
+                // Update the ViewModel SelectedItems to match ListView (don't clear and re-add, just sync changes)
+                if (e.AddedItems != null)
+                {
+                    foreach (var item in e.AddedItems)
+                    {
+                        if (!vm.SelectedItems.Contains(item))
+                        {
+                            vm.SelectedItems.Add(item);
+                        }
+                    }
+                }
+
+                if (e.RemovedItems != null)
+                {
+                    foreach (var item in e.RemovedItems)
+                    {
+                        vm.SelectedItems.Remove(item);
+                    }
+                }
 
                 // Add newly selected items to current order
                 if (e.AddedItems != null)
@@ -44,7 +71,18 @@ public partial class HomePage : ContentPage
                         if (item is Product product)
                         {
                             Console.WriteLine($"[DEBUG] Calling AddToCurrentOrder for: {product.Name}");
-                            vm.AddToCurrentOrder(product);
+                            // Check if this product is already in the cart before adding
+                            var existingCartItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
+                            if (existingCartItem == null)
+                            {
+                                vm.AddToCurrentOrder(product, fromListViewSelection: true);
+                            }
+                            else
+                            {
+                                // If already in cart, just increment quantity
+                                vm.IncrementQuantity(existingCartItem);
+                                Console.WriteLine($"[DEBUG] Product {product.Name} already in cart, incremented quantity");
+                            }
                         }
                         else
                         {
@@ -57,7 +95,7 @@ public partial class HomePage : ContentPage
                     Console.WriteLine("[DEBUG] No AddedItems");
                 }
 
-                // Remove unselected items from current order
+                // Remove unselected items from current order (but avoid infinite loop by not calling RemoveFromCurrentOrder)
                 if (e.RemovedItems != null)
                 {
                     Console.WriteLine($"[DEBUG] RemovedItems count: {e.RemovedItems.Count}");
@@ -65,8 +103,13 @@ public partial class HomePage : ContentPage
                     {
                         if (item is Product product)
                         {
-                            Console.WriteLine($"[DEBUG] Calling RemoveFromCurrentOrder for: {product.Name}");
-                            vm.RemoveFromCurrentOrder(product);
+                            Console.WriteLine($"[DEBUG] Removing from cart only (not triggering ListView update): {product.Name}");
+                            var existingItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
+                            if (existingItem != null)
+                            {
+                                vm.CurrentOrderItems.Remove(existingItem);
+                                Console.WriteLine($"[DEBUG] Removed item from cart. Total items in order: {vm.CurrentOrderItems.Count}");
+                            }
                         }
                     }
                 }
@@ -77,6 +120,8 @@ public partial class HomePage : ContentPage
 
                 // Notify that selection has changed for HasSelectedItems property
                 vm.NotifySelectionChanged();
+
+                Console.WriteLine($"[DEBUG] Selection changed. SelectedItems count: {vm.SelectedItems?.Count ?? 0}, HasSelectedItems: {vm.HasSelectedItems}");
             }
             else
             {
@@ -97,8 +142,9 @@ public partial class HomePage : ContentPage
         {
             if (autocomplete != null)
             {
-                // Update selected count
-                selectedValue.Text = autocomplete.SelectedItems?.Count.ToString() ?? "0";
+                // Update the search filter count display - shows how many items selected in autocomplete
+                searchFilterValue.Text = autocomplete.SelectedItems?.Count.ToString() ?? "0";
+                Console.WriteLine($"[DEBUG] Updated searchFilterValue to: {autocomplete.SelectedItems?.Count ?? 0}");
 
                 // Get the ViewModel
                 var vm = BindingContext as HomeVM;
@@ -116,7 +162,7 @@ public partial class HomePage : ContentPage
                     }
                 }
 
-                // Update the selected products in ViewModel
+                // Update the selected products in ViewModel for filtering
                 vm.SelectedProducts = selectedProducts;
 
                 // Apply filtering
@@ -125,11 +171,13 @@ public partial class HomePage : ContentPage
                     listView.DataSource.Filter = FilterProducts;
                     listView.DataSource.RefreshFilter();
                 }
+
+                Console.WriteLine($"[DEBUG] Autocomplete filter applied. Search filter count: {selectedProducts.Count}");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in selection changed: {ex.Message}");
+            Console.WriteLine($"Error in autocomplete selection changed: {ex.Message}");
             // Optionally show an alert to the user
             // await DisplayAlert("Error", "An error occurred while filtering products", "OK");
         }
