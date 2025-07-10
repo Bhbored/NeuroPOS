@@ -46,9 +46,18 @@ public partial class HomePage : ContentPage
                 {
                     foreach (var item in e.AddedItems)
                     {
-                        if (!vm.SelectedItems.Contains(item))
+                        // Small if - only add to SelectedItems if stock > 0
+                        if (item is Product product && product.Stock > 0)
                         {
-                            vm.SelectedItems.Add(item);
+                            if (!vm.SelectedItems.Contains(item))
+                            {
+                                vm.SelectedItems.Add(item);
+                            }
+                        }
+                        else if (item is Product zeroStockProduct)
+                        {
+                            // Remove from ListView selection immediately
+                            listView.SelectedItems.Remove(item);
                         }
                     }
                 }
@@ -68,16 +77,25 @@ public partial class HomePage : ContentPage
                     {
                         if (item is Product product)
                         {
-                            // Check if this product is already in the cart before adding
-                            var existingCartItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
-                            if (existingCartItem == null)
+                            // Small if - don't add items with 0 stock
+                            if (product.Stock > 0)
                             {
-                                vm.AddToCurrentOrder(product, fromListViewSelection: true);
+                                // Check if this product is already in the cart before adding
+                                var existingCartItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
+                                if (existingCartItem == null)
+                                {
+                                    vm.AddToCurrentOrder(product, fromListViewSelection: true);
+                                }
+                                else
+                                {
+                                    // If already in cart, just increment quantity
+                                    vm.IncrementQuantity(existingCartItem);
+                                }
                             }
                             else
                             {
-                                // If already in cart, just increment quantity
-                                vm.IncrementQuantity(existingCartItem);
+                                // Remove selection for 0 stock items
+                                listView.SelectedItems.Remove(item);
                             }
                         }
                         else
@@ -97,20 +115,11 @@ public partial class HomePage : ContentPage
                             var existingItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                             if (existingItem != null)
                             {
-                                // Direct removal to avoid ListView manipulation loops
-                                vm.CurrentOrderItems.Remove(existingItem);
-
-                                // Also remove from SelectedItems collection
-                                var selectedProduct = vm.SelectedItems.FirstOrDefault(x => x is Product p && p.Id == product.Id);
-                                if (selectedProduct != null)
-                                {
-                                    vm.SelectedItems.Remove(selectedProduct);
-                                }
+                                // Use RemoveFromCurrentOrder to properly update stock display
+                                vm.RemoveFromCurrentOrder(existingItem);
                             }
                         }
                     }
-                    // Update calculations after removing items
-                    vm.NotifyCalculatedPropertiesChanged();
                 }
 
 

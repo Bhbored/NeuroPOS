@@ -97,8 +97,8 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>
 {
-    new Product() { Id = 1, Name = "Laptop", CategoryName = "Fruits", Price = 999.99, Stock = 10, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 2, Name = "Mouse", CategoryName = "Fruits", Price = 25.50, Stock = 50, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 1, Name = "Laptop", CategoryName = "Fruits", Price = 999.99, Stock = 0, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
+    new Product() { Id = 2, Name = "Mouse", CategoryName = "Fruits", Price = 25.50, Stock = 0, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
     new Product() { Id = 3, Name = "Keyboard", CategoryName = "Vegetables", Price = 45.99, Stock = 5, DateAdded = DateTime.Now, ImageUrl = "emptyproduct.png" },
     new Product() { Id = 4, Name = "Monitor", CategoryName = "Vegetables", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-1), ImageUrl = "emptyproduct.png" },
     new Product() { Id = 5, Name = "Headphones", CategoryName = "Drinks", Price = 79.99, Stock = 3, DateAdded = DateTime.Now.AddDays(-3), ImageUrl = "emptyproduct.png" },
@@ -107,24 +107,24 @@ namespace NeuroPOS.MVVM.ViewModel
     new Product() { Id = 8, Name = "Bluetooth Speaker", CategoryName = "Snacks", Price = 89.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
     new Product() { Id = 9, Name = "Tablet", CategoryName = "Fruits", Price = 499.99, Stock = 20, DateAdded = DateTime.Now.AddDays(-7), ImageUrl = "emptyproduct.png" },
     new Product() { Id = 10, Name = "Smartphone", CategoryName = "Fruits", Price = 799.99, Stock = 25, DateAdded = DateTime.Now.AddDays(-4), ImageUrl = "emptyproduct.png" },
-      new Product() { Id = 1, Name = "Apple", CategoryName = "Fruits", Price = 0.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
-    new Product() { Id = 2, Name = "Banana", CategoryName = "Fruits", Price = 0.49, Stock = 100, DateAdded = DateTime.Now.AddDays(-1) },
-    new Product() { Id = 3, Name = "Orange", CategoryName = "Fruits", Price = 0.79, Stock = 75, DateAdded = DateTime.Now.AddDays(-3) },
+      new Product() { Id = 11, Name = "Apple", CategoryName = "Fruits", Price = 0.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
+    new Product() { Id = 12, Name = "Banana", CategoryName = "Fruits", Price = 0.49, Stock = 100, DateAdded = DateTime.Now.AddDays(-1) },
+    new Product() { Id = 13, Name = "Orange", CategoryName = "Fruits", Price = 0.79, Stock = 75, DateAdded = DateTime.Now.AddDays(-3) },
     
     // Vegetables (CategoryId = 2)
-    new Product() { Id = 4, Name = "Carrot", CategoryName = "Vegetables", Price = 0.89, Stock = 60, DateAdded = DateTime.Now.AddDays(-4) },
-    new Product() { Id = 5, Name = "Broccoli", CategoryName = "Vegetables", Price = 1.29, Stock = 40, DateAdded = DateTime.Now.AddDays(-5) },
-    new Product() { Id = 6, Name = "Spinach", CategoryName = "Vegetables", Price = 1.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-1) },
+    new Product() { Id = 14, Name = "Carrot", CategoryName = "Vegetables", Price = 0.89, Stock = 60, DateAdded = DateTime.Now.AddDays(-4) },
+    new Product() { Id = 15, Name = "Broccoli", CategoryName = "Vegetables", Price = 1.29, Stock = 40, DateAdded = DateTime.Now.AddDays(-5) },
+    new Product() { Id = 16, Name = "Spinach", CategoryName = "Vegetables", Price = 1.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-1) },
     
     // Drinks (CategoryId = 3)
-    new Product() { Id = 7, Name = "Water", CategoryName = "Drinks", Price = 1.49, Stock = 200, DateAdded = DateTime.Now.AddDays(-7) },
-    new Product() { Id = 8, Name = "Orange Juice", CategoryName = "Drinks", Price = 2.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
-    new Product() { Id = 9, Name = "Soda", CategoryName = "Drinks", Price = 1.79, Stock = 80, DateAdded = DateTime.Now.AddDays(-3) },
+    new Product() { Id = 17, Name = "Water", CategoryName = "Drinks", Price = 1.49, Stock = 200, DateAdded = DateTime.Now.AddDays(-7) },
+    new Product() { Id = 18, Name = "Orange Juice", CategoryName = "Drinks", Price = 2.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
+    new Product() { Id = 19, Name = "Soda", CategoryName = "Drinks", Price = 1.79, Stock = 80, DateAdded = DateTime.Now.AddDays(-3) },
     
     // Snacks (CategoryId = 4)
-    new Product() { Id = 10, Name = "Chips", CategoryName = "Snacks", Price = 2.49, Stock = 45, DateAdded = DateTime.Now.AddDays(-4) },
-    new Product() { Id = 11, Name = "Cookies", CategoryName = "Snacks", Price = 3.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-6) },
-    new Product() { Id = 12, Name = "Nuts", CategoryName = "Snacks", Price = 4.49, Stock = 25, DateAdded = DateTime.Now.AddDays(-1) },
+    new Product() { Id = 20, Name = "Chips", CategoryName = "Snacks", Price = 2.49, Stock = 45, DateAdded = DateTime.Now.AddDays(-4) },
+    new Product() { Id = 21, Name = "Cookies", CategoryName = "Snacks", Price = 3.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-6) },
+    new Product() { Id = 22, Name = "Nuts", CategoryName = "Snacks", Price = 4.49, Stock = 25, DateAdded = DateTime.Now.AddDays(-1) },
 
 };
 
@@ -282,6 +282,9 @@ namespace NeuroPOS.MVVM.ViewModel
 
                     CurrentOrderItems.Add(newOrderItem);
 
+                    // Store original stock for this product
+                    UpdateProductDisplayStock(product.Id);
+
                     // FORCE notification for calculated properties after adding item
                     NotifyCalculatedPropertiesChanged();
 
@@ -322,11 +325,21 @@ namespace NeuroPOS.MVVM.ViewModel
                 }
                 else
                 {
-                    // Increase quantity if already exists
-                    existingItem.Stock += 1;
+                    // Increase quantity if already exists (with stock validation)
+                    var originalStock = GetOriginalStock(product.Id);
+                    var currentCartQuantity = existingItem.Stock;
 
-                    // FORCE notification for calculated properties after incrementing existing item
-                    NotifyCalculatedPropertiesChanged();
+                    // Only increment if there's still available stock
+                    if (currentCartQuantity < originalStock)
+                    {
+                        existingItem.Stock += 1;
+
+                        // Update the display stock to reflect the change
+                        UpdateProductDisplayStock(product.Id);
+
+                        // FORCE notification for calculated properties after incrementing existing item
+                        NotifyCalculatedPropertiesChanged();
+                    }
                 }
             }
 
@@ -340,6 +353,10 @@ namespace NeuroPOS.MVVM.ViewModel
                 if (existingItem != null)
                 {
                     CurrentOrderItems.Remove(existingItem);
+
+                    // Update the display stock to reflect the removal
+                    UpdateProductDisplayStock(product.Id);
+
                     // FORCE notification for calculated properties after removing item
                     NotifyCalculatedPropertiesChanged();
 
@@ -402,9 +419,22 @@ namespace NeuroPOS.MVVM.ViewModel
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
-                    existingItem.Stock += 1;
-                    // FORCE manual notification to test if bindings work
-                    NotifyCalculatedPropertiesChanged();
+                    // Get the original stock and validate against it
+                    var originalStock = GetOriginalStock(product.Id);
+                    var currentCartQuantity = existingItem.Stock;
+
+                    // Only increment if current cart quantity is less than original stock
+                    if (currentCartQuantity < originalStock)
+                    {
+                        existingItem.Stock += 1;
+
+                        // Update the display stock to reflect the change
+                        UpdateProductDisplayStock(product.Id);
+
+                        // FORCE manual notification to test if bindings work
+                        NotifyCalculatedPropertiesChanged();
+                    }
+                    // If no available stock, do nothing (don't increment)
                 }
             }
         }
@@ -417,6 +447,10 @@ namespace NeuroPOS.MVVM.ViewModel
                 if (existingItem != null && existingItem.Stock > 1)
                 {
                     existingItem.Stock -= 1;
+
+                    // Update the display stock to reflect the change
+                    UpdateProductDisplayStock(product.Id);
+
                     // FORCE manual notification to test if bindings work
                     NotifyCalculatedPropertiesChanged();
                 }
@@ -428,6 +462,85 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
+        /// <summary>
+        /// Updates the display stock for a product to show available stock
+        /// </summary>
+        private void UpdateProductDisplayStock(int productId)
+        {
+            var originalProduct = Products.FirstOrDefault(p => p.Id == productId);
+            if (originalProduct != null)
+            {
+                // Store the original stock if not already stored
+                if (!_originalStocks.ContainsKey(productId))
+                {
+                    _originalStocks[productId] = originalProduct.Stock;
+                }
+
+                // Calculate available stock (original - cart quantity)
+                var cartItem = CurrentOrderItems.FirstOrDefault(x => x.Id == productId);
+                var cartQuantity = cartItem?.Stock ?? 0;
+                var originalStock = _originalStocks[productId];
+                var availableStock = Math.Max(0, originalStock - cartQuantity);
+
+                // Update the display stock
+                originalProduct.Stock = availableStock;
+            }
+        }
+
+        /// <summary>
+        /// Gets the original stock for a product (before any cart modifications)
+        /// </summary>
+        public int GetOriginalStock(int productId)
+        {
+            if (_originalStocks.ContainsKey(productId))
+            {
+                return _originalStocks[productId];
+            }
+
+            var product = Products.FirstOrDefault(p => p.Id == productId);
+            if (product != null)
+            {
+                _originalStocks[productId] = product.Stock;
+                return product.Stock;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets the available stock for a product (original stock - cart quantity)
+        /// </summary>
+        public int GetAvailableStock(int productId)
+        {
+            var originalStock = GetOriginalStock(productId);
+            var cartItem = CurrentOrderItems.FirstOrDefault(x => x.Id == productId);
+            var cartQuantity = cartItem?.Stock ?? 0;
+
+            return Math.Max(0, originalStock - cartQuantity);
+        }
+
+        // Dictionary to store original stock values before any cart modifications
+        private Dictionary<int, int> _originalStocks = new Dictionary<int, int>();
+
+        /// <summary>
+        /// Resets all product stocks to their original values
+        /// </summary>
+        private void ResetAllProductStocks()
+        {
+            // Reset all products to their original stock values
+            foreach (var kvp in _originalStocks)
+            {
+                var product = Products.FirstOrDefault(p => p.Id == kvp.Key);
+                if (product != null)
+                {
+                    product.Stock = kvp.Value;
+                }
+            }
+
+            // Clear the original stocks dictionary
+            _originalStocks.Clear();
+        }
+
         public void ClearAllSelections()
         {
             // Clear the ListView selections
@@ -436,8 +549,14 @@ namespace NeuroPOS.MVVM.ViewModel
             // Clear the cart
             CurrentOrderItems.Clear();
 
+            // Reset all product stocks to their original values
+            ResetAllProductStocks();
+
             // Force notification of calculated properties
             NotifyCalculatedPropertiesChanged();
+
+            // Notify that selection state has changed
+            OnPropertyChanged(nameof(HasSelectedItems));
 
             // Clear ListView selection through page reference (prevent event recursion)
             if (PageReference is ContentPage page)
