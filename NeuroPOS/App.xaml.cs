@@ -22,9 +22,12 @@ namespace NeuroPOS
         public static TransactionVM? TransactionRepoVM { get; set; }
         public static InventoryVM? InventoryRepo { get; set; }
         #endregion
-        public App(BaseRepository<Cart> _cart, BaseRepository<CashRegister> _cashregister, BaseRepository<Category> _category,
-            BaseRepository<Contact> _contact, BaseRepository<Person> _person, BaseRepository<Product> _product,
-            BaseRepository<Transaction> _transaction, BaseRepository<Order> _order ,HomeVM _homeVM, TransactionVM _transactionVM,
+        public App(BaseRepository<Cart> _cart, BaseRepository<CashRegister> _cashregister,
+            BaseRepository<Category> _category,
+            BaseRepository<Contact> _contact, BaseRepository<Person> _person,
+            BaseRepository<Product> _product,
+            BaseRepository<Transaction> _transaction, BaseRepository<Order> _order ,HomeVM _homeVM,
+            TransactionVM _transactionVM,
             InventoryVM _inventoryVM)
         {
             InitializeComponent();

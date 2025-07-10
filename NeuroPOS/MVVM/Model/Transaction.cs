@@ -23,11 +23,8 @@ namespace NeuroPOS.MVVM.Model
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product>? TransactionItems { get; set; }
         public bool IsPaid { get; set; } // Indicates if the transaction has been paid to add to the cashRegister
-        
-        #region Ignore Properties
 
-        [Ignore]
-        public string Icon => TransactionType == "Buy" ? "redcart.png" : "greencart.png";
+        #region Ignore Properties
 
         [Ignore]
         public string HumanDate { get => Date.Humanize(); }

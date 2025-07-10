@@ -212,7 +212,6 @@ namespace NeuroPOS.MVVM.ViewModel
             // Handle subscription/unsubscription for added/removed items
             if (e.NewItems != null)
             {
-                Console.WriteLine($"[DEBUG] Adding {e.NewItems.Count} new items to property change subscriptions");
                 foreach (var item in e.NewItems)
                 {
                     if (item is INotifyPropertyChanged notifyItem)
@@ -224,7 +223,6 @@ namespace NeuroPOS.MVVM.ViewModel
 
             if (e.OldItems != null)
             {
-                Console.WriteLine($"[DEBUG] Removing {e.OldItems.Count} items from property change subscriptions");
                 foreach (var item in e.OldItems)
                 {
                     if (item is INotifyPropertyChanged notifyItem)
@@ -249,16 +247,6 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public void NotifyCalculatedPropertiesChanged()
         {
-
-
-            if (CurrentOrderItems != null)
-            {
-                foreach (var item in CurrentOrderItems)
-                {
-                    Console.WriteLine($"[DEBUG] Cart Item: {item.Name}, Price: {item.Price}, Stock: {item.Stock}, Total: {item.Price * item.Stock}");
-                }
-            }
-
 
             OnPropertyChanged(nameof(Subtotal));
             OnPropertyChanged(nameof(Tax));
@@ -292,12 +280,9 @@ namespace NeuroPOS.MVVM.ViewModel
                         CategoryName = product.CategoryName
                     };
 
-                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Creating new item: {newOrderItem.Name}, Price: {newOrderItem.Price}, Stock: {newOrderItem.Stock}");
                     CurrentOrderItems.Add(newOrderItem);
-                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Item added, CurrentOrderItems.Count: {CurrentOrderItems.Count}");
 
                     // FORCE notification for calculated properties after adding item
-                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Forcing calculated properties notification");
                     NotifyCalculatedPropertiesChanged();
 
 
@@ -338,11 +323,9 @@ namespace NeuroPOS.MVVM.ViewModel
                 else
                 {
                     // Increase quantity if already exists
-                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Existing item {existingItem.Name}, incrementing from {existingItem.Stock} to {existingItem.Stock + 1}");
                     existingItem.Stock += 1;
 
                     // FORCE notification for calculated properties after incrementing existing item
-                    Console.WriteLine($"[DEBUG] AddToCurrentOrder - Forcing calculated properties notification for existing item");
                     NotifyCalculatedPropertiesChanged();
                 }
             }
@@ -353,16 +336,11 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (product != null)
             {
-                Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder: Attempting to remove {product.Name}");
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
-                    Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder: Found item {existingItem.Name}, removing from cart");
                     CurrentOrderItems.Remove(existingItem);
-                    Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder: Item removed, CurrentOrderItems.Count: {CurrentOrderItems.Count}");
-
                     // FORCE notification for calculated properties after removing item
-                    Console.WriteLine($"[DEBUG] RemoveFromCurrentOrder - Forcing calculated properties notification");
                     NotifyCalculatedPropertiesChanged();
 
 
@@ -424,12 +402,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null)
                 {
-                    Console.WriteLine($"[DEBUG] IncrementQuantity: Before - Stock: {existingItem.Stock}");
                     existingItem.Stock += 1;
-                    Console.WriteLine($"[DEBUG] IncrementQuantity: After - Stock: {existingItem.Stock}");
-
                     // FORCE manual notification to test if bindings work
-                    Console.WriteLine($"[DEBUG] IncrementQuantity: Forcing manual notification");
                     NotifyCalculatedPropertiesChanged();
                 }
             }
@@ -442,12 +416,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 var existingItem = CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
                 if (existingItem != null && existingItem.Stock > 1)
                 {
-                    Console.WriteLine($"[DEBUG] DecrementQuantity: Before - Stock: {existingItem.Stock}");
                     existingItem.Stock -= 1;
-                    Console.WriteLine($"[DEBUG] DecrementQuantity: After - Stock: {existingItem.Stock}");
-
                     // FORCE manual notification to test if bindings work
-                    Console.WriteLine($"[DEBUG] DecrementQuantity: Forcing manual notification");
                     NotifyCalculatedPropertiesChanged();
                 }
                 else if (existingItem != null && existingItem.Stock == 1)
@@ -460,18 +430,13 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public void ClearAllSelections()
         {
-            Console.WriteLine($"[DEBUG] ClearAllSelections: Before clear - CurrentOrderItems.Count: {CurrentOrderItems.Count}");
-
             // Clear the ListView selections
             SelectedItems.Clear();
 
             // Clear the cart
             CurrentOrderItems.Clear();
 
-            Console.WriteLine($"[DEBUG] ClearAllSelections: After clear - CurrentOrderItems.Count: {CurrentOrderItems.Count}");
-
             // Force notification of calculated properties
-            Console.WriteLine($"[DEBUG] ClearAllSelections: Forcing calculated properties notification");
             NotifyCalculatedPropertiesChanged();
 
             // Clear ListView selection through page reference (prevent event recursion)
