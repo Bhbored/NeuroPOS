@@ -39,9 +39,10 @@ public partial class HomePage : ContentPage
                 var listView = sender as Syncfusion.Maui.ListView.SfListView;
 
                 // Update the selected count display based on actual ListView selection (for cart)
-                selectedValue.Text = listView?.SelectedItems?.Count.ToString() ?? "0";
+                // Update the selected items display using persistent count
+                vm?.UpdateSelectedItemsCountDisplay();
 
-                // Update the ViewModel SelectedItems to match ListView (don't clear and re-add, just sync changes)
+                // Update the ViewModel SelectedItems and persistent selection
                 if (e.AddedItems != null)
                 {
                     foreach (var item in e.AddedItems)
@@ -52,6 +53,7 @@ public partial class HomePage : ContentPage
                             if (!vm.SelectedItems.Contains(item))
                             {
                                 vm.SelectedItems.Add(item);
+                                vm.AddToPersistentSelection(product.Id);
                             }
                         }
                         else if (item is Product zeroStockProduct)
@@ -67,6 +69,10 @@ public partial class HomePage : ContentPage
                     foreach (var item in e.RemovedItems)
                     {
                         vm.SelectedItems.Remove(item);
+                        if (item is Product product)
+                        {
+                            vm.RemoveFromPersistentSelection(product.Id);
+                        }
                     }
                 }
 
@@ -170,6 +176,12 @@ public partial class HomePage : ContentPage
                 {
                     listView.DataSource.Filter = FilterProducts;
                     listView.DataSource.RefreshFilter();
+
+                    // Restore selections after search filtering
+                    vm?.RestoreListViewSelections();
+
+                    // Update selected count after filtering
+                    vm?.UpdateSelectedItemsCountDisplay();
                 }
 
             }

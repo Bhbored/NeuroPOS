@@ -73,6 +73,9 @@ namespace NeuroPOS.MVVM.ViewModel
         public ObservableCollection<object> SelectedItems { get; set; } = [];
         public IList<object> SelectedProducts { get; set; } = [];
 
+        // Backup collection to persist selections across ListView refreshes
+        private ObservableCollection<int> _persistentSelectedIds = new ObservableCollection<int>();
+
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>
         {
             new Category { Id = 1, Name = "Fruits"},
@@ -285,6 +288,9 @@ namespace NeuroPOS.MVVM.ViewModel
                     // Store original stock for this product
                     UpdateProductDisplayStock(product.Id);
 
+                    // Add to persistent selection
+                    AddToPersistentSelection(product.Id);
+
                     // FORCE notification for calculated properties after adding item
                     NotifyCalculatedPropertiesChanged();
 
@@ -301,13 +307,7 @@ namespace NeuroPOS.MVVM.ViewModel
                                 listView.SelectedItems.Add(originalProduct);
 
 
-                                // Update the selectedValue display (ListView selection counter only)
-                                var selectedValueLabel = page.FindByName("selectedValue") as Label;
-                                if (selectedValueLabel != null)
-                                {
-                                    selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
 
-                                }
 
                                 // Add to SelectedItems collection for HasSelectedItems property
                                 if (!SelectedItems.Contains(originalProduct))
@@ -357,6 +357,9 @@ namespace NeuroPOS.MVVM.ViewModel
                     // Update the display stock to reflect the removal
                     UpdateProductDisplayStock(product.Id);
 
+                    // Remove from persistent selection
+                    RemoveFromPersistentSelection(product.Id);
+
                     // FORCE notification for calculated properties after removing item
                     NotifyCalculatedPropertiesChanged();
 
@@ -382,13 +385,7 @@ namespace NeuroPOS.MVVM.ViewModel
 
                             }
 
-                            // Update the selectedValue display (ListView selection counter only)
-                            var selectedValueLabel = page.FindByName("selectedValue") as Label;
-                            if (selectedValueLabel != null)
-                            {
-                                selectedValueLabel.Text = listView.SelectedItems.Count.ToString();
 
-                            }
 
                             // Reconnect the selection changed event
                             if (homePage != null)
@@ -546,6 +543,9 @@ namespace NeuroPOS.MVVM.ViewModel
             // Clear the ListView selections
             SelectedItems.Clear();
 
+            // Clear the persistent selection backup
+            _persistentSelectedIds.Clear();
+
             // Clear the cart
             CurrentOrderItems.Clear();
 
@@ -557,6 +557,9 @@ namespace NeuroPOS.MVVM.ViewModel
 
             // Notify that selection state has changed
             OnPropertyChanged(nameof(HasSelectedItems));
+
+            // Update the count display
+            UpdateSelectedItemsCountDisplay();
 
             // Clear ListView selection through page reference (prevent event recursion)
             if (PageReference is ContentPage page)
@@ -580,13 +583,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     }
                 }
 
-                // Update the selected count display (only the ListView selection counter)
-                var selectedValueLabel = page.FindByName("selectedValue") as Label;
-                if (selectedValueLabel != null)
-                {
-                    selectedValueLabel.Text = "0";
 
-                }
 
                 // Note: We don't clear searchFilterValue here as it's for autocomplete filtering, not ListView selection
             }
@@ -598,7 +595,7 @@ namespace NeuroPOS.MVVM.ViewModel
         }
 
         // Property to check if any items are selected (for the clear button visibility)
-        public bool HasSelectedItems => SelectedItems?.Count > 0;
+        public bool HasSelectedItems => _persistentSelectedIds?.Count > 0;
 
         // Reference to the page for callbacks
         public object PageReference { get; set; }
@@ -640,6 +637,118 @@ namespace NeuroPOS.MVVM.ViewModel
                 });
             }
             // If SortState == None, keep it unsorted.
+
+            // Restore selections after sorting
+            RestoreListViewSelections();
+
+            // Update selected count after sorting
+            UpdateSelectedItemsCountDisplay();
+        }
+
+        /// <summary>
+        /// Adds a product ID to persistent selection backup
+        /// </summary>
+        public void AddToPersistentSelection(int productId)
+        {
+            if (!_persistentSelectedIds.Contains(productId))
+            {
+                _persistentSelectedIds.Add(productId);
+                OnPropertyChanged(nameof(HasSelectedItems));
+                UpdateSelectedItemsCountDisplay();
+            }
+        }
+
+        /// <summary>
+        /// Removes a product ID from persistent selection backup
+        /// </summary>
+        public void RemoveFromPersistentSelection(int productId)
+        {
+            if (_persistentSelectedIds.Contains(productId))
+            {
+                _persistentSelectedIds.Remove(productId);
+                OnPropertyChanged(nameof(HasSelectedItems));
+                UpdateSelectedItemsCountDisplay();
+            }
+        }
+
+        /// <summary>
+        /// Checks if a product ID is in persistent selection
+        /// </summary>
+        public bool IsInPersistentSelection(int productId)
+        {
+            return _persistentSelectedIds.Contains(productId);
+        }
+
+        /// <summary>
+        /// Updates the selected items count display using persistent selection count
+        /// </summary>
+        public void UpdateSelectedItemsCountDisplay()
+        {
+            if (PageReference is ContentPage page)
+            {
+                var selectedValueLabel = page.FindByName("selectedValue") as Label;
+                if (selectedValueLabel != null)
+                {
+                    selectedValueLabel.Text = _persistentSelectedIds.Count.ToString();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Refreshes all UI elements and ensures counts are synchronized
+        /// </summary>
+        public void RefreshUI()
+        {
+            UpdateSelectedItemsCountDisplay();
+            OnPropertyChanged(nameof(HasSelectedItems));
+            RestoreListViewSelections();
+        }
+
+        /// <summary>
+        /// Restores ListView selections after sorting or filtering using persistent backup
+        /// </summary>
+        public void RestoreListViewSelections()
+        {
+            if (PageReference is ContentPage page && _persistentSelectedIds?.Count > 0)
+            {
+                var listView = page.FindByName("listView") as Syncfusion.Maui.ListView.SfListView;
+                if (listView != null)
+                {
+                    // Temporarily disconnect selection event to avoid recursion
+                    var homePage = page as NeuroPOS.MVVM.View.HomePage;
+                    if (homePage != null)
+                    {
+                        listView.SelectionChanged -= homePage.ListView_SelectionChanged;
+                    }
+
+                    // Clear current selection
+                    listView.SelectedItems?.Clear();
+                    SelectedItems.Clear();
+
+                    // Restore selections based on persistent IDs
+                    foreach (var productId in _persistentSelectedIds)
+                    {
+                        // Find the product in the current DataSource display items
+                        var displayProduct = DataSource.DisplayItems?.Cast<Product>()
+                            .FirstOrDefault(p => p.Id == productId);
+
+                        if (displayProduct != null)
+                        {
+                            listView.SelectedItems.Add(displayProduct);
+                            SelectedItems.Add(displayProduct);
+                        }
+                    }
+
+                    // Update the selected count display using persistent count
+                    UpdateSelectedItemsCountDisplay();
+
+                    // Reconnect selection event
+                    if (homePage != null)
+                    {
+                        listView.SelectionChanged += homePage.ListView_SelectionChanged;
+                    }
+                }
+            }
         }
 
         public int? GetCatId(string categoryName)
@@ -731,6 +840,12 @@ namespace NeuroPOS.MVVM.ViewModel
             // Force refresh
             DataSource.RefreshFilter();
             OnPropertyChanged(nameof(DataSource));
+
+            // Restore selections after filtering
+            RestoreListViewSelections();
+
+            // Update selected count after category filtering
+            UpdateSelectedItemsCountDisplay();
         });
 
 
