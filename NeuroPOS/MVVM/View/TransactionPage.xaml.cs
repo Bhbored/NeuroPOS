@@ -1,15 +1,16 @@
 using NeuroPOS.MVVM.Popups;
 using NeuroPOS.MVVM.ViewModel;
+using CommunityToolkit.Maui.Views;
 
 namespace NeuroPOS.MVVM.View;
 
 public partial class TransactionPage : ContentPage
 {
-	public TransactionPage(TransactionVM vm)
+	public TransactionPage()
 	{
 		InitializeComponent();
-		BindingContext = vm;
+		BindingContext = new MVVM.ViewModel.TransactionVM();
 	}
 
-  
+	
 }

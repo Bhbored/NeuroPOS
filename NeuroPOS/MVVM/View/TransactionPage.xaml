@@ -3,102 +3,548 @@
     x:Class="NeuroPOS.MVVM.View.TransactionPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
     xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
     xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
-    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Expander;assembly=Syncfusion.Maui.Expander"
     x:DataType="VM:TransactionVM"
     BackgroundColor="{StaticResource NPLightBg}">
 
-    <VerticalStackLayout Padding="32,32,32,24" Spacing="24">
-        <!--  Title Section  -->
-        <Label
-            Margin="0,0,0,2"
-            FontSize="28"
-            StyleClass="TitleText"
-            Text="Transactions" />
-        <Label
-            Margin="0,0,0,18"
-            FontSize="16"
-            StyleClass="SubtitleText"
-            Text="View and manage all transactions" />
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Converters:TransactionTypeToColorConverter x:Key="TransactionTypeColor" />
+            <Converters:StatusToColorConverter x:Key="StatusColor" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-        <!--  Floating Filter Bar  -->
-        <Frame
-            Margin="0,0,0,10"
-            Padding="0"
-            BackgroundColor="White"
-            CornerRadius="16"
-            HasShadow="True">
-            <HorizontalStackLayout Padding="18,10" Spacing="12">
-                <Entry
-                    BackgroundColor="{StaticResource NPLightBg}"
-                    HeightRequest="36"
-                    HorizontalOptions="Fill"
-                    Placeholder="Search transactions..." />
+    <ScrollView>
+        <VerticalStackLayout Padding="24,32,24,24" Spacing="32">
+            <!--  Header Section  -->
+            <VerticalStackLayout Spacing="8">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="32"
+                    Text="Transactions"
+                    TextColor="{StaticResource NPTextMain}" />
+                <Label
+                    FontFamily="PoppinsRegular"
+                    FontSize="16"
+                    Text="View and manage all transactions"
+                    TextColor="{StaticResource NPTextSecondary}" />
+            </VerticalStackLayout>
+
+            <!--  Modern Filter/Search Section  -->
+            <Border
+                Padding="0"
+                BackgroundColor="{StaticResource NPCardBg}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="Black"
+                        Opacity="0.08"
+                        Radius="20"
+                        Offset="0,4" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Padding="28,24" Spacing="16">
+                    <HorizontalStackLayout Spacing="20">
+                        <Border
+                            BackgroundColor="{StaticResource NPLightBg}"
+                            HeightRequest="48"
+                            HorizontalOptions="Fill"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0">
+                            <Entry
+                                BackgroundColor="Transparent"
+                                FontFamily="PoppinsRegular"
+                                FontSize="14"
+                                Placeholder="Search transactions..."
+                                PlaceholderColor="{StaticResource NPTextMuted}"
+                                TextColor="{StaticResource NPTextMain}"
+                                VerticalOptions="Center" />
+                        </Border>
+
+                        <Button
+                            Padding="24,0"
+                            BackgroundColor="{StaticResource NPPrimaryBlue}"
+                            CornerRadius="12"
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            HeightRequest="48"
+                            Text="Date Range"
+                            TextColor="White" />
+
+                        <Button
+                            Padding="24,0"
+                            BackgroundColor="{StaticResource NPAccentYellow}"
+                            CornerRadius="12"
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            HeightRequest="48"
+                            Text="Status"
+                            TextColor="White" />
+
+                        <!--  Collapse All Button (Initially Hidden)  -->
+                        <Button
+                            Padding="20,0"
+                            BackgroundColor="{StaticResource NPStockRed}"
+                            Command="{Binding CollapseAllCommand}"
+                            CornerRadius="12"
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            HeightRequest="48"
+                            IsVisible="{Binding AnyExpanded}"
+                            Text="Collapse All"
+                            TextColor="White" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Table Column Headers  -->
+            <Grid
+                Margin="32,8,32,16"
+                ColumnDefinitions="1.2*,1*,0.8*,0.6*,0.8*,1.2*,1*,1*"
+                RowDefinitions="Auto">
+
+                <Label
+                    Grid.Column="0"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    Text="TRANSACTION ID"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="1"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    Text="DATE"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="2"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    Text="TIME"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="3"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    Text="ITEMS"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="4"
+                    Margin="0,0,30,0"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    Text="TYPE"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="5"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    Text="TOTAL AMOUNT"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="6"
+                    Margin="0,0,60,0"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    Text="STATUS"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Grid.Column="7"
+                    FontFamily="PoppinsBold"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    Text="ACTIONS"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+            </Grid>
+
+            <!--  Optimized Transactions List  -->
+            <Border
+                Padding="0"
+                BackgroundColor="{StaticResource NPCardBg}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="Black"
+                        Opacity="0.08"
+                        Radius="20"
+                        Offset="0,6" />
+                </Border.Shadow>
+
+                <CollectionView
+                    ItemsSource="{Binding Transactions}"
+                    SelectionMode="None"
+                    VerticalScrollBarVisibility="Never">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="Model:Transaction">
+                            <VerticalStackLayout Padding="0" Spacing="0">
+
+                                <!--  Optimized Expandable Transaction Row  -->
+                                <syncfusion:SfExpander
+                                    x:Name="TransactionExpander"
+                                    AnimationDuration="250"
+                                    HeaderIconColor="{StaticResource NPPrimaryBlue}"
+                                    HeaderIconPosition="End"
+                                    IsExpanded="{Binding IsExpanded}">
+                                    <syncfusion:SfExpander.Header>
+                                        <!--  Properly Aligned Transaction Row  -->
+                                        <Grid
+                                            Padding="32,24,32,24"
+                                            ColumnDefinitions="1.2*,1*,0.8*,0.6*,0.8*,1.2*,1*,1*"
+                                            RowDefinitions="Auto">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ToggleExpandCommand}" CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Label
+                                                Grid.Column="0"
+                                                FontFamily="PoppinsBold"
+                                                FontSize="14"
+                                                Text="{Binding Id, StringFormat='#{0}'}"
+                                                TextColor="{StaticResource NPPrimaryBlue}"
+                                                VerticalOptions="Center" />
+
+                                            <Label
+                                                Grid.Column="1"
+                                                FontFamily="PoppinsRegular"
+                                                FontSize="14"
+                                                Text="{Binding FormattedDate}"
+                                                TextColor="{StaticResource NPTextMain}"
+                                                VerticalOptions="Center" />
+
+                                            <Label
+                                                Grid.Column="2"
+                                                FontFamily="PoppinsRegular"
+                                                FontSize="14"
+                                                Text="{Binding FormattedTime}"
+                                                TextColor="{StaticResource NPTextSecondary}"
+                                                VerticalOptions="Center" />
+
+                                            <Label
+                                                Grid.Column="3"
+                                                FontFamily="PoppinsRegular"
+                                                FontSize="14"
+                                                HorizontalTextAlignment="Center"
+                                                Text="{Binding ItemCount}"
+                                                TextColor="{StaticResource NPTextMain}"
+                                                VerticalOptions="Center" />
+
+                                            <Border
+                                                Grid.Column="4"
+                                                Padding="12,6"
+                                                BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeColor}}"
+                                                HorizontalOptions="Center"
+                                                StrokeShape="RoundRectangle 5"
+                                                StrokeThickness="0"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    FontFamily="PoppinsBold"
+                                                    FontSize="11"
+                                                    HorizontalTextAlignment="Center"
+                                                    Text="{Binding TransactionType}"
+                                                    TextColor="White" />
+                                            </Border>
+
+                                            <Label
+                                                Grid.Column="5"
+                                                Margin="20,0,0,0"
+                                                FontFamily="PoppinsBold"
+                                                FontSize="14"
+                                                Text="{Binding TotalAmount, StringFormat='{0:C}'}"
+                                                TextColor="{StaticResource NPTextMain}"
+                                                VerticalOptions="Center" />
+
+                                            <Border
+                                                Grid.Column="6"
+                                                Padding="12,6"
+                                                BackgroundColor="{Binding IsPaid, Converter={StaticResource StatusColor}}"
+                                                HorizontalOptions="Center"
+                                                StrokeShape="RoundRectangle 5"
+                                                StrokeThickness="0"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    FontFamily="PoppinsBold"
+                                                    FontSize="12"
+                                                    HorizontalTextAlignment="Center"
+                                                    Text="{Binding Status}"
+                                                    TextColor="White" />
+                                            </Border>
+
+                                            <!--  View Details at far right under ACTIONS  -->
+                                            <Label
+                                                Grid.Column="7"
+                                                Padding="8,6"
+                                                BackgroundColor="Transparent"
+                                                FontFamily="PoppinsBold"
+                                                FontSize="12"
+                                                HorizontalTextAlignment="End"
+                                                Text="View Details"
+                                                TextColor="{StaticResource NPPrimaryBlue}"
+                                                VerticalOptions="Center">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ToggleExpandCommand}" CommandParameter="{Binding .}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+                                        </Grid>
+                                    </syncfusion:SfExpander.Header>
+                                    <syncfusion:SfExpander.Content>
+                                        <Border
+                                            Margin="32,0,32,24"
+                                            Padding="24,20"
+                                            BackgroundColor="{StaticResource NPLightBg}"
+                                            StrokeShape="RoundRectangle 16"
+                                            StrokeThickness="0">
+                                            <VerticalStackLayout Spacing="20">
+
+                                                <Label
+                                                    FontFamily="PoppinsBold"
+                                                    FontSize="16"
+                                                    Text="Transaction Items"
+                                                    TextColor="{StaticResource NPTextMain}" />
+
+                                                <!--  Product Details Table Headers  -->
+                                                <Grid ColumnDefinitions="60,*,120,80,100,100,120" RowDefinitions="Auto">
+                                                    <Label
+                                                        Grid.Column="0"
+                                                        Grid.ColumnSpan="2"
+                                                        Margin="10,0,0,0"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HorizontalOptions="Start"
+                                                        Text="PRODUCT"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+
+                                                    <Label
+                                                        Grid.Column="2"
+                                                        Margin="0,0,30,0"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HorizontalOptions="Center"
+                                                        Text="CATEGORY"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+
+                                                    <Label
+                                                        Grid.Column="3"
+                                                        Margin="0,0,30,0"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HorizontalTextAlignment="Center"
+                                                        Text="QTY"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+
+                                                    <Label
+                                                        Grid.Column="4"
+                                                        Margin="0,0,30,0"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HorizontalTextAlignment="Center"
+                                                        Text="PRICE"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+
+                                                    <Label
+                                                        Grid.Column="5"
+                                                        Margin="0,0,30,0"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HorizontalTextAlignment="Center"
+                                                        Text="TOTAL"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+
+                                                    <Label
+                                                        Grid.Column="6"
+                                                        Margin="0,0,30,0"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HorizontalTextAlignment="Center"
+                                                        Text="DATE ADDED"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+                                                </Grid>
+
+                                                <!--  High-Performance Product Items List  -->
+                                                <CollectionView
+                                                    ItemsSource="{Binding TransactionItems}"
+                                                    SelectionMode="None"
+                                                    VerticalScrollBarVisibility="Never">
+
+                                                    <CollectionView.ItemTemplate>
+                                                        <DataTemplate x:DataType="Model:Product">
+                                                            <Border
+                                                                Margin="0,4,0,4"
+                                                                Padding="16,12"
+                                                                BackgroundColor="{StaticResource NPCardBg}"
+                                                                StrokeShape="RoundRectangle 12"
+                                                                StrokeThickness="0">
+                                                                <VerticalStackLayout Spacing="8">
+                                                                    <!--  Properly Aligned Product Row  -->
+                                                                    <Grid ColumnDefinitions="60,*,120,80,100,100,120" RowDefinitions="Auto">
+
+                                                                        <!--  Product Image  -->
+                                                                        <Border
+                                                                            Grid.Column="0"
+                                                                            BackgroundColor="{StaticResource NPLightBg}"
+                                                                            HeightRequest="40"
+                                                                            StrokeShape="RoundRectangle 8"
+                                                                            StrokeThickness="0"
+                                                                            VerticalOptions="Center"
+                                                                            WidthRequest="40">
+                                                                            <Image
+                                                                                Aspect="AspectFit"
+                                                                                Source="{Binding ImageUrl}"
+                                                                                VerticalOptions="Center" />
+                                                                        </Border>
+
+                                                                        <!--  Product Name  -->
+                                                                        <VerticalStackLayout Grid.Column="1">
+                                                                            <Label
+                                                                                FontFamily="PoppinsBold"
+                                                                                FontSize="13"
+                                                                                Text="{Binding Name}"
+                                                                                TextColor="{StaticResource NPTextMain}"
+                                                                                VerticalOptions="Center" />
+                                                                            <Label
+                                                                                FontFamily="PoppinsBold"
+                                                                                FontSize="10"
+                                                                                Text="{Binding Id, StringFormat='#{0}'}"
+                                                                                TextColor="{StaticResource NPTextMain}"
+                                                                                VerticalOptions="Center" />
+                                                                        </VerticalStackLayout>
+
+                                                                        <!--  Category  -->
+                                                                        <Border
+                                                                            Grid.Column="2"
+                                                                            Padding="8,4"
+                                                                            BackgroundColor="{StaticResource NPAccentYellow}"
+                                                                            HorizontalOptions="Center"
+                                                                            StrokeShape="RoundRectangle 8"
+                                                                            StrokeThickness="0"
+                                                                            VerticalOptions="Center">
+                                                                            <Label
+                                                                                FontFamily="PoppinsBold"
+                                                                                FontSize="10"
+                                                                                HorizontalTextAlignment="Center"
+                                                                                Text="{Binding CategoryName}"
+                                                                                TextColor="White" />
+                                                                        </Border>
+
+                                                                        <!--  Quantity  -->
+                                                                        <Label
+                                                                            Grid.Column="3"
+                                                                            FontFamily="PoppinsRegular"
+                                                                            FontSize="13"
+                                                                            HorizontalTextAlignment="Center"
+                                                                            Text="{Binding Stock}"
+                                                                            TextColor="{StaticResource NPTextMain}"
+                                                                            VerticalOptions="Center" />
+
+                                                                        <!--  Unit Price  -->
+                                                                        <Label
+                                                                            Grid.Column="4"
+                                                                            FontFamily="PoppinsBold"
+                                                                            FontSize="13"
+                                                                            HorizontalTextAlignment="Center"
+                                                                            Text="{Binding Price, StringFormat='{0:C}'}"
+                                                                            TextColor="{StaticResource NPTextMain}"
+                                                                            VerticalOptions="Center" />
+
+                                                                        <!--  Total Price  -->
+                                                                        <Label
+                                                                            Grid.Column="5"
+                                                                            FontFamily="PoppinsBold"
+                                                                            FontSize="13"
+                                                                            HorizontalTextAlignment="Center"
+                                                                            Text="{Binding Price, StringFormat='{0:C}'}"
+                                                                            TextColor="{StaticResource NPStockGreen}"
+                                                                            VerticalOptions="Center" />
+
+                                                                        <!--  Date Added  -->
+                                                                        <Label
+                                                                            Grid.Column="6"
+                                                                            FontFamily="PoppinsRegular"
+                                                                            FontSize="11"
+                                                                            HorizontalTextAlignment="Center"
+                                                                            Text="{Binding FormattedDate}"
+                                                                            TextColor="{StaticResource NPTextSecondary}"
+                                                                            VerticalOptions="Center" />
+                                                                    </Grid>
+
+                                                                    <!--  Subtle Product Divider  -->
+                                                                    <BoxView
+                                                                        BackgroundColor="{StaticResource NPDivider}"
+                                                                        HeightRequest="0.5"
+                                                                        HorizontalOptions="Fill"
+                                                                        Opacity="0.5" />
+                                                                </VerticalStackLayout>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </CollectionView.ItemTemplate>
+                                                </CollectionView>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </syncfusion:SfExpander.Content>
+                                </syncfusion:SfExpander>
+
+                                <!--  Main Divider  -->
+                                <BoxView
+                                    BackgroundColor="{StaticResource NPDivider}"
+                                    HeightRequest="1"
+                                    HorizontalOptions="Fill" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+
+            <!--  Pagination  -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
+
+                <Label
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    Text="Showing 1 to 5 of 125 results"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    VerticalOptions="Center" />
+
                 <Button
-                    Padding="16,0"
+                    Padding="18,10"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource NPDivider}"
+                    BorderWidth="1"
+                    CornerRadius="8"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    Text="Previous"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Button
+                    Padding="18,10"
                     BackgroundColor="{StaticResource NPPrimaryBlue}"
                     CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="36"
-                    Text="Date Range"
-                    TextColor="White" />
-                <Button
-                    Padding="16,0"
-                    BackgroundColor="{StaticResource NPPrimaryBlue}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="36"
-                    Text="Status"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="Next"
                     TextColor="White" />
             </HorizontalStackLayout>
-        </Frame>
-
-        <!--  Card with shadow for DataGrid  -->
-        <Frame
-            Margin="0,10,0,10"
-            Padding="0"
-            BackgroundColor="{StaticResource NPCardBg}"
-            CornerRadius="16"
-            HeightRequest="500">
-            <Frame.Shadow>
-                <Shadow
-                    Brush="Black"
-                    Opacity="0.12"
-                    Radius="16"
-                    Offset="0,8" />
-
-            </Frame.Shadow>
-            <syncfusion:SfDataGrid
-                x:Name="dataGrid"
-                AutoGenerateColumnsMode="None"
-                BackgroundColor="Transparent"
-                ItemsSource="{Binding Transactions}">
-                <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:DataGridTextColumn
-                        CellTextAlignment="Start"
-                        ColumnWidthMode="Auto"
-                        HeaderText="TRANSACTION ID"
-                        HeaderTextAlignment="Start"
-                        MappingName="Id" />
-                    <syncfusion:DataGridTextColumn
-                        CellTextAlignment="Start"
-                        HeaderText="Type"
-                        MappingName="TransactionType" />
-                    <syncfusion:DataGridTextColumn
-                        CellTextAlignment="Start"
-                        HeaderText="Date"
-                        MappingName="FormattedDate" />
-                    <syncfusion:DataGridNumericColumn
-                        CellTextAlignment="Start"
-                        HeaderText="Items"
-                        MappingName="ItemCount" />
-                    <syncfusion:DataGridTextColumn
-                        CellTextAlignment="Start"
-                        HeaderText="Amount"
-                        MappingName="TotalAmount" />
-                </syncfusion:SfDataGrid.Columns>
-            </syncfusion:SfDataGrid>
-        </Frame>
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

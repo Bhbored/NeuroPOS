@@ -16,7 +16,7 @@ namespace NeuroPOS.MVVM.Model
     {
         public DateTime Date { get; set; }
 
-        public string TransactionType { get; set; } // "buy" or "sell"
+        public string? TransactionType { get; set; } // "buy" or "sell"
         public double TotalAmount { get; set; }
         public double ItemCount { get; set; } // Total quantity of items in the transaction
 
@@ -49,6 +49,9 @@ namespace NeuroPOS.MVVM.Model
                 return IsPaid ? "Completed" : "Pending";
             }
         }
+
+        [Ignore]
+        public bool IsExpanded { get; set; } = false;
         #endregion
 
         #region Foreign Keys

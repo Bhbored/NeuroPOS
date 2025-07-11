@@ -10,4 +10,6 @@ public partial class InventoryPage : ContentPage
 		BindingContext = vm;
 
 	}
+
+   
 }
