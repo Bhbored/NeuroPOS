@@ -21,7 +21,7 @@ namespace NeuroPOS.MVVM.Model
         public double ItemCount { get; set; } // Total quantity of items in the transaction
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product>? TransactionItems { get; set; }
+        public List<Product> TransactionItems { get; set; } = new List<Product>();
         public bool IsPaid { get; set; } // Indicates if the transaction has been paid to add to the cashRegister
 
         #region Ignore Properties
