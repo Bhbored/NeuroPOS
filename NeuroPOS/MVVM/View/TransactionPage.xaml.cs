@@ -11,21 +11,13 @@ public partial class TransactionPage : ContentPage
     {
         InitializeComponent();
         BindingContext = vm;
-        Debug.WriteLine("TransactionPage: Constructor called, BindingContext set");
     }
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        Debug.WriteLine("OnAppearing: Called");
-
         if (BindingContext is TransactionVM vm)
         {
-            Debug.WriteLine($"OnAppearing: BindingContext found, IsInitialized: {vm.IsInitialized}");
             vm.LoadData();
-        }
-        else
-        {
-            Debug.WriteLine("OnAppearing: BindingContext is not TransactionVM!");
         }
     }
 
