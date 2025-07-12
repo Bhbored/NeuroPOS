@@ -65,6 +65,7 @@
 		<PackageReference Include="SQLiteNetExtensions" Version="2.1.0" />
 		<PackageReference Include="SQLiteNetExtensions.Async" Version="2.1.0" />
 		<PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="2.1.11" />
+		<PackageReference Include="Syncfusion.Maui.Calendar" Version="30.1.39" />
 		<PackageReference Include="Syncfusion.Maui.Core" Version="30.1.39" />
 		<PackageReference Include="Syncfusion.Maui.DataGrid" Version="30.1.39" />
 		<PackageReference Include="Syncfusion.Maui.Expander" Version="30.1.39" />

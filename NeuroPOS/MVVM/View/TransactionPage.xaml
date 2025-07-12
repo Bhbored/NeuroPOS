@@ -33,7 +33,7 @@
                     <Label
                         FontFamily="PoppinsRegular"
                         FontSize="16"
-                        Text="View and manage all transactions • Pull down to refresh"
+                        Text="View and manage all transactions"
                         TextColor="{StaticResource NPTextSecondary}" />
                 </VerticalStackLayout>
 
@@ -72,6 +72,7 @@
                             <Button
                                 Padding="24,0"
                                 BackgroundColor="{StaticResource NPPrimaryBlue}"
+                                Clicked="ShowDatePicker"
                                 CornerRadius="12"
                                 FontFamily="PoppinsBold"
                                 FontSize="14"
@@ -98,7 +99,7 @@
                                 FontFamily="PoppinsBold"
                                 FontSize="14"
                                 HeightRequest="48"
-                                Text="Test Refresh"
+                                Text="Refresh DB"
                                 TextColor="White" />
 
                             <!--  Collapse All Button (Initially Hidden)  -->
@@ -410,7 +411,7 @@
                                                                 <Border
                                                                     Margin="0,4,0,4"
                                                                     Padding="16,12"
-                                                                    BackgroundColor="{StaticResource NPCardBg}"
+                                                                    BackgroundColor="LightCyan"
                                                                     StrokeShape="RoundRectangle 12"
                                                                     StrokeThickness="0">
                                                                     <VerticalStackLayout Spacing="8">

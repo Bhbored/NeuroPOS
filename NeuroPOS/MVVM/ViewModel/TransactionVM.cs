@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
 using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.Popups;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
@@ -13,7 +16,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Transaction = NeuroPOS.MVVM.Model.Transaction;
-using Microsoft.Maui.Devices;
 
 namespace NeuroPOS.MVVM.ViewModel;
 
@@ -24,7 +26,7 @@ public partial class TransactionVM : ObservableObject
     public TransactionVM()
     {
 
-
+        LoadData();
     }
 
     #region Properties
@@ -343,6 +345,7 @@ public partial class TransactionVM : ObservableObject
 
     public ICommand RefreshCommand => new Command(async () => await RefreshAsync());
     public ICommand UpdateButtonsCommand => new Command(UpdateButtonStates);
+   
 
     #endregion
 

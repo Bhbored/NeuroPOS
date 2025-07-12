@@ -18,7 +18,7 @@ namespace NeuroPOS.MVVM.ViewModel
     {
         public HomeVM()
         {
-            SortProduct();
+            LoadDB();
         }
 
         #region Enums
@@ -761,10 +761,7 @@ namespace NeuroPOS.MVVM.ViewModel
 
 
 
-        public void LoadDB()
-        {
-            // Implement DB loading here if needed
-        }
+       
 
         private bool FilterByActiveCategory(object obj)
         {
@@ -864,9 +861,15 @@ namespace NeuroPOS.MVVM.ViewModel
             DataSource.Refresh();
 
         }
+
+
         #endregion
 
-
+        public void LoadDB()
+        {
+            // Load products from the database or any other source
+            SortProduct();
+        }
 
     }
 }

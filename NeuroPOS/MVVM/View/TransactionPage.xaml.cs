@@ -1,6 +1,7 @@
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using NeuroPOS.MVVM.Popups;
 using NeuroPOS.MVVM.ViewModel;
-using CommunityToolkit.Maui.Views;
 using System.Diagnostics;
 
 namespace NeuroPOS.MVVM.View;
@@ -12,14 +13,19 @@ public partial class TransactionPage : ContentPage
         InitializeComponent();
         BindingContext = vm;
     }
-    protected override void OnAppearing()
+    //protected override void OnAppearing()
+    //{
+    //    base.OnAppearing();
+    //    if (BindingContext is TransactionVM vm)
+    //    {
+    //        vm.LoadData();
+    //    }
+    //}
+
+    private  async void ShowDatePicker(object sender, EventArgs e)
     {
-        base.OnAppearing();
-        if (BindingContext is TransactionVM vm)
-        {
-            vm.LoadData();
-        }
+        await Shell.Current.CurrentPage.ShowPopupAsync(new DatePickerPopup());
     }
 
-
+    
 }

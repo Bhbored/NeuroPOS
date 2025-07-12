@@ -40,7 +40,6 @@ namespace NeuroPOS
             builder.Services.AddSingleton<HomeVM>();
             builder.Services.AddSingleton<TransactionVM>();
             builder.Services.AddSingleton<InventoryVM>();
-         
 
             return builder.Build();
         }

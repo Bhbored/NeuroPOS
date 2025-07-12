@@ -28,6 +28,9 @@ public partial class HomePage : ContentPage
 
     }
 
+
+
+    #region filering logic
     public void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
     {
         try
@@ -141,8 +144,6 @@ public partial class HomePage : ContentPage
             Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
         }
     }
-
-    #region filering logic
     private void autocomplete_SelectionChanged(object sender, Syncfusion.Maui.Inputs.SelectionChangedEventArgs e)
     {
         try
@@ -248,6 +249,15 @@ public partial class HomePage : ContentPage
         }
         else { Icon.Source = ""; }
     }
+
+    //protected override void OnAppearing()
+    //{
+    //    base.OnAppearing();
+    //    if (BindingContext is HomeVM vm)
+    //    {
+    //        vm.LoadDB();
+    //    }
+    //}
 
 
 

@@ -3,7 +3,8 @@
     x:Class="NeuroPOS.MVVM.Popups.DatePickerPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:picker="clr-namespace:Syncfusion.Maui.Picker;assembly=Syncfusion.Maui.Picker"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:calendar="clr-namespace:Syncfusion.Maui.Calendar;assembly=Syncfusion.Maui.Calendar"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     BackgroundColor="{StaticResource NPCardBg}"
     HeightRequest="600"
@@ -15,33 +16,81 @@
                 FontSize="20"
                 HorizontalOptions="Center"
                 StyleClass="TitleText"
-                Text="Select Date &amp; Time Range" />
+                Text="Select Date Range" />
             <!--  Start Date & Time  -->
-            <Label StyleClass="SubtitleText" Text="Start Date &amp; Time" />
-            <picker:SfDateTimePicker WidthRequest="260" />
-            <Label
-                FontSize="13"
-                Text="No start selected"
-                TextColor="{StaticResource NPTextSecondary}" />
-            <!--  End Date & Time  -->
-            <Label StyleClass="SubtitleText" Text="End Date &amp; Time" />
-            <picker:SfDateTimePicker WidthRequest="260" />
-            <Label
-                FontSize="13"
-                Text="No end selected"
-                TextColor="{StaticResource NPTextSecondary}" />
+
+            <calendar:SfCalendar
+                x:Name="calendar"
+                CanToggleDaySelection="true"
+                CornerRadius="10"
+                EnableSwipeSelection="True"
+                NavigateToAdjacentMonth="true"
+                NavigationDirection="Horizontal"
+                PopupHeight="400"
+                PopupWidth="300"
+                RangeSelectionDirection="Both"
+                SelectionChangedCommand="{Binding SelectionChangedCommand}"
+                SelectionMode="Range">
+
+                <calendar:SfCalendar.MonthView>
+                    <calendar:CalendarMonthView FirstDayOfWeek="Monday" NumberOfVisibleWeeks="4" />
+                </calendar:SfCalendar.MonthView>
+
+            </calendar:SfCalendar>
+            <!--  End and start Time  -->
+            <VerticalStackLayout Spacing="10">
+                <HorizontalStackLayout Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="20"
+                        HorizontalOptions="Start"
+                        StyleClass="TitleText"
+                        Text="Start Date :" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="20"
+                        HorizontalOptions="End"
+                        StyleClass="TitleText"
+                        Text="{Binding StartDate}" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="20"
+                        HorizontalOptions="Start"
+                        StyleClass="TitleText"
+                        Text="End Date :" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="20"
+                        HorizontalOptions="End"
+                        StyleClass="TitleText"
+                        Text="{Binding EndDate}" />
+                </HorizontalStackLayout>
+
+
+            </VerticalStackLayout>
             <!--  Action Buttons  -->
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="16">
                 <Button
-                    BackgroundColor="{StaticResource NPTextMutedBrush}"
+                    Padding="24,0"
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    Clicked="Button_Clicked"
+                    CornerRadius="12"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    HeightRequest="48"
                     Text="Cancel"
-                    TextColor="White"
-                    WidthRequest="100" />
+                    TextColor="White" />
                 <Button
-                    BackgroundColor="{StaticResource NPPrimaryBlueBrush}"
+                    Padding="24,0"
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    CornerRadius="12"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    HeightRequest="48"
                     Text="Apply Filter"
-                    TextColor="White"
-                    WidthRequest="140" />
+                    TextColor="White" />
             </HorizontalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

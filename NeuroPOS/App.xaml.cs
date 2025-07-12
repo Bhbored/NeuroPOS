@@ -27,8 +27,7 @@ namespace NeuroPOS
             BaseRepository<Contact> _contact, BaseRepository<Person> _person,
             BaseRepository<Product> _product,
             BaseRepository<Transaction> _transaction, BaseRepository<Order> _order ,HomeVM _homeVM,
-            TransactionVM _transactionVM,
-            InventoryVM _inventoryVM)
+            TransactionVM _transactionVM,InventoryVM _inventoryVM)
         {
             InitializeComponent();
             SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXlceHRTQ2ZYWUN/XkFWYEk=");
