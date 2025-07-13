@@ -28,6 +28,8 @@ public partial class InventoryPage : ContentPage
         SelectAllCheckBox.CheckedChanged += SelectAllCheckBox_CheckedChanged;
     }
 
+
+    #region filter and selection handling
     private void ListView_SelectionChanged(object sender, ItemSelectionChangedEventArgs e)
     {
         if (e.AddedItems?.Count > 0)
@@ -141,8 +143,8 @@ public partial class InventoryPage : ContentPage
         {
             InventoryVM.SortDirectionState.Ascending => "ascending.png",
             InventoryVM.SortDirectionState.Descending => "descending.png",
-            InventoryVM.SortDirectionState.None => "ascending.png",
-            _ => "ascending.png"
+            InventoryVM.SortDirectionState.None => "",
+            _ => ""
         };
     }
 
@@ -176,13 +178,6 @@ public partial class InventoryPage : ContentPage
         }
     }
 
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        _viewModel.RefreshUI();
-    }
-
-    // Method to clear search filter and show all products
     public void ClearSearchFilter()
     {
         try
@@ -207,6 +202,18 @@ public partial class InventoryPage : ContentPage
     }
 
 
+    #endregion
+
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _viewModel.RefreshUI();
+    }
+
+    // Method to clear search filter and show all products
+
+
 
     // Popup methods for confirmations
     public async void ShowDeleteProductConfirmation(Product product)
@@ -220,6 +227,7 @@ public partial class InventoryPage : ContentPage
             {
                 _viewModel.DeleteProductById(product.Id);
                 ClearSearchFilter(); // Clear search filter to show all remaining products
+                _viewModel.RevalidateActiveFilters();
             }
         }
     }
@@ -233,6 +241,7 @@ public partial class InventoryPage : ContentPage
         {
             _viewModel.DeleteSelectedProductsByIds();
             ClearSearchFilter(); // Clear search filter to show all remaining products
+            _viewModel.RevalidateActiveFilters();
         }
     }
 
@@ -248,6 +257,7 @@ public partial class InventoryPage : ContentPage
                 case EditConfirmationResult.Save:
                     _viewModel.SaveProductChanges();
                     ClearSearchFilter(); // Clear search filter after saving changes
+                    _viewModel.RevalidateActiveFilters();
                     break;
                 case EditConfirmationResult.Discard:
                     _viewModel.CancelEdit();
@@ -275,6 +285,7 @@ public partial class InventoryPage : ContentPage
             case EditConfirmationResult.Save:
                 _viewModel.SaveProductChanges();
                 ClearSearchFilter(); // Clear search filter after saving changes
+                _viewModel.RevalidateActiveFilters();
                 break;
             case EditConfirmationResult.Discard:
                 // User chose to discard changes
@@ -284,6 +295,34 @@ public partial class InventoryPage : ContentPage
             case EditConfirmationResult.Cancel:
                 // Do nothing - stay in edit mode
                 break;
+        }
+    }
+
+    public async void ShowAddProductPopup()
+    {
+        // Clear the form before showing popup
+        _viewModel.ClearNewProductForm();
+
+        var popup = new AddProductPopup();
+        popup.BindingContext = _viewModel;
+        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+
+        if (popup.Result == AddProductResult.Add)
+        {
+            // Check if product already exists
+            if (!_viewModel.ValidateNewProduct())
+            {
+                // Show duplicate product warning
+                await DisplayAlert("Product Already Exists",
+                    $"A product with the name '{_viewModel.NewProductName}' already exists. Please edit the existing product's stock instead.",
+                    "OK");
+                return;
+            }
+
+            // Add the new product
+            _viewModel.AddNewProduct();
+            ClearSearchFilter(); // Clear search filter to show all products including new one
+            _viewModel.RevalidateActiveFilters();
         }
     }
 

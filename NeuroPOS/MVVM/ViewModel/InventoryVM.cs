@@ -132,6 +132,15 @@ namespace NeuroPOS.MVVM.ViewModel
         public string EditCategory { get; set; }
         public string EditImageUrl { get; set; }
 
+        // New product properties
+        public int NewProductId => Products.Count > 0 ? Products.Max(p => p.Id) + 1 : 1;
+        public string NewProductName { get; set; } = string.Empty;
+        public string NewProductPrice { get; set; } = string.Empty;
+        public string NewProductCost { get; set; } = string.Empty;
+        public string NewProductStock { get; set; } = string.Empty;
+        public Category NewProductCategory { get; set; }
+        public string NewProductImageUrl { get; set; } = "emptyproduct.png";
+
         // Category selection for dropdown
         private Category _selectedEditCategory;
         public Category SelectedEditCategory
@@ -468,6 +477,69 @@ namespace NeuroPOS.MVVM.ViewModel
             OnPropertyChanged(nameof(EditImageUrl));
         }
 
+        public void ClearNewProductForm()
+        {
+            NewProductName = string.Empty;
+            NewProductPrice = string.Empty;
+            NewProductCost = string.Empty;
+            NewProductStock = string.Empty;
+            NewProductCategory = null;
+            NewProductImageUrl = "emptyproduct.png";
+            OnPropertyChanged(nameof(NewProductName));
+            OnPropertyChanged(nameof(NewProductPrice));
+            OnPropertyChanged(nameof(NewProductCost));
+            OnPropertyChanged(nameof(NewProductStock));
+            OnPropertyChanged(nameof(NewProductCategory));
+            OnPropertyChanged(nameof(NewProductImageUrl));
+            OnPropertyChanged(nameof(NewProductId));
+        }
+
+        public bool ValidateNewProduct()
+        {
+            // Check if a product with the same name already exists
+            return !Products.Any(p => p.Name.Equals(NewProductName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void AddNewProduct()
+        {
+            if (!ValidateNewProduct())
+                return; // Validation failed - duplicate product
+
+            // Parse numeric values
+            if (!double.TryParse(NewProductPrice, out double price))
+                price = 0;
+
+            if (!double.TryParse(NewProductCost, out double cost))
+                cost = 0;
+
+            if (!int.TryParse(NewProductStock, out int stock))
+                stock = 0;
+
+            // Create new product
+            var newProduct = new Product
+            {
+                Id = NewProductId,
+                Name = NewProductName,
+                Price = price,
+                Cost = cost,
+                Stock = stock,
+                CategoryName = NewProductCategory?.Name ?? "Uncategorized",
+                ImageUrl = NewProductImageUrl,
+                DateAdded = DateTime.Now
+            };
+
+            // Add to collection
+            Products.Add(newProduct);
+
+            // Refresh UI
+            DataSource.Source = Products;
+            DataSource.Refresh();
+            PopulateCategoryFilterOptions();
+
+            // Clear form
+            ClearNewProductForm();
+        }
+
 
 
         public void UpdateSelectAllCheckboxState()
@@ -553,7 +625,32 @@ namespace NeuroPOS.MVVM.ViewModel
                    (SelectedEditCategory?.Name ?? EditCategory) != SelectedProduct.CategoryName ||
                    EditImageUrl != SelectedProduct.ImageUrl;
         }
+        public void RevalidateActiveFilters()
+        {
+            // 1️⃣  If the current category yields no rows, reset it
+            if (SelectedCategoryFilter != "All Categories" &&
+                !Products.Any(p => p.CategoryName
+                       .Equals(SelectedCategoryFilter, StringComparison.OrdinalIgnoreCase)))
+            {
+                SelectedCategoryFilter = "All Categories";
+            }
 
+            // 2️⃣  If any search tokens point to deleted rows, clear search
+            if (SelectedProducts?.Count > 0)
+            {
+                var stillExist = SelectedProducts
+                    .OfType<Product>()
+                    .Where(p => Products.Any(x => x.Id == p.Id))
+                    .ToList();
+
+                if (stillExist.Count != SelectedProducts.Count)
+                    SelectedProducts.Clear();   // empty search list
+            }
+
+            // 3️⃣  Re-apply filters and refresh UI
+            ApplyCategoryFilter();         // (also refreshes DataSource)
+            DataSource.RefreshFilter();    // make sure search predicate reruns
+        }
         #endregion
 
         #region Commands
@@ -612,6 +709,15 @@ namespace NeuroPOS.MVVM.ViewModel
             if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
             {
                 page.ShowDeleteSelectedConfirmation();
+            }
+        });
+
+        public ICommand AddProductCommand => new Command(() =>
+        {
+            // Show add product popup
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                page.ShowAddProductPopup();
             }
         });
         #endregion
