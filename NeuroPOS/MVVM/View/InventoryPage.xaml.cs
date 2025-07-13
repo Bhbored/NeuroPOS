@@ -258,6 +258,8 @@ public partial class InventoryPage : ContentPage
     {
         if (_lastUndoData?.ActionType == "DELETE_PRODUCT" && _lastUndoData.DeletedProduct != null)
         {
+            var productName = _lastUndoData.DeletedProduct.Name;
+
             // Insert product back at its original position
             if (_lastUndoData.ProductIndex >= 0 && _lastUndoData.ProductIndex <= _viewModel.Products.Count)
             {
@@ -275,6 +277,9 @@ public partial class InventoryPage : ContentPage
             _viewModel.RevalidateActiveFilters();
 
             _lastUndoData = null;
+
+            // Show success snackbar
+            ShowSuccessSnackbar($"'{productName}' restored successfully");
         }
     }
 
@@ -282,6 +287,8 @@ public partial class InventoryPage : ContentPage
     {
         if (_lastUndoData?.ActionType == "DELETE_SELECTED" && _lastUndoData.DeletedProducts != null)
         {
+            var count = _lastUndoData.DeletedProducts.Count;
+
             // Add all deleted products back
             foreach (var product in _lastUndoData.DeletedProducts)
             {
@@ -295,6 +302,9 @@ public partial class InventoryPage : ContentPage
             _viewModel.RevalidateActiveFilters();
 
             _lastUndoData = null;
+
+            // Show success snackbar
+            ShowSuccessSnackbar($"{count} product{(count > 1 ? "s" : "")} restored successfully");
         }
     }
 
@@ -305,6 +315,7 @@ public partial class InventoryPage : ContentPage
             // Restore previous state
             var product = _lastUndoData.EditedProduct;
             var previous = _lastUndoData.PreviousProductState;
+            var productName = previous.Name;
 
             product.Name = previous.Name;
             product.Price = previous.Price;
@@ -320,6 +331,9 @@ public partial class InventoryPage : ContentPage
             _viewModel.RevalidateActiveFilters();
 
             _lastUndoData = null;
+
+            // Show success snackbar
+            ShowSuccessSnackbar($"'{productName}' changes reverted successfully");
         }
     }
 
@@ -557,6 +571,13 @@ public partial class InventoryPage : ContentPage
         _viewModel.ClearNewCategoryForm();
 
         var popup = new AddCategoryPopup(_viewModel);
+        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+        _viewModel.RevalidateActiveFilters();
+    }
+
+    public async void ShowBuyingTransactionPopup()
+    {
+        var popup = new BuyingTransactionPopup(_viewModel);
         await Shell.Current.CurrentPage.ShowPopupAsync(popup);
         _viewModel.RevalidateActiveFilters();
     }

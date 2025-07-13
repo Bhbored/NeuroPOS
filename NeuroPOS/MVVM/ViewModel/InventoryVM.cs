@@ -37,7 +37,7 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Properties
-        public ObservableCollection<Transaction> BuyingTransaction { get; set; }= new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> BuyingTransaction { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
         public ObservableCollection<object> SelectedItems { get; set; } = new ObservableCollection<object>();
         public IList<object> SelectedProducts { get; set; } = new List<object>();
@@ -138,7 +138,6 @@ namespace NeuroPOS.MVVM.ViewModel
         public string NewProductName { get; set; } = string.Empty;
         public string NewProductPrice { get; set; } = string.Empty;
         public string NewProductCost { get; set; } = string.Empty;
-        public string NewProductStock { get; set; } = string.Empty;
         public Category NewProductCategory { get; set; }
         public string NewProductImageUrl { get; set; } = "emptyproduct.png";
 
@@ -518,13 +517,11 @@ namespace NeuroPOS.MVVM.ViewModel
             NewProductName = string.Empty;
             NewProductPrice = string.Empty;
             NewProductCost = string.Empty;
-            NewProductStock = string.Empty;
             NewProductCategory = null;
             NewProductImageUrl = "emptyproduct.png";
             OnPropertyChanged(nameof(NewProductName));
             OnPropertyChanged(nameof(NewProductPrice));
             OnPropertyChanged(nameof(NewProductCost));
-            OnPropertyChanged(nameof(NewProductStock));
             OnPropertyChanged(nameof(NewProductCategory));
             OnPropertyChanged(nameof(NewProductImageUrl));
             OnPropertyChanged(nameof(NewProductId));
@@ -548,9 +545,6 @@ namespace NeuroPOS.MVVM.ViewModel
             if (!double.TryParse(NewProductCost, out double cost))
                 cost = 0;
 
-            if (!int.TryParse(NewProductStock, out int stock))
-                stock = 0;
-
             // Create new product
             var newProduct = new Product
             {
@@ -558,7 +552,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 Name = NewProductName,
                 Price = price,
                 Cost = cost,
-                Stock = stock,
+                Stock = 0, // Initial stock is always 0
                 CategoryName = NewProductCategory?.Name ?? "Uncategorized",
                 ImageUrl = NewProductImageUrl,
                 DateAdded = DateTime.Now
@@ -856,6 +850,15 @@ namespace NeuroPOS.MVVM.ViewModel
         public ICommand RefreshDBCommand => new Command(async () =>
         {
             await RefreshDBAsync();
+        });
+
+        public ICommand AddBuyingTransactionCommand => new Command(() =>
+        {
+            // Show buying transaction popup
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                page.ShowBuyingTransactionPopup();
+            }
         });
 
 
