@@ -11,36 +11,57 @@ namespace NeuroPOS.MVVM.ViewModel
     [AddINotifyPropertyChangedInterface]
     public class DatePickerVM : INotifyPropertyChanged
     {
+        private DateTime? _startDate;
+        private DateTime? _endDate;
+
         public DatePickerVM()
         {
             SelectionChangedCommand = new Command<CalendarSelectionChangedEventArgs>(SelectionChanged);
         }
 
-        private string startDate = string.Empty;
-        private string endDate = string.Empty;
-
-        public string StartDate
+        public DateTime? StartDate
         {
-            get => startDate;
+            get => _startDate;
             set
             {
-                if (startDate != value)
+                if (_startDate != value)
                 {
-                    startDate = value;
+                    _startDate = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsDateRangeValid));
+                    OnPropertyChanged(nameof(FilterSummary));
                 }
             }
         }
-        public string EndDate
+
+        public DateTime? EndDate
         {
-            get => endDate;
+            get => _endDate;
             set
             {
-                if (endDate != value)
+                if (_endDate != value)
                 {
-                    endDate = value;
+                    _endDate = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsDateRangeValid));
+                    OnPropertyChanged(nameof(FilterSummary));
                 }
+            }
+        }
+
+        public bool IsDateRangeValid => StartDate.HasValue && EndDate.HasValue && StartDate <= EndDate;
+
+        public string FilterSummary
+        {
+            get
+            {
+                if (!StartDate.HasValue || !EndDate.HasValue)
+                    return "Select date range to filter transactions";
+
+                if (StartDate.Value.Date == EndDate.Value.Date)
+                    return $"Filtering transactions for {StartDate.Value:MMM dd, yyyy}";
+
+                return $"Filtering transactions from {StartDate.Value:MMM dd} to {EndDate.Value:MMM dd, yyyy}";
             }
         }
 
@@ -48,19 +69,29 @@ namespace NeuroPOS.MVVM.ViewModel
 
         private void SelectionChanged(CalendarSelectionChangedEventArgs args)
         {
-            if (args.NewValue is CalendarDateRange range)
+            try
             {
-                StartDate = range.StartDate?.ToString("yyyy-MM-dd") ?? string.Empty;
-                EndDate = range.EndDate?.ToString("yyyy-MM-dd") ?? string.Empty;
+                if (args.NewValue is CalendarDateRange range)
+                {
+                    StartDate = range.StartDate;
+                    EndDate = range.EndDate ?? range.StartDate;
+                }
+                else if (args.NewValue is DateTime singleDate)
+                {
+                    StartDate = singleDate;
+                    EndDate = singleDate;
+                }
+
+                Debug.WriteLine($"Date range selected: {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd}");
             }
-            else if (args.NewValue is DateTime singleDate)
+            catch (Exception ex)
             {
-                StartDate = singleDate.ToString("yyyy-MM-dd");
-                EndDate = singleDate.ToString("yyyy-MM-dd");
+                Debug.WriteLine($"Error in SelectionChanged: {ex.Message}");
             }
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

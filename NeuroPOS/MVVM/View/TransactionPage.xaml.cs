@@ -22,10 +22,13 @@ public partial class TransactionPage : ContentPage
     //    }
     //}
 
-    private  async void ShowDatePicker(object sender, EventArgs e)
+    private async void ShowDatePicker(object sender, EventArgs e)
     {
-        await Shell.Current.CurrentPage.ShowPopupAsync(new DatePickerPopup());
+        if (BindingContext is TransactionVM transactionVM)
+        {
+            await Shell.Current.CurrentPage.ShowPopupAsync(new DatePickerPopup(transactionVM));
+        }
     }
 
-    
+
 }

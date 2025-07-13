@@ -3,8 +3,8 @@
     x:Class="NeuroPOS.MVVM.Popups.BuyingTransactionPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:DataType="VM:InventoryVM"
     BackgroundColor="Transparent"
     CanBeDismissedByTappingOutsideOfPopup="True">
@@ -20,7 +20,7 @@
                 Brush="Black"
                 Opacity="0.3"
                 Radius="25"
-                Offset="0,10"/>
+                Offset="0,10" />
         </Border.Shadow>
 
         <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
@@ -40,19 +40,18 @@
                             HorizontalOptions="Center"
                             Text="📦"
                             TextColor="White"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
                     </Border>
-                    <VerticalStackLayout Spacing="4"
-                                         VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
                         <Label
                             FontFamily="PoppinsBold"
                             FontSize="22"
                             Text="New Buying Transaction"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Label
                             FontSize="14"
                             Text="Purchase products for inventory"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
@@ -62,13 +61,11 @@
                 Grid.Row="1"
                 Margin="0,0,0,24"
                 BackgroundColor="{StaticResource NPDivider}"
-                HeightRequest="1"/>
+                HeightRequest="1" />
 
             <!--  Product Entries Container  -->
-            <ScrollView Grid.Row="2"
-                        MaximumHeightRequest="400">
-                <VerticalStackLayout x:Name="ProductEntriesContainer"
-                        Spacing="16">
+            <ScrollView Grid.Row="2" MaximumHeightRequest="400">
+                <VerticalStackLayout x:Name="ProductEntriesContainer" Spacing="16">
                     <!--  Dynamic product entries will be added here  -->
                 </VerticalStackLayout>
             </ScrollView>
@@ -88,43 +85,44 @@
                 FontSize="14"
                 HorizontalOptions="Start"
                 Text="➕ Add Another Product"
-                TextColor="{StaticResource NPPrimaryBlue}"/>
+                TextColor="{StaticResource NPPrimaryBlue}" />
 
             <!--  Total and Action Buttons  -->
-            <Grid Grid.Row="4"
-                  Margin="0,24,0,0"
-                  RowDefinitions="Auto,Auto"
-                  >
+            <Grid
+                Grid.Row="4"
+                Margin="0,24,0,0"
+                RowDefinitions="Auto,Auto">
 
                 <!--  Total Transaction Amount  -->
-                <Border Grid.Row="0"
-                        Padding="16"
-                        BackgroundColor="{StaticResource NPLightBg}"
-                        Stroke="{StaticResource NPDivider}"
-                        StrokeShape="RoundRectangle 8"
-                        StrokeThickness="1">
-                    <HorizontalStackLayout Spacing="12"
-                            VerticalOptions="Center">
+                <Border
+                    Grid.Row="0"
+                    Padding="16"
+                    BackgroundColor="{StaticResource NPLightBg}"
+                    Stroke="{StaticResource NPDivider}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
                         <Label
                             FontFamily="PoppinsBold"
                             FontSize="16"
                             Text="Total Transaction Amount:"
                             TextColor="{StaticResource NPTextMain}"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
                         <Label
                             x:Name="TotalAmountLabel"
                             FontFamily="PoppinsBold"
                             FontSize="20"
                             Text="$0.00"
                             TextColor="#28A745"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>
 
                 <!--  Action Buttons  -->
-                <HorizontalStackLayout Grid.Row="1"
-                                       HorizontalOptions="End"
-                                       Spacing="12">
+                <HorizontalStackLayout
+                    Grid.Row="1"
+                    HorizontalOptions="End"
+                    Spacing="12">
                     <Button
                         x:Name="CancelButton"
                         Padding="20,12"
@@ -136,7 +134,7 @@
                         FontFamily="PoppinsBold"
                         FontSize="16"
                         Text="Cancel"
-                        TextColor="{StaticResource NPTextMain}"/>
+                        TextColor="{StaticResource NPTextMain}" />
                     <Button
                         x:Name="AddTransactionButton"
                         Padding="20,12"
@@ -146,7 +144,7 @@
                         FontFamily="PoppinsBold"
                         FontSize="16"
                         Text="✓ Add Transaction"
-                        TextColor="White"/>
+                        TextColor="White" />
                 </HorizontalStackLayout>
             </Grid>
         </Grid>
