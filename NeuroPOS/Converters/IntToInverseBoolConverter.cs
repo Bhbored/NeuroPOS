@@ -12,7 +12,11 @@ namespace NeuroPOS.Converters
             {
                 return intValue == 0;
             }
-            return true; // Default to showing empty state if value is not an int
+            if (value is bool boolValue)
+            {
+                return !boolValue; // Inverse the boolean value
+            }
+            return true; // Default to showing empty state if value is not an int or bool
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

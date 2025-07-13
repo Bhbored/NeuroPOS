@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.EditConfirmationPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True">
+
+    <Border
+        Padding="24"
+        BackgroundColor="White"
+        StrokeShape="RoundRectangle 16"
+        StrokeThickness="0"
+        WidthRequest="400">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.3"
+                Radius="20"
+                Offset="0,8" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="20">
+            <!--  Header with Icon  -->
+            <HorizontalStackLayout Spacing="12">
+                <Border
+                    BackgroundColor="#E3F2FD"
+                    HeightRequest="48"
+                    StrokeShape="Ellipse"
+                    WidthRequest="48">
+                    <Label
+                        FontSize="24"
+                        HorizontalOptions="Center"
+                        Text="💾"
+                        VerticalOptions="Center" />
+                </Border>
+                <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="18"
+                        Text="Unsaved Changes"
+                        TextColor="{StaticResource NPTextMain}" />
+                    <Label
+                        FontSize="14"
+                        Text="You have unsaved changes"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+            <!--  Message  -->
+            <Label
+                x:Name="MessageLabel"
+                FontSize="16"
+                LineBreakMode="WordWrap"
+                Text="Do you want to save your changes before continuing?"
+                TextColor="{StaticResource NPTextMain}" />
+
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout HorizontalOptions="End" Spacing="12">
+                <Button
+                    x:Name="DiscardButton"
+                    Padding="16,8"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource NPDivider}"
+                    BorderWidth="1"
+                    Clicked="OnDiscardClicked"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="Discard"
+                    TextColor="{StaticResource NPTextMain}" />
+                <Button
+                    x:Name="CancelButton"
+                    Padding="16,8"
+                    BackgroundColor="{StaticResource NPTextSecondary}"
+                    Clicked="OnCancelClicked"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="Cancel"
+                    TextColor="White" />
+                <Button
+                    x:Name="SaveButton"
+                    Padding="16,8"
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    Clicked="OnSaveClicked"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="Save"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</toolkit:Popup>

@@ -265,7 +265,15 @@
         <Setter Property="Stroke" Value="{StaticResource NPDivider}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 8" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="MinimumWidthRequest" Value="120" />
+        <Setter Property="MinimumWidthRequest" Value="180" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Shadow">
+            <Shadow
+                Brush="Black"
+                Opacity="0.05"
+                Radius="8"
+                Offset="0,2" />
+        </Setter>
     </Style>
 
 </ResourceDictionary>

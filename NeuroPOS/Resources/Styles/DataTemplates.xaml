@@ -157,6 +157,152 @@
         </Border>
     </DataTemplate>
 
+    <!--  Empty Product Editor View Template  -->
+    <DataTemplate x:Key="EmptyProductEditorTemplate">
+        <VerticalStackLayout
+            HorizontalOptions="Center"
+            Spacing="20"
+            VerticalOptions="Center">
+            <Border
+                BackgroundColor="{StaticResource NPLightBg}"
+                HeightRequest="80"
+                HorizontalOptions="Center"
+                StrokeShape="Ellipse"
+                WidthRequest="80">
+                <Label
+                    FontSize="32"
+                    HorizontalOptions="Center"
+                    Text="📝"
+                    VerticalOptions="Center" />
+            </Border>
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="16"
+                    HorizontalTextAlignment="Center"
+                    Text="Select a product to edit"
+                    TextColor="{StaticResource NPTextMain}" />
+                <Label
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"
+                    Text="Click the edit button on any product to modify its details"
+                    TextColor="{StaticResource NPTextSecondary}" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </DataTemplate>
+
+    <!--  Product Edit Form Template  -->
+    <DataTemplate x:Key="ProductEditFormTemplate">
+        <ScrollView>
+            <VerticalStackLayout Spacing="16">
+                <!--  Product Name  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="PRODUCT NAME"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Placeholder="Enter product name"
+                            Text="{Binding EditName}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Price  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="PRICE"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0.00"
+                            Text="{Binding EditPrice}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Cost  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="COST"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0.00"
+                            Text="{Binding EditCost}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Stock  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="STOCK QUANTITY"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0"
+                            Text="{Binding EditStock}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Category  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="CATEGORY"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Placeholder="Enter category"
+                            Text="{Binding EditCategory}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Action Buttons  -->
+                <HorizontalStackLayout Margin="0,20,0,0" Spacing="8">
+                    <Button
+                        Command="{Binding SaveProductCommand}"
+                        FontSize="12"
+                        HeightRequest="40"
+                        HorizontalOptions="Fill"
+                        StyleClass="PrimaryButton"
+                        Text="Save Changes" />
+                    <Button
+                        BackgroundColor="{StaticResource NPTextSecondary}"
+                        Command="{Binding CancelEditCommand}"
+                        CornerRadius="8"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HeightRequest="40"
+                        HorizontalOptions="Fill"
+                        Text="Cancel"
+                        TextColor="White" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </DataTemplate>
+
     <!--  CategoryTemplateSelector defined AFTER the templates it references  -->
     <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
 
