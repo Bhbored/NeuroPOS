@@ -166,6 +166,7 @@ namespace NeuroPOS.MVVM.ViewModel
         // Selection tracking
         private ObservableCollection<int> _persistentSelectedIds = new ObservableCollection<int>();
         public bool HasSelectedItems => _persistentSelectedIds?.Count > 0;
+        public ObservableCollection<int> PersistentSelectedIds => _persistentSelectedIds;
 
         // Track select all state
         private bool _isSelectAllChecked = false;
@@ -720,6 +721,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 page.ShowAddProductPopup();
             }
         });
+
+
         #endregion
     }
 }

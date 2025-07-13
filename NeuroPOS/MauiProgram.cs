@@ -16,7 +16,7 @@ namespace NeuroPOS
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .UseMauiCommunityToolkit()
+                .UseMauiCommunityToolkit(options => options.SetShouldEnableSnackbarOnWindows(true))
                 .ConfigureSyncfusionCore()
                 .ConfigureFonts(fonts =>
                 {

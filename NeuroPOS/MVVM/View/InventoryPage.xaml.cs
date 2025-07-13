@@ -4,12 +4,28 @@ using NeuroPOS.MVVM.Popups;
 using Syncfusion.Maui.ListView;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 
 namespace NeuroPOS.MVVM.View;
 
 public partial class InventoryPage : ContentPage
 {
     private InventoryVM _viewModel;
+
+    // Undo system
+    private class UndoData
+    {
+        public string ActionType { get; set; }
+        public Product DeletedProduct { get; set; }
+        public List<Product> DeletedProducts { get; set; }
+        public Product EditedProduct { get; set; }
+        public Product PreviousProductState { get; set; }
+        public int ProductIndex { get; set; }
+        public List<int> ProductIndices { get; set; }
+    }
+
+    private UndoData _lastUndoData;
 
     public InventoryPage(InventoryVM vm)
     {
@@ -204,6 +220,112 @@ public partial class InventoryPage : ContentPage
 
     #endregion
 
+    #region Snackbar and Undo System
+
+    private async void ShowSnackbarWithUndo(string message, string undoText, Action undoAction)
+    {
+        var snackbarOptions = new SnackbarOptions
+        {
+            BackgroundColor = Color.FromArgb("#2D3748"),
+            TextColor = Colors.White,
+            ActionButtonTextColor = Color.FromArgb("#4299E1"),
+            CornerRadius = new CornerRadius(8),
+            Font = Microsoft.Maui.Font.SystemFontOfSize(14),
+            ActionButtonFont = Microsoft.Maui.Font.SystemFontOfSize(14, FontWeight.Bold),
+            CharacterSpacing = 0.5
+        };
+
+        var snackbar = Snackbar.Make(message, undoAction, undoText, TimeSpan.FromSeconds(5), snackbarOptions);
+        await snackbar.Show();
+    }
+
+    private async void ShowSuccessSnackbar(string message)
+    {
+        var snackbarOptions = new SnackbarOptions
+        {
+            BackgroundColor = Color.FromArgb("#38A169"),
+            TextColor = Colors.White,
+            CornerRadius = new CornerRadius(8),
+            Font = Microsoft.Maui.Font.SystemFontOfSize(14),
+            CharacterSpacing = 0.5
+        };
+
+        var snackbar = Snackbar.Make(message, null, "", TimeSpan.FromSeconds(3), snackbarOptions);
+        await snackbar.Show();
+    }
+
+    private void UndoDeleteProduct()
+    {
+        if (_lastUndoData?.ActionType == "DELETE_PRODUCT" && _lastUndoData.DeletedProduct != null)
+        {
+            // Insert product back at its original position
+            if (_lastUndoData.ProductIndex >= 0 && _lastUndoData.ProductIndex <= _viewModel.Products.Count)
+            {
+                _viewModel.Products.Insert(_lastUndoData.ProductIndex, _lastUndoData.DeletedProduct);
+            }
+            else
+            {
+                _viewModel.Products.Add(_lastUndoData.DeletedProduct);
+            }
+
+            // Refresh UI
+            _viewModel.DataSource.Source = _viewModel.Products;
+            _viewModel.DataSource.Refresh();
+            _viewModel.PopulateCategoryFilterOptions();
+            _viewModel.RevalidateActiveFilters();
+
+            _lastUndoData = null;
+        }
+    }
+
+    private void UndoDeleteSelectedProducts()
+    {
+        if (_lastUndoData?.ActionType == "DELETE_SELECTED" && _lastUndoData.DeletedProducts != null)
+        {
+            // Add all deleted products back
+            foreach (var product in _lastUndoData.DeletedProducts)
+            {
+                _viewModel.Products.Add(product);
+            }
+
+            // Refresh UI
+            _viewModel.DataSource.Source = _viewModel.Products;
+            _viewModel.DataSource.Refresh();
+            _viewModel.PopulateCategoryFilterOptions();
+            _viewModel.RevalidateActiveFilters();
+
+            _lastUndoData = null;
+        }
+    }
+
+    private void UndoEditProduct()
+    {
+        if (_lastUndoData?.ActionType == "EDIT_PRODUCT" && _lastUndoData.EditedProduct != null && _lastUndoData.PreviousProductState != null)
+        {
+            // Restore previous state
+            var product = _lastUndoData.EditedProduct;
+            var previous = _lastUndoData.PreviousProductState;
+
+            product.Name = previous.Name;
+            product.Price = previous.Price;
+            product.Cost = previous.Cost;
+            product.Stock = previous.Stock;
+            product.CategoryName = previous.CategoryName;
+            product.ImageUrl = previous.ImageUrl;
+
+            // Refresh UI
+            _viewModel.DataSource.Source = _viewModel.Products;
+            _viewModel.DataSource.Refresh();
+            _viewModel.PopulateCategoryFilterOptions();
+            _viewModel.RevalidateActiveFilters();
+
+            _lastUndoData = null;
+        }
+    }
+
+
+
+    #endregion
 
     protected override void OnAppearing()
     {
@@ -225,23 +347,82 @@ public partial class InventoryPage : ContentPage
 
             if (popup.Result)
             {
+                // Store undo data
+                var productIndex = _viewModel.Products.IndexOf(product);
+                _lastUndoData = new UndoData
+                {
+                    ActionType = "DELETE_PRODUCT",
+                    DeletedProduct = new Product
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Price = product.Price,
+                        Cost = product.Cost,
+                        Stock = product.Stock,
+                        CategoryName = product.CategoryName,
+                        ImageUrl = product.ImageUrl,
+                        DateAdded = product.DateAdded
+                    },
+                    ProductIndex = productIndex
+                };
+
+                // Delete after confirmation
                 _viewModel.DeleteProductById(product.Id);
-                ClearSearchFilter(); // Clear search filter to show all remaining products
+                ClearSearchFilter();
                 _viewModel.RevalidateActiveFilters();
+
+                // Show snackbar with undo
+                ShowSnackbarWithUndo($"'{product.Name}' deleted", "UNDO", UndoDeleteProduct);
             }
         }
     }
 
     public async void ShowDeleteSelectedConfirmation()
     {
-        var popup = new DeleteConfirmationPopup($"Are you sure you want to delete the selected products?");
-        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
-
-        if (popup.Result)
+        var selectedIds = _viewModel.PersistentSelectedIds?.ToList();
+        if (selectedIds != null && selectedIds.Count > 0)
         {
-            _viewModel.DeleteSelectedProductsByIds();
-            ClearSearchFilter(); // Clear search filter to show all remaining products
-            _viewModel.RevalidateActiveFilters();
+            var count = selectedIds.Count;
+            var popup = new DeleteConfirmationPopup($"Are you sure you want to delete {count} selected product{(count > 1 ? "s" : "")}?");
+            await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+
+            if (popup.Result)
+            {
+                // Store undo data
+                var deletedProducts = new List<Product>();
+                foreach (var id in selectedIds)
+                {
+                    var product = _viewModel.Products.FirstOrDefault(p => p.Id == id);
+                    if (product != null)
+                    {
+                        deletedProducts.Add(new Product
+                        {
+                            Id = product.Id,
+                            Name = product.Name,
+                            Price = product.Price,
+                            Cost = product.Cost,
+                            Stock = product.Stock,
+                            CategoryName = product.CategoryName,
+                            ImageUrl = product.ImageUrl,
+                            DateAdded = product.DateAdded
+                        });
+                    }
+                }
+
+                _lastUndoData = new UndoData
+                {
+                    ActionType = "DELETE_SELECTED",
+                    DeletedProducts = deletedProducts
+                };
+
+                // Delete after confirmation
+                _viewModel.DeleteSelectedProductsByIds();
+                ClearSearchFilter();
+                _viewModel.RevalidateActiveFilters();
+
+                // Show snackbar with undo
+                ShowSnackbarWithUndo($"{count} product{(count > 1 ? "s" : "")} deleted", "UNDO", UndoDeleteSelectedProducts);
+            }
         }
     }
 
@@ -255,13 +436,12 @@ public partial class InventoryPage : ContentPage
             switch (popup.Result)
             {
                 case EditConfirmationResult.Save:
-                    _viewModel.SaveProductChanges();
-                    ClearSearchFilter(); // Clear search filter after saving changes
-                    _viewModel.RevalidateActiveFilters();
+                    await SaveProductWithSnackbar();
                     break;
                 case EditConfirmationResult.Discard:
                     _viewModel.CancelEdit();
                     ClearSearchFilter(); // Clear search filter after discarding changes
+                    ShowSuccessSnackbar("Changes discarded");
                     break;
                 case EditConfirmationResult.Cancel:
                     // Do nothing - stay in edit mode
@@ -272,29 +452,68 @@ public partial class InventoryPage : ContentPage
         {
             // No changes, just cancel
             _viewModel.CancelEdit();
+            ShowSuccessSnackbar("Edit mode canceled");
         }
     }
 
     public async void ShowSaveEditConfirmation()
     {
-        var popup = new EditConfirmationPopup("Are you sure you want to save these changes?");
-        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
-
-        switch (popup.Result)
+        if (_viewModel.HasUnsavedChanges())
         {
-            case EditConfirmationResult.Save:
-                _viewModel.SaveProductChanges();
-                ClearSearchFilter(); // Clear search filter after saving changes
-                _viewModel.RevalidateActiveFilters();
-                break;
-            case EditConfirmationResult.Discard:
-                // User chose to discard changes
-                _viewModel.CancelEdit();
-                ClearSearchFilter(); // Clear search filter after discarding changes
-                break;
-            case EditConfirmationResult.Cancel:
-                // Do nothing - stay in edit mode
-                break;
+            var popup = new EditConfirmationPopup("Are you sure you want to save these changes?");
+            await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+
+            switch (popup.Result)
+            {
+                case EditConfirmationResult.Save:
+                    await SaveProductWithSnackbar();
+                    break;
+                case EditConfirmationResult.Discard:
+                    // User chose to discard changes
+                    _viewModel.CancelEdit();
+                    ClearSearchFilter(); // Clear search filter after discarding changes
+                    ShowSuccessSnackbar("Changes discarded");
+                    break;
+                case EditConfirmationResult.Cancel:
+                    // Do nothing - stay in edit mode
+                    break;
+            }
+        }
+        else
+        {
+            await SaveProductWithSnackbar();
+        }
+    }
+
+    private async Task SaveProductWithSnackbar()
+    {
+        if (_viewModel.SelectedProduct != null)
+        {
+            // Store undo data
+            _lastUndoData = new UndoData
+            {
+                ActionType = "EDIT_PRODUCT",
+                EditedProduct = _viewModel.SelectedProduct,
+                PreviousProductState = new Product
+                {
+                    Id = _viewModel.SelectedProduct.Id,
+                    Name = _viewModel.SelectedProduct.Name,
+                    Price = _viewModel.SelectedProduct.Price,
+                    Cost = _viewModel.SelectedProduct.Cost,
+                    Stock = _viewModel.SelectedProduct.Stock,
+                    CategoryName = _viewModel.SelectedProduct.CategoryName,
+                    ImageUrl = _viewModel.SelectedProduct.ImageUrl,
+                    DateAdded = _viewModel.SelectedProduct.DateAdded
+                }
+            };
+
+            var productName = _viewModel.SelectedProduct.Name;
+            _viewModel.SaveProductChanges();
+            ClearSearchFilter();
+            _viewModel.RevalidateActiveFilters();
+
+            // Show snackbar with undo
+            ShowSnackbarWithUndo($"'{productName}' updated successfully", "UNDO", UndoEditProduct);
         }
     }
 
@@ -319,10 +538,16 @@ public partial class InventoryPage : ContentPage
                 return;
             }
 
+            // Store product name before adding
+            var productName = _viewModel.NewProductName;
+
             // Add the new product
             _viewModel.AddNewProduct();
             ClearSearchFilter(); // Clear search filter to show all products including new one
             _viewModel.RevalidateActiveFilters();
+
+            // Show success snackbar
+            ShowSuccessSnackbar($"'{productName}' added successfully");
         }
     }
 
