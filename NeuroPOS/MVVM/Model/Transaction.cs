@@ -60,8 +60,6 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Contact))]
         public int? ContactId { get; set; }
 
-        [ForeignKey(typeof(Cart))]
-        public int? CartId { get; set; } // Nullable if the transaction is not linked to a cart
         #endregion
 
     }

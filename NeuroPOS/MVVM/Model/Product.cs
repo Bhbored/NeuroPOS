@@ -59,8 +59,7 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Transaction))]
         public int? TransactionId { get; set; }
 
-        [ForeignKey(typeof(Cart))]
-        public int? CartId { get; set; }
+       
         #endregion
     }
 

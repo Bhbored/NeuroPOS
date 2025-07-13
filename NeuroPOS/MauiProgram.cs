@@ -27,7 +27,7 @@ namespace NeuroPOS
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-            builder.Services.AddSingleton<BaseRepository<Cart>>();
+            
             builder.Services.AddSingleton<BaseRepository<CashRegister>>();
             builder.Services.AddSingleton<BaseRepository<Category>>();
             builder.Services.AddSingleton<BaseRepository<Contact>>();

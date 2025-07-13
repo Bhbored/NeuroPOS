@@ -15,7 +15,6 @@ namespace NeuroPOS.MVVM.Model
 
         public double TotalAmount { get; set; }
 
-        [OneToOne(CascadeOperations = CascadeOperation.All)]
-        public Cart? Cart { get; set; }
+       
     }
 }

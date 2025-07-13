@@ -9,7 +9,6 @@ namespace NeuroPOS
     public partial class App : Application
     {
         #region injection
-        public static BaseRepository<Cart>? CartRepo { get; private set; }
         public static BaseRepository<CashRegister>? CashRegisterRepo { get; private set; }
         public static BaseRepository<Category>? CategoryRepo { get; private set; }
         public static BaseRepository<Contact>? ContactRepo { get; private set; }
@@ -22,7 +21,7 @@ namespace NeuroPOS
         public static TransactionVM? TransactionRepoVM { get; set; }
         public static InventoryVM? InventoryRepo { get; set; }
         #endregion
-        public App(BaseRepository<Cart> _cart, BaseRepository<CashRegister> _cashregister,
+        public App( BaseRepository<CashRegister> _cashregister,
             BaseRepository<Category> _category,
             BaseRepository<Contact> _contact, BaseRepository<Person> _person,
             BaseRepository<Product> _product,
@@ -31,7 +30,6 @@ namespace NeuroPOS
         {
             InitializeComponent();
             SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXlceHRTQ2ZYWUN/XkFWYEk=");
-            CartRepo = _cart;
             CashRegisterRepo = _cashregister;
             CategoryRepo = _category;
             ContactRepo = _contact;

@@ -37,6 +37,7 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Properties
+        public ObservableCollection<Transaction> BuyingTransaction { get; set; }= new ObservableCollection<Transaction>();
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
         public ObservableCollection<object> SelectedItems { get; set; } = new ObservableCollection<object>();
         public IList<object> SelectedProducts { get; set; } = new List<object>();
@@ -167,6 +168,21 @@ namespace NeuroPOS.MVVM.ViewModel
 
         // Reference to the page for callbacks
         public object PageReference { get; set; }
+
+        // Refresh state tracking
+        private bool _isRefreshing = false;
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                if (_isRefreshing != value)
+                {
+                    _isRefreshing = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         // Selection tracking
         private ObservableCollection<int> _persistentSelectedIds = new ObservableCollection<int>();
@@ -716,6 +732,48 @@ namespace NeuroPOS.MVVM.ViewModel
             ApplyCategoryFilter();         // (also refreshes DataSource)
             DataSource.RefreshFilter();    // make sure search predicate reruns
         }
+
+        public async Task RefreshDBAsync()
+        {
+            // Start refresh animation
+            IsRefreshing = true;
+
+            try
+            {
+                // Small delay to show the refresh animation
+                await Task.Delay(500);
+
+                // 1️⃣  Clear all selections and edit state
+                ClearAllSelections();
+                CancelEdit();
+                ClearSearchFilter();
+
+                // 2️⃣  Reload data from "database" (simulated)
+                LoadData();
+
+                // 3️⃣  Refresh UI components
+                RefreshUI();
+                RevalidateActiveFilters();
+
+                // 4️⃣  Notify property changes for UI updates
+                OnPropertyChanged(nameof(Products));
+                OnPropertyChanged(nameof(Categories));
+                OnPropertyChanged(nameof(CategoryFilterOptions));
+                OnPropertyChanged(nameof(NewProductId));
+                OnPropertyChanged(nameof(NewCategoryId));
+            }
+            finally
+            {
+                // Stop refresh animation
+                IsRefreshing = false;
+            }
+        }
+
+        public void RefreshDB()
+        {
+            // Synchronous version for button clicks
+            _ = RefreshDBAsync();
+        }
         #endregion
 
         #region Commands
@@ -793,6 +851,11 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 page.ShowAddCategoryPopup();
             }
+        });
+
+        public ICommand RefreshDBCommand => new Command(async () =>
+        {
+            await RefreshDBAsync();
         });
 
 
