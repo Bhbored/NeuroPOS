@@ -196,4 +196,76 @@
         <Setter Property="Padding" Value="20,16" />
     </Style>
 
+    <!--  Inventory Table Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="TableRow"
+        TargetType="Grid">
+        <Setter Property="Padding" Value="20,16" />
+        <Setter Property="BackgroundColor" Value="White" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="TableRowAlternate"
+        TargetType="Grid">
+        <Setter Property="Padding" Value="20,16" />
+        <Setter Property="BackgroundColor" Value="{StaticResource NPLightBg}" />
+    </Style>
+
+    <!--  Action Button Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ActionButton"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="WidthRequest" Value="32" />
+    </Style>
+
+    <!--  Category Badge Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="CategoryBadge"
+        TargetType="Border">
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="BackgroundColor" Value="{StaticResource NPAccentYellow}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <!--  Progress Bar Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="StockProgressBar"
+        TargetType="ProgressBar">
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="ProgressColor" Value="{StaticResource NPStockGreen}" />
+    </Style>
+
+    <!--  Modern Picker Style  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ModernPicker"
+        TargetType="Picker">
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource NPTextMain}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!--  Filter Dropdown Container Style  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="FilterDropdownContainer"
+        TargetType="Border">
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="Stroke" Value="{StaticResource NPDivider}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="MinimumWidthRequest" Value="120" />
+    </Style>
+
 </ResourceDictionary>
