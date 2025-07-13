@@ -581,7 +581,11 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public ICommand SaveProductCommand => new Command(() =>
         {
-            SaveProductChanges();
+            // Show save confirmation popup
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                page.ShowSaveEditConfirmation();
+            }
         });
 
         public ICommand CancelEditCommand => new Command(() =>
@@ -594,13 +598,13 @@ namespace NeuroPOS.MVVM.ViewModel
         });
 
         public ICommand DeleteProductCommand => new Command<Product>((product) =>
-{
-    // The actual popup logic will be handled in the View
-    if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
-    {
-        page.ShowDeleteProductConfirmation(product);
-    }
-});
+        {
+            // The actual popup logic will be handled in the View
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                page.ShowDeleteProductConfirmation(product);
+            }
+        });
 
         public ICommand DeleteSelectedProductsCommand => new Command(() =>
         {
