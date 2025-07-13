@@ -551,6 +551,16 @@ public partial class InventoryPage : ContentPage
         }
     }
 
+    public async void ShowAddCategoryPopup()
+    {
+        // Clear the form before showing popup
+        _viewModel.ClearNewCategoryForm();
+
+        var popup = new AddCategoryPopup(_viewModel);
+        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+        _viewModel.RevalidateActiveFilters();
+    }
+
     // Image picker functionality
     private async void OnChangeImageClicked(object sender, EventArgs e)
     {

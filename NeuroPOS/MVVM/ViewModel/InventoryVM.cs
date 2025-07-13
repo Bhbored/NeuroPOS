@@ -141,6 +141,11 @@ namespace NeuroPOS.MVVM.ViewModel
         public Category NewProductCategory { get; set; }
         public string NewProductImageUrl { get; set; } = "emptyproduct.png";
 
+        // New category properties
+        public int NewCategoryId => Categories.Count > 0 ? Categories.Max(c => c.Id) + 1 : 1;
+        public string NewCategoryName { get; set; } = string.Empty;
+        public string NewCategoryDescription { get; set; } = string.Empty;
+
         // Category selection for dropdown
         private Category _selectedEditCategory;
         public Category SelectedEditCategory
@@ -248,20 +253,34 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public void PopulateCategoryFilterOptions()
         {
-            // Get unique categories from products
-            var uniqueCategories = Products
+            // Get categories from products (that have products assigned)
+            var categoriesFromProducts = Products
                 .Select(p => p.CategoryName)
-                .Distinct()
+                .Where(c => !string.IsNullOrEmpty(c))
+                .Distinct();
+
+            // Get all available categories from Categories collection
+            var availableCategories = Categories
+                .Select(c => c.Name)
+                .Where(c => !string.IsNullOrEmpty(c))
+                .Distinct();
+
+            // Combine and get unique categories
+            var allCategories = categoriesFromProducts
+                .Union(availableCategories)
                 .OrderBy(c => c)
                 .ToList();
 
             CategoryFilterOptions.Clear();
             CategoryFilterOptions.Add("All Categories");
 
-            foreach (var category in uniqueCategories)
+            foreach (var category in allCategories)
             {
                 CategoryFilterOptions.Add(category);
             }
+
+            // Trigger property change notification for UI updates
+            OnPropertyChanged(nameof(CategoryFilterOptions));
         }
 
         public void ApplyCategoryFilter()
@@ -541,6 +560,51 @@ namespace NeuroPOS.MVVM.ViewModel
             ClearNewProductForm();
         }
 
+        public void ClearNewCategoryForm()
+        {
+            NewCategoryName = string.Empty;
+            NewCategoryDescription = string.Empty;
+            OnPropertyChanged(nameof(NewCategoryName));
+            OnPropertyChanged(nameof(NewCategoryDescription));
+            OnPropertyChanged(nameof(NewCategoryId));
+        }
+
+        public bool ValidateNewCategory()
+        {
+            // Check if a category with the same name already exists (case-insensitive)
+            return !Categories.Any(c => c.Name.Equals(NewCategoryName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void AddNewCategory()
+        {
+            if (!ValidateNewCategory())
+                return; // Validation failed - duplicate category
+
+            // Create new category
+            var newCategory = new Category
+            {
+                Id = NewCategoryId,
+                Name = NewCategoryName.Trim(),
+                Description = string.IsNullOrWhiteSpace(NewCategoryDescription) ? string.Empty : NewCategoryDescription.Trim(),
+                ImageUrl = "emptyproduct.png", // Default image
+                ProductCount = 0, // No products initially
+                State = "Inactive Categorie" // Default state
+            };
+
+            // Add to collection
+            Categories.Add(newCategory);
+
+            // Trigger explicit property change notifications for UI updates
+            OnPropertyChanged(nameof(Categories));
+            OnPropertyChanged(nameof(NewCategoryId));
+
+            // Refresh category filter options
+            PopulateCategoryFilterOptions();
+
+            // Clear form
+            ClearNewCategoryForm();
+        }
+
 
 
         public void UpdateSelectAllCheckboxState()
@@ -719,6 +783,15 @@ namespace NeuroPOS.MVVM.ViewModel
             if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
             {
                 page.ShowAddProductPopup();
+            }
+        });
+
+        public ICommand AddCategoryCommand => new Command(() =>
+        {
+            // Show add category popup
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                page.ShowAddCategoryPopup();
             }
         });
 

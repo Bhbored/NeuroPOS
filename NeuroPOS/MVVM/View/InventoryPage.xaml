@@ -64,6 +64,7 @@
                     BackgroundColor="Transparent"
                     BorderColor="{StaticResource NPDivider}"
                     BorderWidth="1"
+                    Command="{Binding AddCategoryCommand}"
                     CornerRadius="8"
                     FontFamily="PoppinsBold"
                     FontSize="14"
@@ -156,7 +157,7 @@
                     </HorizontalStackLayout>
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding ToggleSortCommand}"
-                                Tapped="TapGestureRecognizer_Tapped"/>
+                                              Tapped="TapGestureRecognizer_Tapped"/>
                     </Border.GestureRecognizers>
                 </Border>
             </Grid>
@@ -177,7 +178,7 @@
                         BackgroundColor="{StaticResource NPLightBg}"
                         ColumnDefinitions="Auto,Auto,*,120,120,100,100,80">
                         <CheckBox x:Name="SelectAllCheckBox"
-                                Grid.Column="0"/>
+                                  Grid.Column="0"/>
                         <Label
                             Grid.Column="1"
                             Margin="8,0,0,0"
@@ -245,7 +246,7 @@
                                             StrokeShape="RoundRectangle 6"
                                             WidthRequest="40">
                                             <Image Aspect="AspectFit"
-                                                    Source="{Binding ImageUrl}"/>
+                                                   Source="{Binding ImageUrl}"/>
                                         </Border>
                                         <VerticalStackLayout Spacing="2">
                                             <Label
@@ -377,7 +378,7 @@
             StrokeShape="RoundRectangle 12"
             StrokeThickness="1">
             <Grid Padding="24"
-                    RowDefinitions="Auto,Auto,*">
+                  RowDefinitions="Auto,Auto,*">
                 <!--  Header  -->
                 <VerticalStackLayout
                     Grid.Row="0"
@@ -422,7 +423,7 @@
                                 VerticalOptions="Center"/>
                         </Border>
                         <VerticalStackLayout HorizontalOptions="Center"
-                                Spacing="8">
+                                             Spacing="8">
                             <Label
                                 FontFamily="PoppinsBold"
                                 FontSize="16"
@@ -511,7 +512,7 @@
                             <!--  Category  -->
                             <VerticalStackLayout Spacing="6">
                                 <HorizontalStackLayout Spacing="12"
-                                        VerticalOptions="Center">
+                                                       VerticalOptions="Center">
                                     <Label
                                         FontFamily="PoppinsBold"
                                         FontSize="12"
@@ -544,7 +545,7 @@
                                     StrokeShape="RoundRectangle 8"
                                     StrokeThickness="1">
                                     <Grid Padding="12"
-                                            RowDefinitions="120,Auto">
+                                          RowDefinitions="120,Auto">
                                         <!--  Image Preview  -->
                                         <Border
                                             Grid.Row="0"
@@ -581,7 +582,7 @@
 
                             <!--  Action Buttons  -->
                             <HorizontalStackLayout Margin="0,20,0,0"
-                                    Spacing="8">
+                                                   Spacing="8">
                                 <Button
                                     Command="{Binding SaveProductCommand}"
                                     FontSize="12"
