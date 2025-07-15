@@ -12,23 +12,11 @@ public partial class HomePage : ContentPage
     {
         InitializeComponent();
         BindingContext = vm;
-        this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
-        vm.SelectedItems.Clear();//intially clear selected items
-
-        // Initialize display counters
-        searchFilterValue.Text = "0"; // Search filter starts with 0 items selected
-        selectedValue.Text = "0"; // No items selected initially
-
-        // Add event handler for ListView selection changes
-        this.listView.SelectionChanged += ListView_SelectionChanged;
-
-        // Store reference to this page in the ViewModel for callbacks
+        vm.SelectedItems.Clear();
+        RefreshListView();
         vm.PageReference = this;
 
-
     }
-
-
 
     #region filering logic
     public void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
@@ -172,11 +160,19 @@ public partial class HomePage : ContentPage
                 // Update the selected products in ViewModel for filtering
                 vm.SelectedProducts = selectedProducts;
 
-                // Apply filtering
-                if (listView.DataSource != null)
+                // Apply filtering with proper null checks
+                if (listView?.DataSource != null)
                 {
                     listView.DataSource.Filter = FilterProducts;
-                    listView.DataSource.RefreshFilter();
+
+                    try
+                    {
+                        listView.DataSource.RefreshFilter();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error refreshing filter: {ex.Message}");
+                    }
 
                     // Restore selections after search filtering
                     vm?.RestoreListViewSelections();
@@ -184,14 +180,11 @@ public partial class HomePage : ContentPage
                     // Update selected count after filtering
                     vm?.UpdateSelectedItemsCountDisplay();
                 }
-
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in autocomplete selection changed: {ex.Message}");
-            // Optionally show an alert to the user
-            // await DisplayAlert("Error", "An error occurred while filtering products", "OK");
         }
     }
 
@@ -233,7 +226,7 @@ public partial class HomePage : ContentPage
     }
     #endregion
 
-    //dynamic Icon
+    #region other logic
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
         if (sender is not Border border)
@@ -250,14 +243,26 @@ public partial class HomePage : ContentPage
         else { Icon.Source = ""; }
     }
 
-    //protected override void OnAppearing()
-    //{
-    //    base.OnAppearing();
-    //    if (BindingContext is HomeVM vm)
-    //    {
-    //        vm.LoadDB();
-    //    }
-    //}
+    public void RefreshListView()
+    {
+        this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
+        searchFilterValue.Text = "0"; // Search filter starts with 0 items selected
+        selectedValue.Text = "0"; // No items selected initially
+        this.listView.SelectionChanged += ListView_SelectionChanged;
+    }
+
+    #endregion
+
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (BindingContext is HomeVM vm)
+        {
+            vm.LoadDB();
+        }
+    }
+
 
 
 

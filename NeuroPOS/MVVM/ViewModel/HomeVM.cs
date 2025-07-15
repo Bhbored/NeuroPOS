@@ -10,15 +10,18 @@ using System.Windows.Input;
 using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 using ListSortDirection = Syncfusion.Maui.DataSource.ListSortDirection;
+using System.Threading.Tasks;
+using NeuroPOS.Data;
 
 namespace NeuroPOS.MVVM.ViewModel
 {
     [AddINotifyPropertyChangedInterface]
     public class HomeVM : INotifyPropertyChanged
     {
+
         public HomeVM()
         {
-            LoadDB();
+
         }
 
         #region Enums
@@ -76,13 +79,8 @@ namespace NeuroPOS.MVVM.ViewModel
         // Backup collection to persist selections across ListView refreshes
         private ObservableCollection<int> _persistentSelectedIds = new ObservableCollection<int>();
 
-        private ObservableCollection<Category> _categories = new ObservableCollection<Category>
-        {
-            new Category { Id = 1, Name = "Fruits"},
-            new Category { Id = 2, Name = "Vegetables" },
-            new Category { Id = 3, Name = "Drinks" },
-            new Category { Id = 4, Name = "Snacks" }
-        };
+        private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
+       
 
 
         public ObservableCollection<Category> Categories
@@ -98,38 +96,8 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-        public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>
-{
-    new Product() { Id = 1, Name = "Laptop", CategoryName = "Fruits", Price = 999.99, Stock = 0, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 2, Name = "Mouse", CategoryName = "Fruits", Price = 25.50, Stock = 0, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 3, Name = "Keyboard", CategoryName = "Vegetables", Price = 45.99, Stock = 5, DateAdded = DateTime.Now, ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 4, Name = "Monitor", CategoryName = "Vegetables", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-1), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 5, Name = "Headphones", CategoryName = "Drinks", Price = 79.99, Stock = 3, DateAdded = DateTime.Now.AddDays(-3), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 6, Name = "Wireless Earbuds", CategoryName = "Drinks", Price = 59.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-5), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 7, Name = "Smart Watch", CategoryName = "Snacks", Price = 199.99, Stock = 15, DateAdded = DateTime.Now.AddDays(-10), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 8, Name = "Bluetooth Speaker", CategoryName = "Snacks", Price = 89.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-2), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 9, Name = "Tablet", CategoryName = "Fruits", Price = 499.99, Stock = 20, DateAdded = DateTime.Now.AddDays(-7), ImageUrl = "emptyproduct.png" },
-    new Product() { Id = 10, Name = "Smartphone", CategoryName = "Fruits", Price = 799.99, Stock = 25, DateAdded = DateTime.Now.AddDays(-4), ImageUrl = "emptyproduct.png" },
-      new Product() { Id = 11, Name = "Apple", CategoryName = "Fruits", Price = 0.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
-    new Product() { Id = 12, Name = "Banana", CategoryName = "Fruits", Price = 0.49, Stock = 100, DateAdded = DateTime.Now.AddDays(-1) },
-    new Product() { Id = 13, Name = "Orange", CategoryName = "Fruits", Price = 0.79, Stock = 75, DateAdded = DateTime.Now.AddDays(-3) },
-    
-    // Vegetables (CategoryId = 2)
-    new Product() { Id = 14, Name = "Carrot", CategoryName = "Vegetables", Price = 0.89, Stock = 60, DateAdded = DateTime.Now.AddDays(-4) },
-    new Product() { Id = 15, Name = "Broccoli", CategoryName = "Vegetables", Price = 1.29, Stock = 40, DateAdded = DateTime.Now.AddDays(-5) },
-    new Product() { Id = 16, Name = "Spinach", CategoryName = "Vegetables", Price = 1.99, Stock = 30, DateAdded = DateTime.Now.AddDays(-1) },
-    
-    // Drinks (CategoryId = 3)
-    new Product() { Id = 17, Name = "Water", CategoryName = "Drinks", Price = 1.49, Stock = 200, DateAdded = DateTime.Now.AddDays(-7) },
-    new Product() { Id = 18, Name = "Orange Juice", CategoryName = "Drinks", Price = 2.99, Stock = 50, DateAdded = DateTime.Now.AddDays(-2) },
-    new Product() { Id = 19, Name = "Soda", CategoryName = "Drinks", Price = 1.79, Stock = 80, DateAdded = DateTime.Now.AddDays(-3) },
-    
-    // Snacks (CategoryId = 4)
-    new Product() { Id = 20, Name = "Chips", CategoryName = "Snacks", Price = 2.49, Stock = 45, DateAdded = DateTime.Now.AddDays(-4) },
-    new Product() { Id = 21, Name = "Cookies", CategoryName = "Snacks", Price = 3.99, Stock = 35, DateAdded = DateTime.Now.AddDays(-6) },
-    new Product() { Id = 22, Name = "Nuts", CategoryName = "Snacks", Price = 4.49, Stock = 25, DateAdded = DateTime.Now.AddDays(-1) },
+        public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
 
-};
 
 
 
@@ -645,9 +613,6 @@ namespace NeuroPOS.MVVM.ViewModel
             UpdateSelectedItemsCountDisplay();
         }
 
-        /// <summary>
-        /// Adds a product ID to persistent selection backup
-        /// </summary>
         public void AddToPersistentSelection(int productId)
         {
             if (!_persistentSelectedIds.Contains(productId))
@@ -658,9 +623,6 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-        /// <summary>
-        /// Removes a product ID from persistent selection backup
-        /// </summary>
         public void RemoveFromPersistentSelection(int productId)
         {
             if (_persistentSelectedIds.Contains(productId))
@@ -671,17 +633,11 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-        /// <summary>
-        /// Checks if a product ID is in persistent selection
-        /// </summary>
         public bool IsInPersistentSelection(int productId)
         {
             return _persistentSelectedIds.Contains(productId);
         }
 
-        /// <summary>
-        /// Updates the selected items count display using persistent selection count
-        /// </summary>
         public void UpdateSelectedItemsCountDisplay()
         {
             if (PageReference is ContentPage page)
@@ -693,10 +649,6 @@ namespace NeuroPOS.MVVM.ViewModel
                 }
             }
         }
-
-        /// <summary>
-        /// Refreshes all UI elements and ensures counts are synchronized
-        /// </summary>
         public void RefreshUI()
         {
             UpdateSelectedItemsCountDisplay();
@@ -704,9 +656,6 @@ namespace NeuroPOS.MVVM.ViewModel
             RestoreListViewSelections();
         }
 
-        /// <summary>
-        /// Restores ListView selections after sorting or filtering using persistent backup
-        /// </summary>
         public void RestoreListViewSelections()
         {
             if (PageReference is ContentPage page && _persistentSelectedIds?.Count > 0)
@@ -761,7 +710,7 @@ namespace NeuroPOS.MVVM.ViewModel
 
 
 
-       
+
 
         private bool FilterByActiveCategory(object obj)
         {
@@ -865,9 +814,26 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #endregion
 
-        public void LoadDB()
+        public async Task LoadDB()
         {
-            // Load products from the database or any other source
+
+            if (App.ProductRepo == null || App.CategoryRepo == null)
+            {
+                return;
+            }
+
+            Products.Clear();
+            Categories.Clear();
+            var DBProducts = App.ProductRepo.GetItems();
+            var DBCategories = App.CategoryRepo.GetItems();
+            foreach (var item in DBProducts)
+            {
+                Products.Add(item);
+            }
+            foreach (var item in DBCategories)
+            {
+                Categories.Add(item);
+            }
             SortProduct();
         }
 
