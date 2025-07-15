@@ -12,8 +12,8 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Converters:TransactionTypeToColorConverter x:Key="TransactionTypeColor"/>
-            <Converters:StatusToColorConverter x:Key="StatusColor"/>
+            <Converters:TransactionTypeToColorConverter x:Key="TransactionTypeColor" />
+            <Converters:StatusToColorConverter x:Key="StatusColor" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -22,20 +22,19 @@
         IsRefreshing="{Binding IsRefreshing}"
         RefreshColor="{StaticResource NPPrimaryBlue}">
         <ScrollView>
-            <VerticalStackLayout Padding="24,32,24,24"
-                                 Spacing="32">
+            <VerticalStackLayout Padding="24,32,24,24" Spacing="32">
                 <!--  Header Section  -->
                 <VerticalStackLayout Spacing="8">
                     <Label
                         FontFamily="PoppinsBold"
                         FontSize="32"
                         Text="Transactions"
-                        TextColor="{StaticResource NPTextMain}"/>
+                        TextColor="{StaticResource NPTextMain}" />
                     <Label
                         FontFamily="PoppinsRegular"
                         FontSize="16"
                         Text="View and manage all transactions"
-                        TextColor="{StaticResource NPTextSecondary}"/>
+                        TextColor="{StaticResource NPTextSecondary}" />
                 </VerticalStackLayout>
 
                 <!--  Modern Filter/Search Section  -->
@@ -49,11 +48,10 @@
                             Brush="Black"
                             Opacity="0.08"
                             Radius="20"
-                            Offset="0,4"/>
+                            Offset="0,4" />
                     </Border.Shadow>
 
-                    <VerticalStackLayout Padding="28,24"
-                                         Spacing="16">
+                    <VerticalStackLayout Padding="28,24" Spacing="16">
                         <HorizontalStackLayout Spacing="20">
                             <!--  Date Range Button  -->
                             <Button
@@ -65,30 +63,28 @@
                                 FontSize="14"
                                 HeightRequest="48"
                                 Text="📅 Date Range"
-                                TextColor="White"/>
+                                TextColor="White" />
 
                             <!--  Status Filter Picker  -->
-                            <Border StyleClass="FilterDropdownContainer"
-                                    MinimumWidthRequest="140">
+                            <Border MinimumWidthRequest="140" StyleClass="FilterDropdownContainer">
                                 <Picker
                                     x:Name="StatusFilterPicker"
+                                    Title="Status Filter"
                                     HorizontalOptions="Fill"
                                     ItemsSource="{Binding StatusFilterOptions}"
                                     SelectedItem="{Binding SelectedStatusFilter, Mode=TwoWay}"
-                                    StyleClass="ModernPicker"
-                                    Title="Status Filter"/>
+                                    StyleClass="ModernPicker" />
                             </Border>
 
                             <!--  Type Filter Picker  -->
-                            <Border StyleClass="FilterDropdownContainer"
-                                    MinimumWidthRequest="140">
+                            <Border MinimumWidthRequest="140" StyleClass="FilterDropdownContainer">
                                 <Picker
                                     x:Name="TypeFilterPicker"
+                                    Title="Type Filter"
                                     HorizontalOptions="Fill"
                                     ItemsSource="{Binding TypeFilterOptions}"
                                     SelectedItem="{Binding SelectedTypeFilter, Mode=TwoWay}"
-                                    StyleClass="ModernPicker"
-                                    Title="Type Filter"/>
+                                    StyleClass="ModernPicker" />
                             </Border>
 
                             <!--  Refresh Button  -->
@@ -101,7 +97,7 @@
                                 FontSize="14"
                                 HeightRequest="48"
                                 Text="🔄 Refresh"
-                                TextColor="White"/>
+                                TextColor="White" />
 
                             <!--  Collapse All Button (Initially Hidden)  -->
                             <Button
@@ -114,7 +110,7 @@
                                 HeightRequest="48"
                                 IsVisible="{Binding AnyExpanded}"
                                 Text="📉 Collapse All"
-                                TextColor="White"/>
+                                TextColor="White" />
 
                             <!--  Clear All Filters Button (Only visible when any filter is active)  -->
                             <Button
@@ -127,27 +123,29 @@
                                 HeightRequest="48"
                                 IsVisible="{Binding HasAnyActiveFilter}"
                                 Text="🗑️ Clear Filters"
-                                TextColor="White"/>
+                                TextColor="White" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
 
                 <!--  Date Filter Summary (Only visible when filter is active)  -->
-                <Border IsVisible="{Binding IsDateFilterActive}"
-                        Padding="20,12"
-                        BackgroundColor="{StaticResource NPAccentYellow}"
-                        StrokeShape="RoundRectangle 12"
-                        StrokeThickness="0">
-                    <HorizontalStackLayout Spacing="12"
-                                           HorizontalOptions="Center">
-                        <Label FontSize="16"
-                               Text="🔍"
-                               VerticalOptions="Center"/>
-                        <Label FontFamily="PoppinsBold"
-                               FontSize="14"
-                               Text="{Binding DateFilterSummary}"
-                               TextColor="White"
-                               VerticalOptions="Center"/>
+                <Border
+                    Padding="20,12"
+                    BackgroundColor="{StaticResource NPAccentYellow}"
+                    IsVisible="{Binding IsDateFilterActive}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+                        <Label
+                            FontSize="16"
+                            Text="🔍"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            Text="{Binding DateFilterSummary}"
+                            TextColor="White"
+                            VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>
 
@@ -163,7 +161,7 @@
                         FontSize="12"
                         Text="TRANSACTION ID"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="1"
@@ -171,7 +169,7 @@
                         FontSize="12"
                         Text="DATE"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="2"
@@ -179,7 +177,7 @@
                         FontSize="12"
                         Text="TIME"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="3"
@@ -188,7 +186,7 @@
                         HorizontalTextAlignment="Center"
                         Text="ITEMS"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="4"
@@ -198,7 +196,7 @@
                         HorizontalTextAlignment="Center"
                         Text="TYPE"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="5"
@@ -206,7 +204,7 @@
                         FontSize="12"
                         Text="TOTAL AMOUNT"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="6"
@@ -216,7 +214,7 @@
                         HorizontalTextAlignment="Center"
                         Text="STATUS"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="7"
@@ -225,7 +223,7 @@
                         HorizontalTextAlignment="Center"
                         Text="ACTIONS"
                         TextColor="{StaticResource NPTextSecondary}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
                 </Grid>
 
                 <!--  Optimized Transactions List  -->
@@ -239,7 +237,7 @@
                             Brush="Black"
                             Opacity="0.08"
                             Radius="20"
-                            Offset="0,6"/>
+                            Offset="0,6" />
                     </Border.Shadow>
 
                     <CollectionView
@@ -251,8 +249,7 @@
 
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="Model:Transaction">
-                                <VerticalStackLayout Padding="0"
-                                                     Spacing="0">
+                                <VerticalStackLayout Padding="0" Spacing="0">
 
                                     <!--  Optimized Expandable Transaction Row  -->
                                     <syncfusion:SfExpander
@@ -268,8 +265,7 @@
                                                 ColumnDefinitions="1.2*,1*,0.8*,0.6*,0.8*,1.2*,1*,1*"
                                                 RowDefinitions="Auto">
                                                 <Grid.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ToggleExpandCommand}"
-                                                                          CommandParameter="{Binding .}"/>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ToggleExpandCommand}" CommandParameter="{Binding .}" />
                                                 </Grid.GestureRecognizers>
                                                 <Label
                                                     Grid.Column="0"
@@ -277,7 +273,7 @@
                                                     FontSize="14"
                                                     Text="{Binding Id, StringFormat='#{0}'}"
                                                     TextColor="{StaticResource NPPrimaryBlue}"
-                                                    VerticalOptions="Center"/>
+                                                    VerticalOptions="Center" />
 
                                                 <Label
                                                     Grid.Column="1"
@@ -285,7 +281,7 @@
                                                     FontSize="14"
                                                     Text="{Binding FormattedDate}"
                                                     TextColor="{StaticResource NPTextMain}"
-                                                    VerticalOptions="Center"/>
+                                                    VerticalOptions="Center" />
 
                                                 <Label
                                                     Grid.Column="2"
@@ -293,7 +289,7 @@
                                                     FontSize="14"
                                                     Text="{Binding FormattedTime}"
                                                     TextColor="{StaticResource NPTextSecondary}"
-                                                    VerticalOptions="Center"/>
+                                                    VerticalOptions="Center" />
 
                                                 <Label
                                                     Grid.Column="3"
@@ -302,7 +298,7 @@
                                                     HorizontalTextAlignment="Center"
                                                     Text="{Binding ItemCount}"
                                                     TextColor="{StaticResource NPTextMain}"
-                                                    VerticalOptions="Center"/>
+                                                    VerticalOptions="Center" />
 
                                                 <Border
                                                     Grid.Column="4"
@@ -317,7 +313,7 @@
                                                         FontSize="11"
                                                         HorizontalTextAlignment="Center"
                                                         Text="{Binding TransactionType}"
-                                                        TextColor="White"/>
+                                                        TextColor="White" />
                                                 </Border>
 
                                                 <Label
@@ -327,7 +323,7 @@
                                                     FontSize="14"
                                                     Text="{Binding TotalAmount, StringFormat='{0:C}'}"
                                                     TextColor="{StaticResource NPTextMain}"
-                                                    VerticalOptions="Center"/>
+                                                    VerticalOptions="Center" />
 
                                                 <Border
                                                     Grid.Column="6"
@@ -342,7 +338,7 @@
                                                         FontSize="12"
                                                         HorizontalTextAlignment="Center"
                                                         Text="{Binding Status}"
-                                                        TextColor="White"/>
+                                                        TextColor="White" />
                                                 </Border>
 
                                                 <!--  View Details at far right under ACTIONS  -->
@@ -357,8 +353,7 @@
                                                     TextColor="{StaticResource NPPrimaryBlue}"
                                                     VerticalOptions="Center">
                                                     <Label.GestureRecognizers>
-                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ToggleExpandCommand}"
-                                                                              CommandParameter="{Binding .}"/>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ToggleExpandCommand}" CommandParameter="{Binding .}" />
                                                     </Label.GestureRecognizers>
                                                 </Label>
                                             </Grid>
@@ -376,11 +371,10 @@
                                                         FontFamily="PoppinsBold"
                                                         FontSize="16"
                                                         Text="Transaction Items"
-                                                        TextColor="{StaticResource NPTextMain}"/>
+                                                        TextColor="{StaticResource NPTextMain}" />
 
                                                     <!--  Product Details Table Headers  -->
-                                                    <Grid ColumnDefinitions="60,*,120,80,100,100,120"
-                                                          RowDefinitions="Auto">
+                                                    <Grid ColumnDefinitions="60,*,120,80,100,100,120" RowDefinitions="Auto">
                                                         <Label
                                                             Grid.Column="0"
                                                             Grid.ColumnSpan="2"
@@ -389,7 +383,7 @@
                                                             FontSize="11"
                                                             HorizontalOptions="Start"
                                                             Text="PRODUCT"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
 
                                                         <Label
                                                             Grid.Column="2"
@@ -398,7 +392,7 @@
                                                             FontSize="11"
                                                             HorizontalOptions="Center"
                                                             Text="CATEGORY"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
 
                                                         <Label
                                                             Grid.Column="3"
@@ -407,7 +401,7 @@
                                                             FontSize="11"
                                                             HorizontalTextAlignment="Center"
                                                             Text="QTY"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
 
                                                         <Label
                                                             Grid.Column="4"
@@ -416,7 +410,7 @@
                                                             FontSize="11"
                                                             HorizontalTextAlignment="Center"
                                                             Text="PRICE"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
 
                                                         <Label
                                                             Grid.Column="5"
@@ -425,7 +419,7 @@
                                                             FontSize="11"
                                                             HorizontalTextAlignment="Center"
                                                             Text="TOTAL"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
 
                                                         <Label
                                                             Grid.Column="6"
@@ -434,7 +428,7 @@
                                                             FontSize="11"
                                                             HorizontalTextAlignment="Center"
                                                             Text="DATE ADDED"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
                                                     </Grid>
 
                                                     <!--  High-Performance Product Items List  -->
@@ -453,8 +447,7 @@
                                                                     StrokeThickness="0">
                                                                     <VerticalStackLayout Spacing="8">
                                                                         <!--  Properly Aligned Product Row  -->
-                                                                        <Grid ColumnDefinitions="60,*,120,80,100,100,120"
-                                                                              RowDefinitions="Auto">
+                                                                        <Grid ColumnDefinitions="60,*,120,80,100,100,120" RowDefinitions="Auto">
 
                                                                             <!--  Product Image  -->
                                                                             <Border
@@ -468,7 +461,7 @@
                                                                                 <Image
                                                                                     Aspect="AspectFit"
                                                                                     Source="{Binding ImageUrl}"
-                                                                                    VerticalOptions="Center"/>
+                                                                                    VerticalOptions="Center" />
                                                                             </Border>
 
                                                                             <!--  Product Name  -->
@@ -478,13 +471,13 @@
                                                                                     FontSize="13"
                                                                                     Text="{Binding Name}"
                                                                                     TextColor="{StaticResource NPTextMain}"
-                                                                                    VerticalOptions="Center"/>
+                                                                                    VerticalOptions="Center" />
                                                                                 <Label
                                                                                     FontFamily="PoppinsBold"
                                                                                     FontSize="10"
                                                                                     Text="{Binding Id, StringFormat='#{0}'}"
                                                                                     TextColor="{StaticResource NPTextMain}"
-                                                                                    VerticalOptions="Center"/>
+                                                                                    VerticalOptions="Center" />
                                                                             </VerticalStackLayout>
 
                                                                             <!--  Category  -->
@@ -501,7 +494,7 @@
                                                                                     FontSize="10"
                                                                                     HorizontalTextAlignment="Center"
                                                                                     Text="{Binding CategoryName}"
-                                                                                    TextColor="White"/>
+                                                                                    TextColor="White" />
                                                                             </Border>
 
                                                                             <!--  Quantity  -->
@@ -512,7 +505,7 @@
                                                                                 HorizontalTextAlignment="Center"
                                                                                 Text="{Binding Stock}"
                                                                                 TextColor="{StaticResource NPTextMain}"
-                                                                                VerticalOptions="Center"/>
+                                                                                VerticalOptions="Center" />
 
                                                                             <!--  Unit Price  -->
                                                                             <Label
@@ -522,7 +515,7 @@
                                                                                 HorizontalTextAlignment="Center"
                                                                                 Text="{Binding Price, StringFormat='{0:C}'}"
                                                                                 TextColor="{StaticResource NPTextMain}"
-                                                                                VerticalOptions="Center"/>
+                                                                                VerticalOptions="Center" />
 
                                                                             <!--  Total Price  -->
                                                                             <Label
@@ -532,7 +525,7 @@
                                                                                 HorizontalTextAlignment="Center"
                                                                                 Text="{Binding Price, StringFormat='{0:C}'}"
                                                                                 TextColor="{StaticResource NPStockGreen}"
-                                                                                VerticalOptions="Center"/>
+                                                                                VerticalOptions="Center" />
 
                                                                             <!--  Date Added  -->
                                                                             <Label
@@ -542,7 +535,7 @@
                                                                                 HorizontalTextAlignment="Center"
                                                                                 Text="{Binding FormattedDate}"
                                                                                 TextColor="{StaticResource NPTextSecondary}"
-                                                                                VerticalOptions="Center"/>
+                                                                                VerticalOptions="Center" />
                                                                         </Grid>
 
                                                                         <!--  Subtle Product Divider  -->
@@ -550,7 +543,7 @@
                                                                             BackgroundColor="{StaticResource NPDivider}"
                                                                             HeightRequest="0.5"
                                                                             HorizontalOptions="Fill"
-                                                                            Opacity="0.5"/>
+                                                                            Opacity="0.5" />
                                                                     </VerticalStackLayout>
                                                                 </Border>
                                                             </DataTemplate>
@@ -565,7 +558,7 @@
                                     <BoxView
                                         BackgroundColor="{StaticResource NPDivider}"
                                         HeightRequest="1"
-                                        HorizontalOptions="Fill"/>
+                                        HorizontalOptions="Fill" />
                                 </VerticalStackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -573,16 +566,14 @@
                 </Border>
 
                 <!--  Pagination  -->
-                <VerticalStackLayout HorizontalOptions="Center"
-                                     Spacing="20">
-                    <HorizontalStackLayout HorizontalOptions="Center"
-                                           Spacing="20">
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="20">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
                         <Label
                             FontFamily="PoppinsRegular"
                             FontSize="14"
                             Text="{Binding PaginationInfo}"
                             TextColor="{StaticResource NPTextSecondary}"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
 
                         <Button
                             Padding="18,10"
@@ -601,15 +592,13 @@
                                     Binding="{Binding CanGoPrevious}"
                                     TargetType="Button"
                                     Value="False">
-                                    <Setter Property="Opacity"
-                                            Value="0.3"/>
+                                    <Setter Property="Opacity" Value="0.3" />
                                 </DataTrigger>
                                 <DataTrigger
                                     Binding="{Binding CanGoPrevious}"
                                     TargetType="Button"
                                     Value="True">
-                                    <Setter Property="Opacity"
-                                            Value="1.0"/>
+                                    <Setter Property="Opacity" Value="1.0" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>
@@ -629,15 +618,13 @@
                                     Binding="{Binding CanGoNext}"
                                     TargetType="Button"
                                     Value="False">
-                                    <Setter Property="Opacity"
-                                            Value="0.3"/>
+                                    <Setter Property="Opacity" Value="0.3" />
                                 </DataTrigger>
                                 <DataTrigger
                                     Binding="{Binding CanGoNext}"
                                     TargetType="Button"
                                     Value="True">
-                                    <Setter Property="Opacity"
-                                            Value="1.0"/>
+                                    <Setter Property="Opacity" Value="1.0" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>

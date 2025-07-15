@@ -53,6 +53,6 @@ namespace NeuroPOS.MVVM.Model
         }
         #endregion
 
-    
+
     }
 }
