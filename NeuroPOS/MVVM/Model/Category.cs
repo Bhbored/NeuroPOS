@@ -16,14 +16,12 @@ namespace NeuroPOS.MVVM.Model
     public class Category : Entity
     {
         public string Name { get; set; }
-        public string Description { get; set; } // Optional
-        public string ImageUrl { get; set; } // URL to the category image
+        public string? Description { get; set; } // Optional
         public int ProductCount { get; set; }
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product>? Products { get; set; }
 
-        // This will trigger UI updates automatically if Fody is active
         [Ignore]
         public string State { get; set; } = "Inactive Categorie";
     }

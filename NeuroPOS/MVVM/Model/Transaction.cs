@@ -15,10 +15,10 @@ namespace NeuroPOS.MVVM.Model
     public class Transaction : Entity
     {
         public DateTime Date { get; set; }
-
-        public string? TransactionType { get; set; } // "buy" or "sell"
         public double TotalAmount { get; set; }
-        public double ItemCount { get; set; } // Total quantity of items in the transaction
+
+        public int ItemCount { get; set; }
+        public string? TransactionType { get; set; } // "buy" or "sell"
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product> TransactionItems { get; set; } = new List<Product>();
@@ -52,11 +52,20 @@ namespace NeuroPOS.MVVM.Model
 
         [Ignore]
         public bool IsExpanded { get; set; } = false;
+
+        [Ignore]                                             // not stored in DB
+        public double CalculatedTotalAmount =>
+           (TransactionItems == null || TransactionItems.Count == 0)
+               ? 0
+               : TransactionType?.Equals("buy", StringComparison.OrdinalIgnoreCase) == true
+                   ? TransactionItems.Sum(p => p.Cost)     // buy  → use cost
+                   : TransactionItems.Sum(p => p.Price);   // sell → use price
+
+        [Ignore]                                             // not stored in DB
+        public int CalculatedItemCount => TransactionItems?.Count ?? 0;
         #endregion
 
         #region Foreign Keys
-        [ForeignKey(typeof(Person))]
-        public int? PersonId { get; set; }
         [ForeignKey(typeof(Contact))]
         public int? ContactId { get; set; }
 

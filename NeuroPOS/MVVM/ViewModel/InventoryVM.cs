@@ -596,7 +596,6 @@ namespace NeuroPOS.MVVM.ViewModel
                 Id = NewCategoryId,
                 Name = NewCategoryName.Trim(),
                 Description = string.IsNullOrWhiteSpace(NewCategoryDescription) ? string.Empty : NewCategoryDescription.Trim(),
-                ImageUrl = "emptyproduct.png", // Default image
                 ProductCount = 0, // No products initially
                 State = "Inactive Categorie" // Default state
             };

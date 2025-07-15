@@ -35,10 +35,6 @@
         ContentTemplate="{DataTemplate Pages:ContactsPage}"
         FlyoutIcon="contacts.png"
         Route="ContactsPage" />
-    <ShellContent
-        ContentTemplate="{DataTemplate Pages:CreditPage}"
-        FlyoutIcon="credit.png"
-        Route="CreditPage" />
 
 
     <Shell.FlyoutFooter>

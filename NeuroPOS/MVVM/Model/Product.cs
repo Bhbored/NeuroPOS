@@ -13,17 +13,15 @@ namespace NeuroPOS.MVVM.Model
     public class Product : Entity
     {
 
-        public Product()
-        {
-            DateAdded = DateTime.Now;
-        }
+      
 
         public string Name { get; set; }
         public double Price { get; set; }
         public double Cost { get; set; }
         public int Stock { get; set; }
-        public DateTime DateAdded { get; set; }
-  
+        public DateTime DateAdded { get; set; } = DateTime.Now;
+
+
 
         public string CategoryName
         {
@@ -59,7 +57,10 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Transaction))]
         public int? TransactionId { get; set; }
 
-       
+        [ForeignKey(typeof(Order))]
+        public int? OrderId { get; set; }
+
+
         #endregion
     }
 

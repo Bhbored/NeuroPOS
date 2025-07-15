@@ -12,7 +12,6 @@ namespace NeuroPOS
         public static BaseRepository<CashRegister>? CashRegisterRepo { get; private set; }
         public static BaseRepository<Category>? CategoryRepo { get; private set; }
         public static BaseRepository<Contact>? ContactRepo { get; private set; }
-        public static BaseRepository<Person>? PersonRepo { get; private set; }
         public static BaseRepository<Product>? ProductRepo { get; private set; }
         public static BaseRepository<Transaction>? TransactionRepo { get; private set; }
         public static BaseRepository<Order>? OrderRepo { get; private set; }
@@ -23,7 +22,7 @@ namespace NeuroPOS
         #endregion
         public App( BaseRepository<CashRegister> _cashregister,
             BaseRepository<Category> _category,
-            BaseRepository<Contact> _contact, BaseRepository<Person> _person,
+            BaseRepository<Contact> _contact,
             BaseRepository<Product> _product,
             BaseRepository<Transaction> _transaction, BaseRepository<Order> _order ,HomeVM _homeVM,
             TransactionVM _transactionVM,InventoryVM _inventoryVM)
@@ -33,7 +32,6 @@ namespace NeuroPOS
             CashRegisterRepo = _cashregister;
             CategoryRepo = _category;
             ContactRepo = _contact;
-            PersonRepo = _person;
             ProductRepo = _product;
             TransactionRepo = _transaction;
             OrderRepo = _order;

@@ -5,7 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:Converters="clr-namespace:NeuroPOS.Converters"
     xmlns:Pages="clr-namespace:NeuroPOS.MVVM.View">
+    <!--  Converters  -->
     <Converters:StockConverter x:Key="StockConverter" />
+    <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
     <!--  normal Template for ListView  -->
     <DataTemplate x:Key="MainTemplate">
         <Border
@@ -303,7 +305,7 @@
         </ScrollView>
     </DataTemplate>
 
-    <!--  CategoryTemplateSelector defined AFTER the templates it references  -->
-    <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
+
+
 
 </ResourceDictionary>
