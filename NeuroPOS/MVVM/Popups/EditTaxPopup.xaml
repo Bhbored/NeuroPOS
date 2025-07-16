@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.EditTaxPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    HeightRequest="300"
+    WidthRequest="300">
+
+    <Border
+        BackgroundColor="White"
+        StrokeShape="RoundRectangle 16"
+        StrokeThickness="0">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.3"
+                Radius="12"
+                Offset="0,4" />
+        </Border.Shadow>
+
+        <Grid Padding="24" RowDefinitions="Auto,Auto,Auto,*">
+            <!--  Header  -->
+            <Label
+                Grid.Row="0"
+                FontFamily="PoppinsBold"
+                FontSize="18"
+                HorizontalOptions="Center"
+                Text="Edit Tax Rate"
+                TextColor="{StaticResource NPTextMain}" />
+
+            <!--  Tax Input  -->
+            <VerticalStackLayout
+                Grid.Row="1"
+                Margin="0,16,0,0"
+                Spacing="8">
+                <Label
+                    FontSize="14"
+                    StyleClass="NormalText"
+                    Text="Tax Rate (%)"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Border
+                    BackgroundColor="{StaticResource NPCardBg}"
+                    Stroke="#E0E0E0"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <Entry
+                        x:Name="TaxEntry"
+                        FontFamily="PoppinsBold"
+                        FontSize="16"
+                        HorizontalTextAlignment="Center"
+                        Keyboard="Numeric"
+                        Placeholder="Enter tax rate"
+                        TextColor="{StaticResource NPTextMain}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!--  Buttons  -->
+            <HorizontalStackLayout
+                Grid.Row="2"
+                Margin="0,20,0,0"
+                Spacing="12">
+                <Button
+                    BackgroundColor="{StaticResource NPTextSecondary}"
+                    Clicked="OnCancelClicked"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    HeightRequest="40"
+                    Text="Cancel"
+                    TextColor="White" />
+
+                <Button
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    Clicked="OnSaveClicked"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    HeightRequest="40"
+                    Text="Save"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

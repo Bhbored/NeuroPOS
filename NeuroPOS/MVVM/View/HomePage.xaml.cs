@@ -263,8 +263,4 @@ public partial class HomePage : ContentPage
         }
     }
 
-
-
-
-
 }

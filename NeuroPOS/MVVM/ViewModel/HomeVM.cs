@@ -1,17 +1,22 @@
-﻿using NeuroPOS.MVVM.Model;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
+using NeuroPOS.Data;
+using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.Popups;
 using PropertyChanged;
 using Syncfusion.Maui.DataSource;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Input;
-using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
-using ListSortDirection = Syncfusion.Maui.DataSource.ListSortDirection;
 using System.Threading.Tasks;
-using NeuroPOS.Data;
+using System.Windows.Input;
+using Contact = NeuroPOS.MVVM.Model.Contact;
+using ListSortDirection = Syncfusion.Maui.DataSource.ListSortDirection;
 
 namespace NeuroPOS.MVVM.ViewModel
 {
@@ -21,6 +26,13 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public HomeVM()
         {
+            Contacts = [
+                new Contact { Name = "John Doe" },
+                new Contact { Name = "Jane Smith" },
+                new Contact { Name = "Alice Johnson" },
+                new Contact { Name = "Bob Brown" },
+                new Contact { Name = "Charlie Davis" },
+                ];
 
         }
 
@@ -37,6 +49,9 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Properties
+
+        public ObservableCollection<Contact> Contacts { get; set; } = new ObservableCollection<Contact>();
+        public ObservableCollection<Transaction> Transactions { get; set; } = new ObservableCollection<Transaction>();
 
         private ObservableCollection<Product> _currentOrderItems = new ObservableCollection<Product>();
 
@@ -80,7 +95,7 @@ namespace NeuroPOS.MVVM.ViewModel
         private ObservableCollection<int> _persistentSelectedIds = new ObservableCollection<int>();
 
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
-       
+
 
 
         public ObservableCollection<Category> Categories
@@ -139,11 +154,31 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
+        private double _taxRate = 2.0; // Default 2%
+        public double TaxRate
+        {
+            get => _taxRate;
+            set
+            {
+                if (Math.Abs(_taxRate - value) > 0.01) // Only change if significantly different
+                {
+                    _taxRate = value;
+                    OnPropertyChanged();
+                    // Only notify calculated properties if we have order items
+                    if (CurrentOrderItems?.Count > 0)
+                    {
+                        NotifyCalculatedPropertiesChanged();
+                    }
+                }
+            }
+        }
+
+        // Update the Tax property to use the TaxRate
         public double Tax
         {
             get
             {
-                var result = Subtotal * 0.05;
+                var result = Subtotal * (TaxRate / 100.0);
                 return result;
             }
         }
@@ -794,10 +829,10 @@ namespace NeuroPOS.MVVM.ViewModel
             UpdateSelectedItemsCountDisplay();
         });
 
-
-
-
-
+        public ICommand EditTaxCommand => new Command(async () =>
+        {
+            await EditTaxRate();
+        });
 
 
         #endregion
@@ -836,6 +871,52 @@ namespace NeuroPOS.MVVM.ViewModel
             }
             SortProduct();
         }
+
+        // Method to update tax rate without triggering property setter logic
+        private void UpdateTaxRateSilently(double newTaxRate)
+        {
+            _taxRate = newTaxRate;
+        }
+
+        public async Task EditTaxRate()
+        {
+            try
+            {
+                var originalTaxRate = TaxRate;
+                var popup = new EditTaxPopup(TaxRate);
+
+                await Application.Current.MainPage.ShowPopupAsync(popup);
+
+                // Get the result directly from the popup
+                var newTaxRate = popup.Result;
+
+                // Only update if the value actually changed
+                if (Math.Abs(newTaxRate - originalTaxRate) > 0.01)
+                {
+                    // Update tax rate silently without triggering property setter
+                    UpdateTaxRateSilently(newTaxRate);
+
+                    // Manually update the UI for tax-related properties only
+                    OnPropertyChanged(nameof(TaxRate));
+                    OnPropertyChanged(nameof(Tax));
+                    OnPropertyChanged(nameof(Total));
+
+
+                    var snackbar = Snackbar.Make($"Tax rate updated to {TaxRate:F1}%",
+          duration: TimeSpan.FromSeconds(3));
+                    await snackbar.Show();
+                }
+            }
+            catch (Exception ex)
+            {
+
+                var snackbar = Snackbar.Make("Failed to update tax rate",
+           duration: TimeSpan.FromSeconds(3));
+                await snackbar.Show();
+            }
+        }
+
+       
 
     }
 }
