@@ -123,7 +123,7 @@ namespace NeuroPOS.Data
             Debug.WriteLine($"Connection closed for {typeof(T).Name} repository.");
         }
 
-        #region add /update
+        #region add
         public void SaveItem(T item)
         {
             try
@@ -153,15 +153,24 @@ namespace NeuroPOS.Data
         {
             try
             {
-                connection.InsertWithChildren(item, recursive);
-                Debug.WriteLine($"Inserted {typeof(T).Name} with children (recursive={recursive}), Id={item.Id}");
+                if (item.Id != 0)
+                {
+                    connection.UpdateWithChildren(item);
+                    Debug.WriteLine($"Updated {typeof(T).Name} with children (recursive={recursive}), Id={item.Id}");
+                }
+                else
+                {
+                    connection.InsertWithChildren(item, recursive);
+                    Debug.WriteLine($"Inserted new {typeof(T).Name} with children (recursive={recursive}), Id={item.Id}");
+                }
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Error: {ex.Message}";
-                Debug.WriteLine($"Error inserting {typeof(T).Name} with children: {ex.Message}");
+                Debug.WriteLine($"Error saving {typeof(T).Name} with children: {ex.Message}");
             }
         }
+
 
         public List<T> GetItemsWithChildren()
         {
@@ -178,6 +187,12 @@ namespace NeuroPOS.Data
                 return null;
             }
         }
+
+        #endregion
+
+        #region Update
+      
+
 
         #endregion
 

@@ -14,7 +14,19 @@ namespace NeuroPOS.MVVM.Model
     [AddINotifyPropertyChangedInterface]
     public class Transaction : Entity
     {
-        public DateTime Date { get; set; }
+        private DateTime? date;
+
+        public DateTime Date
+        {
+            get
+            {
+                return date ?? DateTime.Now;
+            }
+            set
+            {
+                date = value;
+            }
+        }
         public double TotalAmount { get; set; }
 
         public int ItemCount { get; set; }

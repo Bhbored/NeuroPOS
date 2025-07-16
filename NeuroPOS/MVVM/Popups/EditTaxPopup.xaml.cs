@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using System.Windows.Input;
 
@@ -21,14 +22,14 @@ namespace NeuroPOS.MVVM.Popups
             if (double.TryParse(TaxEntry.Text, out double newTaxRate) && newTaxRate >= 0 && newTaxRate <= 100)
             {
                 Result = newTaxRate;
-                await CloseAsync();
+                await AppShell.Current.ClosePopupAsync(this);
             }
         }
 
         private async void OnCancelClicked(object sender, EventArgs e)
         {
             Result = _originalTaxRate;
-            await CloseAsync();
+            await AppShell.Current.ClosePopupAsync(this);
         }
     }
 }
