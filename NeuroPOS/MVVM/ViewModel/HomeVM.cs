@@ -183,14 +183,32 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-        public double Discount { get; set; } = 0; // Allow user to set discount
+        private double _discount = 0;
+        public double Discount
+        {
+            get => _discount;
+            set
+            {
+                // Ensure discount doesn't exceed subtotal to prevent negative total
+                var maxDiscount = Math.Max(0, Subtotal);
+                var validatedDiscount = Math.Min(Math.Max(0, value), maxDiscount);
+
+                if (Math.Abs(_discount - validatedDiscount) > 0.01) // Only change if significantly different
+                {
+                    _discount = validatedDiscount;
+                    OnPropertyChanged();
+                    // Notify Total property when discount changes
+                    OnPropertyChanged(nameof(Total));
+                }
+            }
+        }
 
         public double Total
         {
             get
             {
                 var result = Subtotal + Tax - Discount;
-                return result;
+                return Math.Max(0, result); // Ensure total never goes below zero
             }
         }
 
@@ -257,6 +275,7 @@ namespace NeuroPOS.MVVM.ViewModel
             OnPropertyChanged(nameof(Subtotal));
             OnPropertyChanged(nameof(Tax));
             OnPropertyChanged(nameof(Total));
+            OnPropertyChanged(nameof(Discount));
         }
 
         public void NotifySelectionChanged()
@@ -551,6 +570,9 @@ namespace NeuroPOS.MVVM.ViewModel
 
             // Clear the cart
             CurrentOrderItems.Clear();
+
+            // Reset discount to zero
+            Discount = 0;
 
             // Reset all product stocks to their original values
             ResetAllProductStocks();
@@ -872,6 +894,16 @@ namespace NeuroPOS.MVVM.ViewModel
             SortProduct();
         }
 
+        // Method to update discount with validation
+        public void UpdateDiscount(double newDiscount)
+        {
+            // Ensure discount doesn't exceed subtotal to prevent negative total
+            var maxDiscount = Math.Max(0, Subtotal);
+            var validatedDiscount = Math.Min(Math.Max(0, newDiscount), maxDiscount);
+
+            Discount = validatedDiscount;
+        }
+
         // Method to update tax rate without triggering property setter logic
         private void UpdateTaxRateSilently(double newTaxRate)
         {
@@ -916,7 +948,7 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-       
+
 
     }
 }
