@@ -17,9 +17,10 @@ namespace NeuroPOS
         public static BaseRepository<Transaction>? TransactionRepo { get; private set; }
         public static BaseRepository<Order>? OrderRepo { get; private set; }
 
-        public static HomeVM? HomeRepo { get; set; }
-        public static TransactionVM? TransactionRepoVM { get; set; }
-        public static InventoryVM? InventoryRepo { get; set; }
+        public static HomeVM? HomeVM { get; set; }
+        public static TransactionVM? TransactionVM { get; set; }
+        public static InventoryVM? InventoryVM { get; set; }
+        public static OrderVM? OrderVM { get; set; }
         public static ContactVM? ContactVM { get; set; }
         #endregion
         public App(BaseRepository<CashRegister> _cashregister,
@@ -27,7 +28,7 @@ namespace NeuroPOS
             BaseRepository<Contact> _contact,
             BaseRepository<Product> _product,
             BaseRepository<Transaction> _transaction, BaseRepository<Order> _order, HomeVM _homeVM,
-            TransactionVM _transactionVM, InventoryVM _inventoryVM, ContactVM _contactVM)
+            TransactionVM _transactionVM, InventoryVM _inventoryVM, ContactVM _contactVM, OrderVM _orderVM)
         {
             InitializeComponent();
             SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXlceHRTQ2ZYWUN/XkFWYEk=");
@@ -39,9 +40,10 @@ namespace NeuroPOS
             OrderRepo = _order;
             _ = ProductTestData();
             _ = CategoryTestData();
-            HomeRepo = _homeVM;
-            TransactionRepoVM = _transactionVM;
-            InventoryRepo = _inventoryVM;
+            HomeVM = _homeVM;
+            TransactionVM = _transactionVM;
+            InventoryVM = _inventoryVM;
+            OrderVM = _orderVM;
             ContactVM = _contactVM;
 
         }

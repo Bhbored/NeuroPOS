@@ -34,7 +34,8 @@ namespace NeuroPOS.MVVM.Model
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<Product> TransactionItems { get; set; } = new List<Product>();
-        public bool IsPaid { get; set; } // Indicates if the transaction has been paid to add to the cashRegister
+        public bool IsPaid { get; set; } = true;
+        
 
         #region Ignore Properties
 
@@ -80,6 +81,8 @@ namespace NeuroPOS.MVVM.Model
         #region Foreign Keys
         [ForeignKey(typeof(Contact))]
         public int? ContactId { get; set; }
+        [ForeignKey(typeof(CashRegister))]
+        public int? CashRegisterId { get; set; }
 
         #endregion
 
