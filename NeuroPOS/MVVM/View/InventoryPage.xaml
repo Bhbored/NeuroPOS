@@ -19,6 +19,7 @@
         <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter" />
         <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
         <Converters:StockConverter x:Key="StockConverter" />
+        <Converters:ProgressBarConverter x:Key="ProgressBarConverter" />
 
     </ContentPage.Resources>
 
@@ -300,18 +301,15 @@
                                             VerticalOptions="Center">
                                             <HorizontalStackLayout Spacing="8">
                                                 <Label
+                                                    x:Name="stock"
                                                     FontSize="12"
                                                     Text="{Binding Stock}"
-                                                    TextColor="{StaticResource NPTextMain}" />
-                                                <Label
-                                                    FontSize="12"
-                                                    Text="{Binding Stock, Converter={StaticResource StockConverter}}"
                                                     TextColor="{StaticResource NPTextSecondary}" />
                                             </HorizontalStackLayout>
                                             <ProgressBar
                                                 HeightRequest="4"
                                                 Progress="{Binding Stock, Converter={StaticResource StockConverter}}"
-                                                ProgressColor="{Binding Stock, Converter={StaticResource StockConverter}}" />
+                                                ProgressColor="{Binding Stock, Converter={StaticResource ProgressBarConverter}, ConverterParameter={x:Reference stock}}" />
                                         </VerticalStackLayout>
 
                                         <!--  Cost  -->

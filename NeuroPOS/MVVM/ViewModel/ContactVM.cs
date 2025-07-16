@@ -23,9 +23,6 @@ namespace NeuroPOS.MVVM.ViewModel
         private ObservableCollection<Contact> _autocompleteSelectedContacts;
         private ObservableCollection<object> _selectedItems;
         private string _searchText = "";
-        private int _currentPage = 1;
-        private int _pageSize = 10;
-        private int _totalContacts = 0;
         private bool _selectAllContacts = false;
         private bool _isRefreshing = false;
         private int _isEditMode = 0; // 0 = not editing, 1 = editing
@@ -54,7 +51,6 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 _contacts = value;
                 OnPropertyChanged(nameof(Contacts));
-                OnPropertyChanged(nameof(PaginationInfo));
                 // Reinitialize DataSource when Contacts changes
                 if (value != null)
                 {
@@ -229,59 +225,12 @@ namespace NeuroPOS.MVVM.ViewModel
 
 
 
-        public int CurrentPage
+
+
+        public bool HasSelectedItems
         {
-            get => _currentPage;
-            set
-            {
-                _currentPage = value;
-                OnPropertyChanged(nameof(CurrentPage));
-                OnPropertyChanged(nameof(PaginationInfo));
-                OnPropertyChanged(nameof(CanGoToPreviousPage));
-                OnPropertyChanged(nameof(CanGoToNextPage));
-            }
+            get => (SelectedContacts?.Count > 0) || (SelectedItems?.Count > 0);
         }
-
-        public int PageSize
-        {
-            get => _pageSize;
-            set
-            {
-                _pageSize = value;
-                OnPropertyChanged(nameof(PageSize));
-                OnPropertyChanged(nameof(PaginationInfo));
-            }
-        }
-
-        public int TotalContacts
-        {
-            get => _totalContacts;
-            set
-            {
-                _totalContacts = value;
-                OnPropertyChanged(nameof(TotalContacts));
-                OnPropertyChanged(nameof(PaginationInfo));
-                OnPropertyChanged(nameof(CanGoToPreviousPage));
-                OnPropertyChanged(nameof(CanGoToNextPage));
-            }
-        }
-
-        public bool CanGoToPreviousPage => CurrentPage > 1;
-        public bool CanGoToNextPage => CurrentPage < TotalPages;
-
-        public int TotalPages => (int)Math.Ceiling((double)TotalContacts / PageSize);
-
-        public string PaginationInfo
-        {
-            get
-            {
-                var start = ((CurrentPage - 1) * PageSize) + 1;
-                var end = Math.Min(CurrentPage * PageSize, TotalContacts);
-                return $"Showing {start} to {end} of {TotalContacts} results";
-            }
-        }
-
-        public bool HasSelectedItems => (SelectedContacts?.Count > 0) || (SelectedItems?.Count > 0);
 
         #endregion
 
@@ -296,8 +245,6 @@ namespace NeuroPOS.MVVM.ViewModel
         public ICommand CancelEditCommand { get; private set; }
         public ICommand RefreshContactsCommand { get; private set; }
         public ICommand ToggleSortCommand { get; private set; }
-        public ICommand PreviousPageCommand { get; private set; }
-        public ICommand NextPageCommand { get; private set; }
 
         private void InitializeCommands()
         {
@@ -310,8 +257,6 @@ namespace NeuroPOS.MVVM.ViewModel
             CancelEditCommand = new Command(() => CancelEdit());
             RefreshContactsCommand = new Command(async () => await RefreshContacts());
             ToggleSortCommand = new Command(() => ToggleSort());
-            PreviousPageCommand = new Command(() => GoToPreviousPage(), () => CanGoToPreviousPage);
-            NextPageCommand = new Command(() => GoToNextPage(), () => CanGoToNextPage);
         }
 
         #endregion
@@ -480,7 +425,6 @@ namespace NeuroPOS.MVVM.ViewModel
             SelectedContacts = new ObservableCollection<Contact>();
             AutocompleteSelectedContacts = new ObservableCollection<Contact>();
             SelectedItems = new ObservableCollection<object>();
-            TotalContacts = testContacts.Count;
 
             // Initialize DataSource after Contacts are loaded
             DataSource = new DataSource() { Source = Contacts };
@@ -559,6 +503,7 @@ namespace NeuroPOS.MVVM.ViewModel
             SelectedContacts.Clear();
             SelectedItems.Clear();
             SelectAllContacts = false;
+            OnPropertyChanged(nameof(HasSelectedItems));
         }
 
         private void UpdateSelectedContactsFromItems()
@@ -591,21 +536,7 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-        private void GoToPreviousPage()
-        {
-            if (CanGoToPreviousPage)
-            {
-                CurrentPage--;
-            }
-        }
 
-        private void GoToNextPage()
-        {
-            if (CanGoToNextPage)
-            {
-                CurrentPage++;
-            }
-        }
 
         private void ToggleSort()
         {
@@ -634,9 +565,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 EditDateAdded = contact.DateAdded;
                 IsEditMode = 1;
 
-                var snackbar = Snackbar.Make($"Editing contact: {contact.Name}",
-                    duration: TimeSpan.FromSeconds(2));
-                await snackbar.Show();
+
             }
             catch (Exception ex)
             {
@@ -654,7 +583,6 @@ namespace NeuroPOS.MVVM.ViewModel
                 if (SelectedContacts.Contains(contact))
                     SelectedContacts.Remove(contact);
 
-                TotalContacts = Contacts.Count;
                 DataSource.Refresh();
 
                 var snackbar = Snackbar.Make($"Deleted contact: {contact.Name}",
@@ -673,7 +601,35 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
-                var contactsToDelete = SelectedContacts.ToList();
+                // Get contacts from both SelectedContacts and SelectedItems
+                var contactsToDelete = new List<Contact>();
+
+                // Add from SelectedContacts
+                if (SelectedContacts != null)
+                    contactsToDelete.AddRange(SelectedContacts);
+
+                // Add from SelectedItems (in case SelectedContacts is not synced)
+                if (SelectedItems != null)
+                {
+                    var itemsContacts = SelectedItems.OfType<Contact>().ToList();
+                    foreach (var contact in itemsContacts)
+                    {
+                        if (!contactsToDelete.Contains(contact))
+                            contactsToDelete.Add(contact);
+                    }
+                }
+
+                if (contactsToDelete.Count == 0)
+                {
+                    var noSelectionSnackbar = Snackbar.Make("No contacts selected to delete",
+                        duration: TimeSpan.FromSeconds(2));
+                    await noSelectionSnackbar.Show();
+                    return;
+                }
+
+                // Store the deleted contacts for potential undo
+                var deletedContacts = contactsToDelete.ToList();
+
                 foreach (var contact in contactsToDelete)
                 {
                     Contacts.Remove(contact);
@@ -681,16 +637,43 @@ namespace NeuroPOS.MVVM.ViewModel
 
                 SelectedContacts.Clear();
                 SelectedItems.Clear();
-                TotalContacts = Contacts.Count;
                 DataSource.Refresh();
+                OnPropertyChanged(nameof(HasSelectedItems));
 
-                var snackbar = Snackbar.Make($"Deleted {contactsToDelete.Count} contacts",
-                    duration: TimeSpan.FromSeconds(2));
+                // Create snackbar with undo action
+                var snackbar = Snackbar.Make(
+                    $"Deleted {contactsToDelete.Count} contacts",
+                    async () => await UndoDeleteContacts(deletedContacts),
+                    "UNDO",
+                    TimeSpan.FromSeconds(4));
                 await snackbar.Show();
             }
             catch (Exception ex)
             {
                 var snackbar = Snackbar.Make($"Error deleting contacts: {ex.Message}",
+                    duration: TimeSpan.FromSeconds(3));
+                await snackbar.Show();
+            }
+        }
+
+        private async Task UndoDeleteContacts(List<Contact> deletedContacts)
+        {
+            try
+            {
+                foreach (var contact in deletedContacts)
+                {
+                    Contacts.Add(contact);
+                }
+
+                DataSource.Refresh();
+
+                var snackbar = Snackbar.Make($"Restored {deletedContacts.Count} contacts",
+                    duration: TimeSpan.FromSeconds(2));
+                await snackbar.Show();
+            }
+            catch (Exception ex)
+            {
+                var snackbar = Snackbar.Make($"Error restoring contacts: {ex.Message}",
                     duration: TimeSpan.FromSeconds(3));
                 await snackbar.Show();
             }
@@ -756,6 +739,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
+
+
 
         #endregion
 
