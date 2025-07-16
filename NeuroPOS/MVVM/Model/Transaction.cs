@@ -65,7 +65,7 @@ namespace NeuroPOS.MVVM.Model
         [Ignore]
         public bool IsExpanded { get; set; } = false;
 
-        [Ignore]                                             // not stored in DB
+        [Ignore]                                             
         public double CalculatedTotalAmount =>
            (TransactionItems == null || TransactionItems.Count == 0)
                ? 0

@@ -51,6 +51,9 @@ namespace NeuroPOS.MVVM.Model
         {
             get => DateAdded.ToString("hh:mm tt");
         }
+
+        [Ignore]
+        public bool IsSelected { get; set; }
         #endregion
 
 

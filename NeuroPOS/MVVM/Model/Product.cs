@@ -13,7 +13,7 @@ namespace NeuroPOS.MVVM.Model
     public class Product : Entity
     {
 
-      
+
 
         public string Name { get; set; }
         public double Price { get; set; }

@@ -558,7 +558,7 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             _taxRate = newTaxRate;
         }
-       
+
         #endregion
         #region Commands
         public ICommand ToggleSortCommand => new Command(() =>
@@ -680,12 +680,12 @@ namespace NeuroPOS.MVVM.ViewModel
                         var product = DBproducts.FirstOrDefault(p => p.Id == item.Id);
                         if (product != null)
                         {
-                            product.Stock -= item.Stock; 
+                            product.Stock -= item.Stock;
                             App.ProductRepo.SaveItem(product);
                         }
                     }
                     ClearAllSelections();
-                    _= LoadDB();
+                    _ = LoadDB();
                     await Snackbar.Make("Cash payment processed successfully!",
                         duration: TimeSpan.FromSeconds(3)).Show();
                 }
