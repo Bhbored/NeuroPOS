@@ -42,7 +42,7 @@ namespace NeuroPOS
             OrderRepo = _order;
             _ = ProductTestData();
             _ = CategoryTestData();
-            _= TransactionTestData();
+            _= ContactTestData();
             HomeVM = _homeVM;
             TransactionVM = _transactionVM;
             InventoryVM = _inventoryVM;
@@ -198,101 +198,117 @@ namespace NeuroPOS
             }
         }
 
-        public async Task TransactionTestData()
+        public async Task ContactTestData()
         {
             try
             {
-                var transactions = App.TransactionRepo?.GetItems();
-                Debug.WriteLine($"Current transactions in database: {transactions?.Count ?? 0}");
+                var contacts = App.ContactRepo?.GetItemsWithChildren();
+                Debug.WriteLine($"Current contacts in database: {contacts?.Count ?? 0}");
 
-                if (transactions == null || transactions.Count == 0)
+                if (contacts == null || contacts.Count == 0)
                 {
-                    var testTransactions = new List<Transaction>
-            {
-                new Transaction
-                {
-                    TransactionType = "buy",
-                    IsPaid = true,
-                    Date = DateTime.Now.AddDays(-7),
-                    ItemCount = 15,
-                    TotalAmount = 120.50
-                },
-                new Transaction
-                {
-                    TransactionType = "sell",
-                    IsPaid = false,
-                    Date = DateTime.Now.AddDays(-6),
-                    ItemCount = 10,
-                    TotalAmount = 90.00
-                },
-                new Transaction
-                {
-                    TransactionType = "buy",
-                    IsPaid = true,
-                    Date = DateTime.Now.AddDays(-5),
-                    ItemCount = 25,
-                    TotalAmount = 200.75
-                },
-                new Transaction
-                {
-                    TransactionType = "sell",
-                    IsPaid = true,
-                    Date = DateTime.Now.AddDays(-4),
-                    ItemCount = 8,
-                    TotalAmount = 72.00
-                },
-                new Transaction
-                {
-                    TransactionType = "buy",
-                    IsPaid = false,
-                    Date = DateTime.Now.AddDays(-3),
-                    ItemCount = 12,
-                    TotalAmount = 100.00
-                },
-                new Transaction
-                {
-                    TransactionType = "sell",
-                    IsPaid = true,
-                    Date = DateTime.Now.AddDays(-2),
-                    ItemCount = 18,
-                    TotalAmount = 160.00
-                },
-                new Transaction
-                {
-                    TransactionType = "buy",
-                    IsPaid = true,
-                    Date = DateTime.Now.AddDays(-1),
-                    ItemCount = 6,
-                    TotalAmount = 52.00
-                },
-                new Transaction
-                {
-                    TransactionType = "sell",
-                    IsPaid = false,
-                    Date = DateTime.Now,
-                    ItemCount = 14,
-                    TotalAmount = 126.00
-                }
-            };
+                    var testContacts = new List<Contact>();
 
-                    foreach (var transaction in testTransactions)
+                    for (int i = 1; i <= 5; i++)
                     {
-                        App.TransactionRepo?.InsertItem(transaction);
-                        Debug.WriteLine($"Transaction ({transaction.TransactionType}, Paid: {transaction.IsPaid}) added.");
+                        var contact = new Contact
+                        {
+                            Name = $"Contact {i}",
+                            Email = $"contact{i}@example.com",
+                            PhoneNumber = $"555000{i:D3}",
+                            Address = $"Street {i}, City",
+                            DateAdded = DateTime.Now.AddDays(-i),
+                            Transactions = new List<Transaction>
+                    {
+                        new Transaction
+                        {
+                            Date = DateTime.Now.AddDays(-i),
+                            IsPaid = true,
+                            TransactionType = "sell",
+                            TotalAmount = 50 * i,
+                            ItemCount = 2,
+                            Lines = new List<TransactionLine>
+                            {
+                                new TransactionLine
+                                {
+                                    Name = $"Product A{i}",
+                                    Price = 10 * i,
+                                    Cost = 6 * i,
+                                    Stock = 2,
+                                    CategoryName = "General",
+                                    ImageUrl = "emptyproduct.png",
+                                    DateAdded = DateTime.Now.AddDays(-i)
+                                },
+                                new TransactionLine
+                                {
+                                    Name = $"Product B{i}",
+                                    Price = 15 * i,
+                                    Cost = 9 * i,
+                                    Stock = 1,
+                                    CategoryName = "General",
+                                    ImageUrl = "emptyproduct.png",
+                                    DateAdded = DateTime.Now.AddDays(-i)
+                                }
+                            }
+                        },
+                        new Transaction
+                        {
+                            Date = DateTime.Now.AddDays(-i + 1),
+                            IsPaid = false,
+                            TransactionType = "sell",
+                            TotalAmount = 60 * i,
+                            ItemCount = 2,
+                            Lines = new List<TransactionLine>
+                            {
+                                new TransactionLine
+                                {
+                                    Name = $"Product C{i}",
+                                    Price = 20 * i,
+                                    Cost = 12 * i,
+                                    Stock = 1,
+                                    CategoryName = "Uncategorized",
+                                    ImageUrl = "emptyproduct.png",
+                                    DateAdded = DateTime.Now.AddDays(-i + 1)
+                                },
+                                new TransactionLine
+                                {
+                                    Name = $"Product D{i}",
+                                    Price = 10 * i,
+                                    Cost = 7 * i,
+                                    Stock = 2,
+                                    CategoryName = "Uncategorized",
+                                    ImageUrl = "emptyproduct.png",
+                                    DateAdded = DateTime.Now.AddDays(-i + 1)
+                                }
+                            }
+                        }
+                    }
+                        };
+
+                        testContacts.Add(contact);
                     }
 
-                    Debug.WriteLine($"Added {testTransactions.Count} test transactions to the database.");
+                    foreach (var contact in testContacts)
+                    {
+                        App.ContactRepo?.InsertItemWithChildren(contact, true);
+                        Debug.WriteLine($"Inserted contact: {contact.Name} with {contact.Transactions?.Count ?? 0} transactions.");
+                    }
+
+                    Debug.WriteLine($"✅ Added {testContacts.Count} test contacts with transactions and transaction lines.");
                 }
                 else
                 {
-                    Debug.WriteLine($"Database already contains {transactions.Count} transactions. Skipping test data insertion.");
+                    Debug.WriteLine($"ℹ️ Database already contains {contacts.Count} contacts. Skipping insertion.");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in TransactionTestData: {ex.Message}");
+                Debug.WriteLine($"❌ Error in ContactTestData: {ex.Message}");
             }
         }
+
+
+
 
 
 
