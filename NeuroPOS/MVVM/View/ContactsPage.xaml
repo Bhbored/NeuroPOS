@@ -9,6 +9,7 @@
     xmlns:data="clr-namespace:Syncfusion.Maui.DataSource;assembly=Syncfusion.Maui.DataSource"
     xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Name="ContactsPageView"
     x:DataType="VM:ContactVM"
     BackgroundColor="{StaticResource NPLightBg}">
@@ -135,7 +136,7 @@
                         <Label
                             FontFamily="PoppinsBold"
                             FontSize="14"
-                            Text="Sort"
+                            Text="{Binding SortLabel}"
                             TextColor="{StaticResource NPTextMain}"
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
@@ -159,7 +160,7 @@
                         Grid.Row="0"
                         Padding="20,16"
                         BackgroundColor="{StaticResource NPLightBg}"
-                        ColumnDefinitions="Auto,Auto,*,120,120,100,100,80">
+                        ColumnDefinitions="Auto,Auto,*,*,*,*,*,Auto">
                         <CheckBox
                             x:Name="SelectAllCheckBox"
                             Grid.Column="0"
@@ -176,27 +177,42 @@
                             Text="CONTACT"
                             VerticalOptions="Center" />
                         <Label
-                            Grid.Column="3"
+                            Grid.Column="2"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
                             StyleClass="ColumnHeader"
                             Text="AMOUNT SOLD"
                             VerticalOptions="Center" />
                         <Label
-                            Grid.Column="4"
+                            Grid.Column="3"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
                             StyleClass="ColumnHeader"
                             Text="CREDIT AMOUNT"
                             VerticalOptions="Center" />
                         <Label
-                            Grid.Column="5"
+                            Grid.Column="4"
+                            Grid.ColumnSpan="2"
+                            Margin="10,0,0,0"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
                             StyleClass="ColumnHeader"
                             Text="DATE ADDED"
                             VerticalOptions="Center" />
                         <Label
-                            Grid.Column="6"
+                            Grid.Column="5"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
                             StyleClass="ColumnHeader"
                             Text="Phone Number"
                             VerticalOptions="Center" />
                         <Label
-                            Grid.Column="7"
+                            Grid.Column="6"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
                             StyleClass="ColumnHeader"
                             Text=""
                             VerticalOptions="Center" />
@@ -219,7 +235,7 @@
                                 <DataTemplate x:DataType="Model:Contact">
                                     <Grid
                                         Padding="20,16"
-                                        ColumnDefinitions="Auto,Auto,*,120,120,100,100,80"
+                                        ColumnDefinitions="Auto,Auto,*,*,*,*,*,Auto"
                                         RowDefinitions="Auto">
 
                                         <!--  Contact Info  -->
@@ -256,6 +272,7 @@
                                             Grid.Column="3"
                                             FontFamily="PoppinsBold"
                                             FontSize="14"
+                                            HorizontalTextAlignment="End"
                                             Text="{Binding AmountSold, StringFormat='${0:N0}'}"
                                             TextColor="{StaticResource NPStockGreen}"
                                             VerticalOptions="Center" />
@@ -265,6 +282,7 @@
                                             Grid.Column="4"
                                             FontFamily="PoppinsBold"
                                             FontSize="14"
+                                            HorizontalTextAlignment="End"
                                             Text="{Binding CreditAmount, StringFormat='${0:N0}'}"
                                             TextColor="{StaticResource NPStockRed}"
                                             VerticalOptions="Center" />
@@ -273,20 +291,31 @@
                                         <Label
                                             Grid.Column="5"
                                             FontSize="12"
+                                            HorizontalTextAlignment="End"
                                             Text="{Binding FormattedDate}"
                                             TextColor="{StaticResource NPTextSecondary}"
                                             VerticalOptions="Center" />
                                         <Label
                                             Grid.Column="6"
                                             FontSize="10"
+                                            HorizontalTextAlignment="End"
                                             Text="{Binding PhoneNumber}"
                                             VerticalOptions="Center" />
 
                                         <!--  Actions  -->
                                         <HorizontalStackLayout
                                             Grid.Column="7"
-                                            Spacing="8"
+                                            Spacing="2"
                                             VerticalOptions="Center">
+                                            <Button
+                                                Padding="0"
+                                                BackgroundColor="Transparent"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewContactDetailsCommand}"
+                                                CommandParameter="{Binding .}"
+                                                FontSize="16"
+                                                HeightRequest="32"
+                                                Text="👁️"
+                                                WidthRequest="32" />
                                             <Button
                                                 Padding="0"
                                                 BackgroundColor="Transparent"

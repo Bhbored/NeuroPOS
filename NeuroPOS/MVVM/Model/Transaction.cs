@@ -30,7 +30,13 @@ namespace NeuroPOS.MVVM.Model
         public double TotalAmount { get; set; }
 
         public int ItemCount { get; set; }
-        public string? TransactionType { get; set; } // "buy" or "sell"
+
+        private string? transactionType = "sell";
+        public string? TransactionType
+        {
+            get => transactionType;
+            set => transactionType = value;
+        }
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<TransactionLine> Lines { get; set; } = new();

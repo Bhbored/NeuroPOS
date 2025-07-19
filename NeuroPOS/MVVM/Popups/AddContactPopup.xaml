@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.AddContactPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True">
+
+    <Border StyleClass="ModernCardShadow"
+            Padding="32"
+            WidthRequest="500"
+            HeightRequest="600">
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="24">
+
+            <!-- Header Section -->
+            <VerticalStackLayout Grid.Row="0"
+                                 Spacing="8">
+                <HorizontalStackLayout Spacing="12">
+                    <Border BackgroundColor="{StaticResource NPPrimaryBlue}"
+                            HeightRequest="48"
+                            StrokeShape="Ellipse"
+                            WidthRequest="48">
+                        <Label FontSize="24"
+                               HorizontalOptions="Center"
+                               Text="👤"
+                               VerticalOptions="Center"/>
+                    </Border>
+                    <VerticalStackLayout Spacing="4"
+                                         VerticalOptions="Center">
+                        <Label StyleClass="LargeTitle"
+                               FontSize="24"
+                               Text="Add New Contact"
+                               TextColor="{StaticResource NPTextMain}"/>
+                        <Label StyleClass="SubtitleText"
+                               Text="Enter contact information"
+                               TextColor="{StaticResource NPTextSecondary}"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Divider -->
+            <BoxView Grid.Row="1"
+                     BackgroundColor="{StaticResource NPDivider}"
+                     HeightRequest="1"/>
+
+            <!-- Form Section -->
+            <ScrollView Grid.Row="2">
+                <VerticalStackLayout Spacing="16">
+                    <!-- Contact Name -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label FontFamily="PoppinsBold"
+                               FontSize="12"
+                               Text="CONTACT NAME *"
+                               TextColor="{StaticResource NPTextSecondary}"/>
+                        <Border StyleClass="ModernEntry">
+                            <Entry BackgroundColor="Transparent"
+                                   FontSize="14"
+                                   Placeholder="Enter contact name"
+                                   Text="{Binding NewContactName}"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Email -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label FontFamily="PoppinsBold"
+                               FontSize="12"
+                               Text="EMAIL"
+                               TextColor="{StaticResource NPTextSecondary}"/>
+                        <Border StyleClass="ModernEntry">
+                            <Entry BackgroundColor="Transparent"
+                                   FontSize="14"
+                                   Keyboard="Email"
+                                   Placeholder="Enter email address"
+                                   Text="{Binding NewContactEmail}"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Phone Number -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label FontFamily="PoppinsBold"
+                               FontSize="12"
+                               Text="PHONE NUMBER"
+                               TextColor="{StaticResource NPTextSecondary}"/>
+                        <Border StyleClass="ModernEntry">
+                            <Entry BackgroundColor="Transparent"
+                                   FontSize="14"
+                                   Keyboard="Telephone"
+                                   Placeholder="Enter phone number"
+                                   Text="{Binding NewContactPhoneNumber}"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Address -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label FontFamily="PoppinsBold"
+                               FontSize="12"
+                               Text="ADDRESS"
+                               TextColor="{StaticResource NPTextSecondary}"/>
+                        <Border StyleClass="ModernEntry">
+                            <Entry BackgroundColor="Transparent"
+                                   FontSize="14"
+                                   Placeholder="Enter address"
+                                   Text="{Binding NewContactAddress}"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Action Buttons -->
+            <HorizontalStackLayout Grid.Row="3"
+                                   HorizontalOptions="Center"
+                                   Spacing="16">
+                <Button x:Name="CancelButton"
+                        Padding="32,0"
+                        BackgroundColor="Transparent"
+                        BorderColor="{StaticResource NPDivider}"
+                        BorderWidth="2"
+                        Clicked="OnCancelClicked"
+                        CornerRadius="12"
+                        FontFamily="PoppinsBold"
+                        FontSize="14"
+                        HeightRequest="48"
+                        MinimumWidthRequest="120"
+                        Text="Cancel"
+                        TextColor="{StaticResource NPTextSecondary}"/>
+
+                <Button x:Name="AddContactButton"
+                        Padding="32,0"
+                        StyleClass="PrimaryButton"
+                        Clicked="OnAddContactClicked"
+                        FontSize="14"
+                        MinimumWidthRequest="140"
+                        Text="Add Contact"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup> 
