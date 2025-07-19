@@ -22,143 +22,95 @@ namespace NeuroPOS.MVVM.ViewModel;
 [AddINotifyPropertyChangedInterface]
 public partial class TransactionVM : ObservableObject
 {
-
-   
-
     #region Properties
     public ObservableCollection<Transaction> Transactions { get; } = new();
-
     [ObservableProperty]
     private ObservableCollection<Transaction> _allTransactions = new();
-
     [ObservableProperty]
     private ObservableCollection<Transaction> _filteredTransactions = new();
-
     private const int PageSize = 10;
-
     [ObservableProperty]
     private bool _anyExpanded = false;
-
     [ObservableProperty]
     private int _currentPage = 1;
-
     [ObservableProperty]
     private int _totalPages;
-
     [ObservableProperty]
     private bool _canGoNext;
-
     [ObservableProperty]
     private bool _canGoPrevious;
-
     [ObservableProperty]
     private string _paginationInfo = "";
-
     [ObservableProperty]
     private bool _isRefreshing = false;
-
     [ObservableProperty]
     private bool _isLoading = false;
-
     [ObservableProperty]
     private bool _isInitialized = false;
-
     private DateTime _lastButtonClick = DateTime.MinValue;
-
     private const int ButtonCooldownMs = 100;
-
-    // Date filtering properties
     [ObservableProperty]
     private DateTime? _filterStartDate;
-
     [ObservableProperty]
     private DateTime? _filterEndDate;
-
     [ObservableProperty]
     private bool _isDateFilterActive = false;
-
     [ObservableProperty]
     private string _dateFilterSummary = string.Empty;
-
-    // Status and Type filtering properties
     [ObservableProperty]
     private ObservableCollection<string> _statusFilterOptions = new() { "All Status", "Completed", "Pending" };
-
     [ObservableProperty]
     private string _selectedStatusFilter = "All Status";
-
     [ObservableProperty]
     private ObservableCollection<string> _typeFilterOptions = new() { "All Types", "buy", "sell" };
-
     [ObservableProperty]
     private string _selectedTypeFilter = "All Types";
-
     [ObservableProperty]
     private bool _isStatusFilterActive = false;
-
     [ObservableProperty]
     private bool _isTypeFilterActive = false;
-
     public bool HasAnyActiveFilter => IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive;
-
     #endregion
 
     #region Methods
     public void UpdateButtonStates()
     {
-
         var newCanGoPrevious = CurrentPage > 1;
         var newCanGoNext = CurrentPage < TotalPages;
-
         CanGoPrevious = newCanGoPrevious;
         CanGoNext = newCanGoNext;
-
         OnPropertyChanged(nameof(CanGoPrevious));
         OnPropertyChanged(nameof(CanGoNext));
     }
 
     public void LoadData()
     {
-        // Prevent multiple simultaneous loads
         if (IsLoading)
         {
             return;
         }
-
         try
         {
             IsLoading = true;
-
-            // Always clear and reload for debugging
             AllTransactions.Clear();
             FilteredTransactions.Clear();
             Transactions.Clear();
-
             var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
-
             foreach (var item in DBTransactions)
             {
                 AllTransactions.Add(item);
             }
-
-            // Reset any active filters
             IsDateFilterActive = false;
             FilterStartDate = null;
             FilterEndDate = null;
             DateFilterSummary = string.Empty;
-
             IsStatusFilterActive = false;
             SelectedStatusFilter = "All Status";
-
             IsTypeFilterActive = false;
             SelectedTypeFilter = "All Types";
-
             TotalPages = (int)Math.Ceiling((double)AllTransactions.Count / PageSize);
             CurrentPage = 1;
-
-
             LoadPage(CurrentPage);
-
             IsInitialized = true;
         }
         catch (Exception ex)
@@ -174,23 +126,18 @@ public partial class TransactionVM : ObservableObject
     private void LoadPage(int pageNumber)
     {
         var activeSource = GetActiveTransactionSource();
-
         if (activeSource == null || pageNumber < 1 || pageNumber > TotalPages)
         {
             return;
         }
-
         try
         {
             var skipCount = (pageNumber - 1) * PageSize;
             var takeCount = Math.Min(PageSize, activeSource.Count - skipCount);
-
             var items = activeSource
                 .Skip(skipCount)
                 .Take(takeCount)
                 .ToList();
-
-            // Always update on main thread
             MainThread.BeginInvokeOnMainThread(() => UpdatePageUI(items, pageNumber, skipCount, takeCount));
         }
         catch (Exception ex)
@@ -201,11 +148,8 @@ public partial class TransactionVM : ObservableObject
 
     private void UpdatePageUI(List<Transaction> items, int pageNumber, int skipCount, int takeCount)
     {
-
         try
         {
-
-            // Clear collection safely
             try
             {
                 Transactions.Clear();
@@ -214,12 +158,7 @@ public partial class TransactionVM : ObservableObject
             {
                 Debug.WriteLine($"UpdatePageUI: Error clearing collection: {clearEx.Message}");
             }
-
-            // Add a small delay to let the UI settle
             System.Threading.Thread.Sleep(50);
-
-
-            // Add items with exception handling for each item
             int addedCount = 0;
             foreach (var item in items)
             {
@@ -227,8 +166,6 @@ public partial class TransactionVM : ObservableObject
                 {
                     Transactions.Add(item);
                     addedCount++;
-
-                    // Small delay between items to avoid COM issues
                     if (addedCount < items.Count)
                     {
                         System.Threading.Thread.Sleep(10);
@@ -237,29 +174,18 @@ public partial class TransactionVM : ObservableObject
                 catch (Exception addEx)
                 {
                     Debug.WriteLine($"UpdatePageUI: Error adding transaction #{item.Id}: {addEx.Message}");
-                    // Continue with next item
                 }
             }
-
-
-            // Update pagination properties with explicit logging
             var newCanGoPrevious = pageNumber > 1;
             var newCanGoNext = pageNumber < TotalPages;
-
-
             try
             {
                 CanGoPrevious = newCanGoPrevious;
                 CanGoNext = newCanGoNext;
-
-                // Update pagination info
                 var startItem = skipCount + 1;
                 var endItem = skipCount + takeCount;
                 var totalCount = GetActiveTransactionSource().Count;
                 PaginationInfo = $"Showing {startItem} to {endItem} of {totalCount} results";
-
-
-                // Force all property notifications with delays
                 OnPropertyChanged(nameof(Transactions));
                 System.Threading.Thread.Sleep(10);
                 OnPropertyChanged(nameof(PaginationInfo));
@@ -274,8 +200,6 @@ public partial class TransactionVM : ObservableObject
             {
                 Debug.WriteLine($"UpdatePageUI: Error updating properties: {propEx.Message}");
             }
-
-            // Call debug state after everything settles
             System.Threading.Thread.Sleep(100);
         }
         catch (Exception ex)
@@ -287,52 +211,41 @@ public partial class TransactionVM : ObservableObject
 
     public void NextPage()
     {
-
-        // Rate limiting
         var now = DateTime.Now;
         if ((now - _lastButtonClick).TotalMilliseconds < ButtonCooldownMs)
         {
             return;
         }
         _lastButtonClick = now;
-
         if (IsLoading)
         {
             return;
         }
-
         if (CurrentPage < TotalPages && CanGoNext)
         {
             CurrentPage++;
             LoadPage(CurrentPage);
         }
-
     }
 
     public void PreviousPage()
     {
-
-        // Rate limiting
         var now = DateTime.Now;
         if ((now - _lastButtonClick).TotalMilliseconds < ButtonCooldownMs)
         {
             return;
         }
         _lastButtonClick = now;
-
         if (IsLoading)
         {
             return;
         }
-
         if (CurrentPage > 1 && CanGoPrevious)
         {
             CurrentPage--;
             LoadPage(CurrentPage);
         }
-
     }
-
 
     private void OnToggleExpand(object parameter)
     {
@@ -362,8 +275,6 @@ public partial class TransactionVM : ObservableObject
         FilterStartDate = startDate;
         FilterEndDate = endDate;
         IsDateFilterActive = true;
-
-        // Update filter summary
         if (startDate.Date == endDate.Date)
         {
             DateFilterSummary = $"Showing transactions for {startDate:MMM dd, yyyy}";
@@ -372,13 +283,9 @@ public partial class TransactionVM : ObservableObject
         {
             DateFilterSummary = $"Showing transactions from {startDate:MMM dd} to {endDate:MMM dd, yyyy}";
         }
-
         OnPropertyChanged(nameof(HasAnyActiveFilter));
-
-        // Apply all filters
         ApplyAllFilters();
-
-        await Task.Delay(500); // Small delay for smooth UX
+        await Task.Delay(500);
     }
 
     public void ClearDateFilter()
@@ -387,11 +294,9 @@ public partial class TransactionVM : ObservableObject
         FilterEndDate = null;
         IsDateFilterActive = false;
         DateFilterSummary = string.Empty;
-
         ApplyAllFilters();
     }
 
-    // Property change handlers for picker bindings
     partial void OnSelectedStatusFilterChanged(string value)
     {
         ApplyStatusFilter(value);
@@ -401,8 +306,6 @@ public partial class TransactionVM : ObservableObject
     {
         ApplyTypeFilter(value);
     }
-
-
 
     public void ApplyStatusFilter(string selectedStatus)
     {
@@ -426,45 +329,32 @@ public partial class TransactionVM : ObservableObject
         {
             IsLoading = true;
             FilteredTransactions.Clear();
-
             var sourceTransactions = AllTransactions.AsEnumerable();
-
-            // Apply date filter
             if (IsDateFilterActive && FilterStartDate.HasValue && FilterEndDate.HasValue)
             {
                 var startDate = FilterStartDate.Value.Date;
                 var endDate = FilterEndDate.Value.Date.AddDays(1).AddTicks(-1);
                 sourceTransactions = sourceTransactions.Where(t => t.Date >= startDate && t.Date <= endDate);
             }
-
-            // Apply status filter
             if (IsStatusFilterActive)
             {
                 sourceTransactions = sourceTransactions.Where(t =>
                     SelectedStatusFilter == "Completed" ? t.IsPaid : !t.IsPaid);
             }
-
-            // Apply type filter
             if (IsTypeFilterActive)
             {
                 sourceTransactions = sourceTransactions.Where(t =>
                     string.Equals(t.TransactionType, SelectedTypeFilter, StringComparison.OrdinalIgnoreCase));
             }
-
             var filteredList = sourceTransactions
                 .OrderByDescending(t => t.Date)
                 .ToList();
-
             foreach (var transaction in filteredList)
             {
                 FilteredTransactions.Add(transaction);
             }
-
-            // Reset to first page
             CurrentPage = 1;
             TotalPages = (int)Math.Ceiling((double)GetActiveTransactionSource().Count / PageSize);
-
-            // Load the first page
             LoadPage(CurrentPage);
         }
         finally
@@ -478,30 +368,18 @@ public partial class TransactionVM : ObservableObject
         try
         {
             IsLoading = true;
-
-            // Clear date filter
             FilterStartDate = null;
             FilterEndDate = null;
             IsDateFilterActive = false;
             DateFilterSummary = string.Empty;
-
-            // Clear status filter
             SelectedStatusFilter = "All Status";
             IsStatusFilterActive = false;
-
-            // Clear type filter
             SelectedTypeFilter = "All Types";
             IsTypeFilterActive = false;
-
             OnPropertyChanged(nameof(HasAnyActiveFilter));
-
             FilteredTransactions.Clear();
-
-            // Reset pagination with all transactions
             CurrentPage = 1;
             TotalPages = (int)Math.Ceiling((double)AllTransactions.Count / PageSize);
-
-            // Load the first page of all transactions
             LoadPage(CurrentPage);
         }
         finally
@@ -514,14 +392,11 @@ public partial class TransactionVM : ObservableObject
     {
         return (IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive) ? FilteredTransactions : AllTransactions;
     }
-
     #endregion
 
     #region Tasks
-
     public async Task RefreshAsync()
     {
-
         if (IsRefreshing)
         {
             return;
@@ -538,22 +413,15 @@ public partial class TransactionVM : ObservableObject
             IsRefreshing = false;
         }
     }
-
     #endregion
 
     #region Commands
-
     public ICommand ToggleExpandCommand => new Command<object>(OnToggleExpand);
     public ICommand CollapseAllCommand => new Command(OnCollapseAll);
     public ICommand NextPageCommand => new Command(NextPage);
     public ICommand PreviousPageCommand => new Command(PreviousPage);
-
     public ICommand RefreshCommand => new Command(async () => await RefreshAsync());
     public ICommand UpdateButtonsCommand => new Command(UpdateButtonStates);
     public ICommand ClearAllFiltersCommand => new Command(ClearAllFilters);
-
-
     #endregion
-
-  
 }

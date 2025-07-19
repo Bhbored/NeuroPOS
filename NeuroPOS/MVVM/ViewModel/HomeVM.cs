@@ -558,7 +558,6 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             _taxRate = newTaxRate;
         }
-
         #endregion
         #region Commands
         public ICommand ToggleSortCommand => new Command(() =>
@@ -638,15 +637,13 @@ namespace NeuroPOS.MVVM.ViewModel
                     OnPropertyChanged(nameof(TaxRate));
                     OnPropertyChanged(nameof(Tax));
                     OnPropertyChanged(nameof(Total));
-                    var snackbar = Snackbar.Make($"Tax rate updated to {TaxRate:F1}%",
-          duration: TimeSpan.FromSeconds(3));
+                    var snackbar = Snackbar.Make($"Tax rate updated to {TaxRate:F1}%", duration: TimeSpan.FromSeconds(3));
                     await snackbar.Show();
                 }
             }
             catch (Exception ex)
             {
-                var snackbar = Snackbar.Make("Failed to update tax rate",
-           duration: TimeSpan.FromSeconds(3));
+                var snackbar = Snackbar.Make("Failed to update tax rate", duration: TimeSpan.FromSeconds(3));
                 await snackbar.Show();
             }
         }
@@ -660,13 +657,9 @@ namespace NeuroPOS.MVVM.ViewModel
                                         duration: TimeSpan.FromSeconds(3)).Show();
                     return;
                 }
-
-                /* ── 1. Ask the user to confirm cash payment ────────────────────── */
                 var popup = new CashPaymentPopup(this);
                 await AppShell.Current.ShowPopupAsync(popup);
-                if (!popup.IsConfirmed) return;   // user cancelled
-
-                /* ── 2. Build a new parent Transaction object ───────────────────── */
+                if (!popup.IsConfirmed) return;
                 var transaction = new Transaction
                 {
                     TransactionType = "sell",
@@ -674,40 +667,27 @@ namespace NeuroPOS.MVVM.ViewModel
                     ItemCount = CurrentOrderItems.Count,
                     Lines = new List<TransactionLine>()
                 };
-
-                /* ── 3. Map each cart item → BuyingTransactionLine + update stock ─ */
-                // Pull DB‑tracked products once for fast look‑ups
                 var dbProducts = App.ProductRepo.GetItems().ToDictionary(p => p.Id);
-
                 foreach (var cartItem in CurrentOrderItems)
                 {
                     if (!dbProducts.TryGetValue(cartItem.Id, out var dbProd))
-                        continue;                           // product was deleted meanwhile
-
-                    // Snapshot line details (immutable sale history)
+                        continue;
                     transaction.Lines.Add(new TransactionLine
                     {
                         Name = dbProd.Name,
-                        Price = dbProd.Price,        // current sell price
-                        Stock = cartItem.Stock,      // quantity sold
+                        Price = dbProd.Price,
+                        Stock = cartItem.Stock,
                         CategoryName = dbProd.CategoryName,
                         ImageUrl = dbProd.ImageUrl,
-
-                        Product = dbProd,              // navigation
+                        Product = dbProd,
                         ProductId = dbProd.Id
                     });
-
-                    // Decrease inventory
                     dbProd.Stock -= cartItem.Stock;
                     App.ProductRepo.UpdateItem(dbProd);
                 }
-
-                /* ── 4. Persist parent + children in a single call ───────────────── */
                 App.TransactionRepo.InsertItemWithChildren(transaction);
-
-                /* ── 5. UI cleanup & feedback ────────────────────────────────────── */
                 ClearAllSelections();
-                _ = LoadDB();   // refresh list asynchronously
+                _ = LoadDB();
                 await Snackbar.Make("Cash payment processed successfully!",
                                     duration: TimeSpan.FromSeconds(3)).Show();
             }
@@ -717,8 +697,6 @@ namespace NeuroPOS.MVVM.ViewModel
                                     duration : TimeSpan.FromSeconds(3)).Show();
             }
         }
-
-
         public async Task LoadDB()
         {
             if (App.ProductRepo == null || App.CategoryRepo == null)

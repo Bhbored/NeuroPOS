@@ -321,7 +321,7 @@
                                                     Margin="20,0,0,0"
                                                     FontFamily="PoppinsBold"
                                                     FontSize="14"
-                                                    Text="{Binding TotalAmount, StringFormat='{0:C}'}"
+                                                    Text="{Binding CalculatedTotalAmount, StringFormat='{0:C}'}"
                                                     TextColor="{StaticResource NPTextMain}"
                                                     VerticalOptions="Center" />
 
