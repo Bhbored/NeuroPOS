@@ -142,42 +142,62 @@ public partial class BuyingTransactionPopup : Popup
         return true;
     }
 
+    /// <summary>
+    /// Creates a new BUY transaction from the UI's _productEntries list.
+    /// Each cart entry becomes a TransactionLine that references an existing
+    /// Product row (no duplication).
+    /// </summary>
     private Transaction CreateTransaction()
     {
-        var validEntries = _productEntries.Where(entry => entry.IsValid()).ToList();
+        // Keep only rows that passed validation in the UI
+        var validEntries = _productEntries.Where(e => e.IsValid()).ToList();
 
+        // Parent Transaction -----------------------------------------------
         var transaction = new Transaction
         {
-            Id = _inventoryVM.BuyingTransaction.Count > 0 ? _inventoryVM.BuyingTransaction.Max(t => t.Id) + 1 : 1,
+            Id = _inventoryVM.BuyingTransaction.Count > 0
+                ? _inventoryVM.BuyingTransaction.Max(t => t.Id) + 1
+                : 1,
+
             Date = DateTime.Now,
             TransactionType = "buy",
-            TotalAmount = _totalTransactionAmount,
-            ItemCount = validEntries.Sum(entry => entry.Quantity),
-            IsPaid = true, // Assuming buying transactions are always paid
-            TransactionItems = new List<Product>()
+            IsPaid = true,
+
+            Lines = new List<TransactionLine>(),
+            ItemCount = validEntries.Sum(e => e.Quantity) // total units
         };
 
-        // Create transaction items
+        // Build lines and calculate total cost -----------------------------
+        double total = 0.0; // Cost * Qty for a BUY
+
         foreach (var entry in validEntries)
         {
-            // Create a copy of the product for this transaction
-            var transactionItem = new Product
+            var p = entry.SelectedProduct; // DB-tracked Product instance
+
+            var line = new TransactionLine
             {
-                Id = entry.SelectedProduct.Id,
-                Name = entry.SelectedProduct.Name,
-                Cost = entry.SelectedProduct.Cost,
-                Price = entry.SelectedProduct.Price,
-                Stock = entry.Quantity, // This represents the quantity in this transaction
-                CategoryName = entry.SelectedProduct.CategoryName,
-                ImageUrl = entry.SelectedProduct.ImageUrl,
-                DateAdded = DateTime.Now
+                // Snapshot of current product data
+                Name = p.Name,
+                Cost = p.Cost,
+                Price = p.Price,             // keep if you show MSRP
+                Stock = entry.Quantity,      // quantity bought
+                CategoryName = p.CategoryName,
+                ImageUrl = p.ImageUrl,
+
+                // Foreign-key link
+                Product = p,
+                ProductId = p.Id
             };
 
-            transaction.TransactionItems.Add(transactionItem);
+            transaction.Lines.Add(line);
+            total += p.Cost * entry.Quantity;
         }
+
+        transaction.TotalAmount = total;
 
         return transaction;
     }
+
 
     private void UpdateProductStocks()
     {

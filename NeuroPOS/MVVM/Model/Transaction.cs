@@ -33,7 +33,8 @@ namespace NeuroPOS.MVVM.Model
         public string? TransactionType { get; set; } // "buy" or "sell"
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product> TransactionItems { get; set; } = new List<Product>();
+        public List<TransactionLine> Lines { get; set; } = new();
+
         public bool IsPaid { get; set; } = true;
         
 
@@ -68,14 +69,14 @@ namespace NeuroPOS.MVVM.Model
 
         [Ignore]                                             
         public double CalculatedTotalAmount =>
-           (TransactionItems == null || TransactionItems.Count == 0)
+           (Lines == null || Lines.Count == 0)
                ? 0
                : TransactionType?.Equals("buy", StringComparison.OrdinalIgnoreCase) == true
-                   ? TransactionItems.Sum(p => p.Cost)     // buy  → use cost
-                   : TransactionItems.Sum(p => p.Price);   // sell → use price
+                   ? Lines.Sum(p => p.Cost)     // buy  → use cost
+                   : Lines.Sum(p => p.Price);   // sell → use price
 
         [Ignore]                                             // not stored in DB
-        public int CalculatedItemCount => TransactionItems?.Count ?? 0;
+        public int CalculatedItemCount => Lines?.Count ?? 0;
         #endregion
 
         #region Foreign Keys

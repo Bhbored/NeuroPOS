@@ -433,12 +433,12 @@
 
                                                     <!--  High-Performance Product Items List  -->
                                                     <CollectionView
-                                                        ItemsSource="{Binding TransactionItems}"
+                                                        ItemsSource="{Binding Lines}"
                                                         SelectionMode="None"
                                                         VerticalScrollBarVisibility="Never">
 
                                                         <CollectionView.ItemTemplate>
-                                                            <DataTemplate x:DataType="Model:Product">
+                                                            <DataTemplate x:DataType="Model:TransactionLine">
                                                                 <Border
                                                                     Margin="0,4,0,4"
                                                                     Padding="16,12"
@@ -470,12 +470,6 @@
                                                                                     FontFamily="PoppinsBold"
                                                                                     FontSize="13"
                                                                                     Text="{Binding Name}"
-                                                                                    TextColor="{StaticResource NPTextMain}"
-                                                                                    VerticalOptions="Center" />
-                                                                                <Label
-                                                                                    FontFamily="PoppinsBold"
-                                                                                    FontSize="10"
-                                                                                    Text="{Binding Id, StringFormat='#{0}'}"
                                                                                     TextColor="{StaticResource NPTextMain}"
                                                                                     VerticalOptions="Center" />
                                                                             </VerticalStackLayout>
@@ -523,7 +517,7 @@
                                                                                 FontFamily="PoppinsBold"
                                                                                 FontSize="13"
                                                                                 HorizontalTextAlignment="Center"
-                                                                                Text="{Binding Price, StringFormat='{0:C}'}"
+                                                                                Text="{Binding TotalPrice, StringFormat='{0:C}'}"
                                                                                 TextColor="{StaticResource NPStockGreen}"
                                                                                 VerticalOptions="Center" />
 

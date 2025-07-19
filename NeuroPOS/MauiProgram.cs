@@ -33,6 +33,7 @@ namespace NeuroPOS
             builder.Services.AddSingleton<BaseRepository<Contact>>();
             builder.Services.AddSingleton<BaseRepository<Product>>();
             builder.Services.AddSingleton<BaseRepository<Transaction>>();
+            builder.Services.AddSingleton<BaseRepository<TransactionLine>>();
             builder.Services.AddSingleton<BaseRepository<Order>>();
 
             // ViewModels

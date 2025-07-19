@@ -15,6 +15,7 @@ namespace NeuroPOS
         public static BaseRepository<Contact>? ContactRepo { get; private set; }
         public static BaseRepository<Product>? ProductRepo { get; private set; }
         public static BaseRepository<Transaction>? TransactionRepo { get; private set; }
+        public static BaseRepository<TransactionLine>? TransactionLineRepo { get; private set; }
         public static BaseRepository<Order>? OrderRepo { get; private set; }
 
         public static HomeVM? HomeVM { get; set; }
@@ -27,7 +28,7 @@ namespace NeuroPOS
             BaseRepository<Category> _category,
             BaseRepository<Contact> _contact,
             BaseRepository<Product> _product,
-            BaseRepository<Transaction> _transaction, BaseRepository<Order> _order, HomeVM _homeVM,
+            BaseRepository<Transaction> _transaction, BaseRepository<TransactionLine> _transactionLine, BaseRepository<Order> _order, HomeVM _homeVM,
             TransactionVM _transactionVM, InventoryVM _inventoryVM, ContactVM _contactVM, OrderVM _orderVM)
         {
             InitializeComponent();
@@ -37,6 +38,7 @@ namespace NeuroPOS
             ContactRepo = _contact;
             ProductRepo = _product;
             TransactionRepo = _transaction;
+            TransactionLineRepo = _transactionLine;
             OrderRepo = _order;
             _ = ProductTestData();
             _ = CategoryTestData();
@@ -120,7 +122,7 @@ namespace NeuroPOS
 
                     foreach (var product in testProducts)
                     {
-                        ProductRepo?.SaveItem(product);
+                        ProductRepo?.InsertItem(product);
                         Debug.WriteLine($"Product {product.Name} added to the database.");
                     }
 
@@ -178,7 +180,7 @@ namespace NeuroPOS
 
                     foreach (var category in testCategories)
                     {
-                        CategoryRepo?.SaveItem(category);
+                        CategoryRepo?.InsertItem(category);
                         Debug.WriteLine($"Category {category.Name} added to the database.");
                     }
 

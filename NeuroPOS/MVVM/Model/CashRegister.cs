@@ -36,13 +36,13 @@ namespace NeuroPOS.MVVM.Model
         [Ignore]
         public int TotalItemsSold => Transactions?
             .Where(t => t.TransactionType == "sell")
-            .SelectMany(t => t.TransactionItems)
+            .SelectMany(t => t.Lines)
             .Count() ?? 0;
 
         [Ignore]
         public int TotalItemsBought => Transactions?
             .Where(t => t.TransactionType == "buy")
-            .SelectMany(t => t.TransactionItems)
+            .SelectMany(t => t.Lines)
             .Count() ?? 0;
 
         [Ignore]

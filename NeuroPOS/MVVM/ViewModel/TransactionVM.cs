@@ -23,11 +23,7 @@ namespace NeuroPOS.MVVM.ViewModel;
 public partial class TransactionVM : ObservableObject
 {
 
-    public TransactionVM()
-    {
-
-        LoadData();
-    }
+   
 
     #region Properties
     public ObservableCollection<Transaction> Transactions { get; } = new();
@@ -138,9 +134,9 @@ public partial class TransactionVM : ObservableObject
             FilteredTransactions.Clear();
             Transactions.Clear();
 
-            var testData = GenerateTestData(57);
+            var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
 
-            foreach (var item in testData)
+            foreach (var item in DBTransactions)
             {
                 AllTransactions.Add(item);
             }
@@ -559,43 +555,5 @@ public partial class TransactionVM : ObservableObject
 
     #endregion
 
-    #region Test Data
-
-    private ObservableCollection<Transaction> GenerateTestData(int count)
-    {
-
-        var transactions = new ObservableCollection<Transaction>();
-
-        for (int i = 1; i <= count; i++)
-        {
-            var transaction = new Transaction
-            {
-                Id = 10000 + i,
-                Date = DateTime.Now.AddDays(-i),
-                TransactionType = i % 2 == 0 ? "sell" : "buy",
-                TotalAmount = i * 5.5,
-                ItemCount = i % 5 + 1,
-                IsPaid = i % 3 != 0,
-                IsExpanded = false,
-                TransactionItems = new List<Product>
-                {
-                    new Product
-                    {
-                        Name = $"Product {i}",
-                        Price = i * 1.1,
-                        Stock = i % 10,
-                        CategoryName = i % 2 == 0 ? "Fruits" : "Dairy",
-                        DateAdded = DateTime.Now.AddDays(-i * 2)
-                    }
-                }
-            };
-
-            transactions.Add(transaction);
-
-        }
-
-        return transactions;
-    }
-
-    #endregion
+  
 }

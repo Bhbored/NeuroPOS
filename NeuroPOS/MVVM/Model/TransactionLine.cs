@@ -1,5 +1,4 @@
-﻿using PropertyChanged;
-using SQLite;
+﻿using SQLite;
 using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.Generic;
@@ -9,16 +8,14 @@ using System.Threading.Tasks;
 
 namespace NeuroPOS.MVVM.Model
 {
-    [AddINotifyPropertyChangedInterface]
-    public class Product : Entity
+    public class TransactionLine : Entity
     {
+
         public string Name { get; set; }
         public double Price { get; set; }
-        public double Cost { get; set; }
+        public double Cost { get; set; } 
         public int Stock { get; set; }
         public DateTime DateAdded { get; set; } = DateTime.Now;
-
-
 
         public string CategoryName
         {
@@ -32,29 +29,28 @@ namespace NeuroPOS.MVVM.Model
             set => imageUrl = value;
         }
 
-
-
         #region Fields
 
         private string imageUrl;
         private string categoryName;
         #endregion
-
         #region Ignore Properties
         [Ignore]
         public string FormattedDate => DateAdded.ToString("dd/MM/yyyy");
- 
-        #endregion
-
-        #region foreign keys
-        [ForeignKey(typeof(Category))]
-        public int? CategoryId { get; set; }  // Keep this if you want to do queries based on the ID
-
-        [ForeignKey(typeof(Order))]
-        public int? OrderId { get; set; }
-
+        [Ignore]
+        public double TotalPrice => Price * Stock;
+        [Ignore]
+        public double TotalCost => Cost * Stock;
 
         #endregion
+
+        [ForeignKey(typeof(Transaction))]
+        public int TransactionId { get; set; }
+
+        [ForeignKey(typeof(Product))]
+        public int ProductId { get; set; }
+
+        [ManyToOne] public Transaction Transaction { get; set; }
+        [ManyToOne] public Product Product { get; set; }
     }
-
 }
