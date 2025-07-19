@@ -83,7 +83,7 @@ public partial class TransactionVM : ObservableObject
         OnPropertyChanged(nameof(CanGoNext));
     }
 
-    public void LoadData()
+    public async Task LoadData()
     {
         if (IsLoading)
         {
@@ -95,6 +95,7 @@ public partial class TransactionVM : ObservableObject
             AllTransactions.Clear();
             FilteredTransactions.Clear();
             Transactions.Clear();
+            await Task.Delay(100);
             var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
             foreach (var item in DBTransactions)
             {
@@ -405,7 +406,7 @@ public partial class TransactionVM : ObservableObject
         {
             IsRefreshing = true;
             await Task.Delay(1000);
-            LoadData();
+            _= LoadData();
             await Task.Delay(1000);
         }
         finally

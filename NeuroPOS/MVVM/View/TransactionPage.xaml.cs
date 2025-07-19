@@ -12,15 +12,9 @@ public partial class TransactionPage : ContentPage
     {
         InitializeComponent();
         BindingContext = vm;
+        _=vm.LoadData();
     }
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        if (BindingContext is TransactionVM vm)
-        {
-            vm.LoadData();
-        }
-    }
+   
 
     private async void ShowDatePicker(object sender, EventArgs e)
     {
