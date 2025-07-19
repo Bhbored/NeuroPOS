@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,7 @@ namespace NeuroPOS.MVVM.ViewModel
         // View Contact Details popup properties
         private bool _isViewContactDetailsPopupVisible = false;
         private Contact _selectedContactForDetails;
+        private ObservableCollection<Transaction> _pendingTransactions;
 
         // Edit properties
         private string _editName = "";
@@ -65,6 +67,7 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             InitializeCommands();
             LoadTestData();
+            PendingTransactions = new ObservableCollection<Transaction>();
         }
 
         #region Properties
@@ -351,6 +354,20 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
+        // Pending Transactions Properties
+        public ObservableCollection<Transaction> PendingTransactions
+        {
+            get => _pendingTransactions;
+            set
+            {
+                _pendingTransactions = value;
+                OnPropertyChanged(nameof(PendingTransactions));
+                OnPropertyChanged(nameof(HasPendingTransactions));
+            }
+        }
+
+        public bool HasPendingTransactions => PendingTransactions?.Count > 0;
+
         #endregion
 
         #region Commands
@@ -367,6 +384,7 @@ namespace NeuroPOS.MVVM.ViewModel
         public ICommand ConfirmAddContactCommand { get; private set; }
         public ICommand CancelAddContactCommand { get; private set; }
         public ICommand ViewContactDetailsCommand { get; private set; }
+        public ICommand MarkTransactionAsPaidCommand { get; private set; }
 
         private void InitializeCommands()
         {
@@ -382,6 +400,7 @@ namespace NeuroPOS.MVVM.ViewModel
             ConfirmAddContactCommand = new Command(async () => await ConfirmAddContact());
             CancelAddContactCommand = new Command(() => CancelAddContact());
             ViewContactDetailsCommand = new Command<Contact>(async (contact) => await ViewContactDetails(contact));
+            MarkTransactionAsPaidCommand = new Command<Transaction>(async (transaction) => await MarkTransactionAsPaid(transaction));
         }
 
         #endregion
@@ -824,7 +843,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 EditDateAdded = contact.DateAdded;
                 IsEditMode = 1;
 
-
+                // Load pending transactions for this contact
+                LoadPendingTransactions(contact);
             }
             catch (Exception ex)
             {
@@ -975,6 +995,7 @@ namespace NeuroPOS.MVVM.ViewModel
             EditPhoneNumber = "";
             EditAddress = "";
             EditDateAdded = DateTime.Now;
+            PendingTransactions?.Clear();
         }
 
         private async Task RefreshContacts()
@@ -999,6 +1020,71 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
+        private async Task MarkTransactionAsPaid(Transaction transaction)
+        {
+            try
+            {
+                // Mark the transaction as paid
+                transaction.IsPaid = true;
+
+                // Remove from pending transactions
+                if (PendingTransactions != null)
+                {
+                    PendingTransactions.Remove(transaction);
+                }
+
+                // Update the contact's transactions
+                if (_editingContact?.Transactions != null)
+                {
+                    var contactTransaction = _editingContact.Transactions.FirstOrDefault(t => t.Id == transaction.Id);
+                    if (contactTransaction != null)
+                    {
+                        contactTransaction.IsPaid = true;
+                    }
+                }
+
+                // Show success message
+                var snackbar = Snackbar.Make("Transaction marked as paid!",
+                    duration: TimeSpan.FromSeconds(2));
+                await snackbar.Show();
+
+                // Refresh the contact data to update amounts
+                OnPropertyChanged(nameof(Contacts));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error marking transaction as paid: {ex.Message}");
+                var snackbar = Snackbar.Make($"Error marking transaction as paid: {ex.Message}",
+                    duration: TimeSpan.FromSeconds(3));
+                await snackbar.Show();
+            }
+        }
+
+        private void LoadPendingTransactions(Contact contact)
+        {
+            try
+            {
+                if (contact?.Transactions != null)
+                {
+                    // Get all pending transactions (IsPaid == false)
+                    var pendingTransactions = contact.Transactions
+                        .Where(t => !t.IsPaid)
+                        .ToList();
+
+                    PendingTransactions = new ObservableCollection<Transaction>(pendingTransactions);
+                }
+                else
+                {
+                    PendingTransactions = new ObservableCollection<Transaction>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading pending transactions: {ex.Message}");
+                PendingTransactions = new ObservableCollection<Transaction>();
+            }
+        }
+
 
 
         #endregion
@@ -1012,6 +1098,9 @@ namespace NeuroPOS.MVVM.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        #endregion
+
+        #region Task
         #endregion
     }
 }

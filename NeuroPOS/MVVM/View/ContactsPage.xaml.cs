@@ -53,11 +53,5 @@ public partial class ContactsPage : ContentPage
 		}
 	}
 
-	private void TapGestureRecognizer_Tapped(object sender, EventArgs e)
-	{
-		// Handle sort button tap
-		var snackbar = Snackbar.Make("Sort button tapped",
-			duration: TimeSpan.FromSeconds(1));
-		_ = snackbar.Show();
-	}
+	
 }

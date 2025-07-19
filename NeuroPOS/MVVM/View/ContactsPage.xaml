@@ -141,7 +141,7 @@
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ToggleSortCommand}" Tapped="TapGestureRecognizer_Tapped" />
+                        <TapGestureRecognizer Command="{Binding ToggleSortCommand}" />
                     </Border.GestureRecognizers>
                 </Border>
             </Grid>
@@ -517,6 +517,82 @@
                                         BackgroundColor="Transparent"
                                         Date="{Binding EditDateAdded}"
                                         FontSize="14" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Pending Transactions  -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="PENDING TRANSACTIONS"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+
+                                <!--  Pending Transactions List  -->
+                                <CollectionView IsVisible="{Binding HasPendingTransactions}" ItemsSource="{Binding PendingTransactions}">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="Model:Transaction">
+                                            <Border
+                                                Margin="0,4"
+                                                BackgroundColor="{StaticResource NPLightBg}"
+                                                Stroke="{StaticResource NPDivider}"
+                                                StrokeShape="RoundRectangle 8"
+                                                StrokeThickness="1">
+                                                <Grid
+                                                    Padding="12"
+                                                    ColumnDefinitions="*,Auto"
+                                                    RowDefinitions="Auto,Auto">
+
+                                                    <!--  Transaction Details  -->
+                                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                                        <Label
+                                                            FontFamily="PoppinsBold"
+                                                            FontSize="14"
+                                                            Text="{Binding TotalAmount, StringFormat='${0:N0}'}"
+                                                            TextColor="{StaticResource NPStockRed}" />
+                                                        <Label
+                                                            FontSize="12"
+                                                            Text="{Binding Date, StringFormat='Date: {0:dd/MM/yyyy}'}"
+                                                            TextColor="{StaticResource NPTextSecondary}" />
+                                                        <Label
+                                                            FontSize="12"
+                                                            Text="{Binding ItemCount, StringFormat='Items: {0}'}"
+                                                            TextColor="{StaticResource NPTextSecondary}" />
+                                                    </VerticalStackLayout>
+
+                                                    <!--  Mark as Paid Button  -->
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        BackgroundColor="{StaticResource NPStockGreen}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MarkTransactionAsPaidCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="6"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HeightRequest="32"
+                                                        Text="Mark Paid"
+                                                        TextColor="White"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="80" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+
+                                <!--  No Pending Transactions Message  -->
+                                <Border
+                                    BackgroundColor="{StaticResource NPLightBg}"
+                                    IsVisible="{Binding HasPendingTransactions, Converter={StaticResource IntToInverseBoolConverter}}"
+                                    Stroke="{StaticResource NPDivider}"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="1">
+                                    <Label
+                                        Padding="16"
+                                        FontSize="12"
+                                        HorizontalTextAlignment="Center"
+                                        Text="No pending transactions"
+                                        TextColor="{StaticResource NPTextSecondary}" />
                                 </Border>
                             </VerticalStackLayout>
 
