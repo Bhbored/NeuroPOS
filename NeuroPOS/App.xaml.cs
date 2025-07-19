@@ -42,6 +42,7 @@ namespace NeuroPOS
             OrderRepo = _order;
             _ = ProductTestData();
             _ = CategoryTestData();
+            _= TransactionTestData();
             HomeVM = _homeVM;
             TransactionVM = _transactionVM;
             InventoryVM = _inventoryVM;
@@ -196,6 +197,104 @@ namespace NeuroPOS
                 Debug.WriteLine($"Error in CategoryTestData: {ex.Message}");
             }
         }
+
+        public async Task TransactionTestData()
+        {
+            try
+            {
+                var transactions = App.TransactionRepo?.GetItems();
+                Debug.WriteLine($"Current transactions in database: {transactions?.Count ?? 0}");
+
+                if (transactions == null || transactions.Count == 0)
+                {
+                    var testTransactions = new List<Transaction>
+            {
+                new Transaction
+                {
+                    TransactionType = "buy",
+                    IsPaid = true,
+                    Date = DateTime.Now.AddDays(-7),
+                    ItemCount = 15,
+                    TotalAmount = 120.50
+                },
+                new Transaction
+                {
+                    TransactionType = "sell",
+                    IsPaid = false,
+                    Date = DateTime.Now.AddDays(-6),
+                    ItemCount = 10,
+                    TotalAmount = 90.00
+                },
+                new Transaction
+                {
+                    TransactionType = "buy",
+                    IsPaid = true,
+                    Date = DateTime.Now.AddDays(-5),
+                    ItemCount = 25,
+                    TotalAmount = 200.75
+                },
+                new Transaction
+                {
+                    TransactionType = "sell",
+                    IsPaid = true,
+                    Date = DateTime.Now.AddDays(-4),
+                    ItemCount = 8,
+                    TotalAmount = 72.00
+                },
+                new Transaction
+                {
+                    TransactionType = "buy",
+                    IsPaid = false,
+                    Date = DateTime.Now.AddDays(-3),
+                    ItemCount = 12,
+                    TotalAmount = 100.00
+                },
+                new Transaction
+                {
+                    TransactionType = "sell",
+                    IsPaid = true,
+                    Date = DateTime.Now.AddDays(-2),
+                    ItemCount = 18,
+                    TotalAmount = 160.00
+                },
+                new Transaction
+                {
+                    TransactionType = "buy",
+                    IsPaid = true,
+                    Date = DateTime.Now.AddDays(-1),
+                    ItemCount = 6,
+                    TotalAmount = 52.00
+                },
+                new Transaction
+                {
+                    TransactionType = "sell",
+                    IsPaid = false,
+                    Date = DateTime.Now,
+                    ItemCount = 14,
+                    TotalAmount = 126.00
+                }
+            };
+
+                    foreach (var transaction in testTransactions)
+                    {
+                        App.TransactionRepo?.InsertItem(transaction);
+                        Debug.WriteLine($"Transaction ({transaction.TransactionType}, Paid: {transaction.IsPaid}) added.");
+                    }
+
+                    Debug.WriteLine($"Added {testTransactions.Count} test transactions to the database.");
+                }
+                else
+                {
+                    Debug.WriteLine($"Database already contains {transactions.Count} transactions. Skipping test data insertion.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in TransactionTestData: {ex.Message}");
+            }
+        }
+
+
 
         #endregion
 

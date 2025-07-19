@@ -69,7 +69,13 @@ public partial class TransactionVM : ObservableObject
     private bool _isStatusFilterActive = false;
     [ObservableProperty]
     private bool _isTypeFilterActive = false;
-    public bool HasAnyActiveFilter => IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive;
+    [ObservableProperty]
+    private ObservableCollection<string> _sortFilterOptions = new() { "Newest First", "Oldest First" };
+    [ObservableProperty]
+    private string _selectedSortFilter = "Newest First";
+    [ObservableProperty]
+    private bool _isSortFilterActive = false;
+    public bool HasAnyActiveFilter => IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive || IsSortFilterActive;
     #endregion
 
     #region Methods
@@ -109,6 +115,8 @@ public partial class TransactionVM : ObservableObject
             SelectedStatusFilter = "All Status";
             IsTypeFilterActive = false;
             SelectedTypeFilter = "All Types";
+            IsSortFilterActive = false;
+            SelectedSortFilter = "Newest First";
             TotalPages = (int)Math.Ceiling((double)AllTransactions.Count / PageSize);
             CurrentPage = 1;
             LoadPage(CurrentPage);
@@ -271,8 +279,19 @@ public partial class TransactionVM : ObservableObject
         AnyExpanded = Transactions.Any(t => t.IsExpanded);
     }
 
-    public async Task ApplyDateFilter(DateTime startDate, DateTime endDate)
+    public async Task<bool> ApplyDateFilter(DateTime startDate, DateTime endDate)
     {
+        // Check if any transactions exist in the selected date range
+        var startDateOnly = startDate.Date;
+        var endDateOnly = endDate.Date.AddDays(1).AddTicks(-1);
+        var transactionsInRange = AllTransactions.Where(t => t.Date >= startDateOnly && t.Date <= endDateOnly).ToList();
+
+        if (!transactionsInRange.Any())
+        {
+            // No transactions found in the date range, don't apply filter
+            return false;
+        }
+
         FilterStartDate = startDate;
         FilterEndDate = endDate;
         IsDateFilterActive = true;
@@ -287,6 +306,7 @@ public partial class TransactionVM : ObservableObject
         OnPropertyChanged(nameof(HasAnyActiveFilter));
         ApplyAllFilters();
         await Task.Delay(500);
+        return true;
     }
 
     public void ClearDateFilter()
@@ -308,6 +328,11 @@ public partial class TransactionVM : ObservableObject
         ApplyTypeFilter(value);
     }
 
+    partial void OnSelectedSortFilterChanged(string value)
+    {
+        ApplySortFilter(value);
+    }
+
     public void ApplyStatusFilter(string selectedStatus)
     {
         SelectedStatusFilter = selectedStatus;
@@ -320,6 +345,14 @@ public partial class TransactionVM : ObservableObject
     {
         SelectedTypeFilter = selectedType;
         IsTypeFilterActive = selectedType != "All Types";
+        OnPropertyChanged(nameof(HasAnyActiveFilter));
+        ApplyAllFilters();
+    }
+
+    public void ApplySortFilter(string selectedSort)
+    {
+        SelectedSortFilter = selectedSort;
+        IsSortFilterActive = true; // Always active since we always have a sort order
         OnPropertyChanged(nameof(HasAnyActiveFilter));
         ApplyAllFilters();
     }
@@ -347,9 +380,11 @@ public partial class TransactionVM : ObservableObject
                 sourceTransactions = sourceTransactions.Where(t =>
                     string.Equals(t.TransactionType, SelectedTypeFilter, StringComparison.OrdinalIgnoreCase));
             }
-            var filteredList = sourceTransactions
-                .OrderByDescending(t => t.Date)
-                .ToList();
+
+            // Apply sorting based on selected sort filter
+            var filteredList = SelectedSortFilter == "Newest First"
+                ? sourceTransactions.OrderByDescending(t => t.Date).ToList()
+                : sourceTransactions.OrderBy(t => t.Date).ToList();
             foreach (var transaction in filteredList)
             {
                 FilteredTransactions.Add(transaction);
@@ -377,6 +412,8 @@ public partial class TransactionVM : ObservableObject
             IsStatusFilterActive = false;
             SelectedTypeFilter = "All Types";
             IsTypeFilterActive = false;
+            SelectedSortFilter = "Newest First";
+            IsSortFilterActive = false;
             OnPropertyChanged(nameof(HasAnyActiveFilter));
             FilteredTransactions.Clear();
             CurrentPage = 1;
@@ -391,7 +428,7 @@ public partial class TransactionVM : ObservableObject
 
     private ObservableCollection<Transaction> GetActiveTransactionSource()
     {
-        return (IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive) ? FilteredTransactions : AllTransactions;
+        return (IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive || IsSortFilterActive) ? FilteredTransactions : AllTransactions;
     }
     #endregion
 
@@ -406,7 +443,7 @@ public partial class TransactionVM : ObservableObject
         {
             IsRefreshing = true;
             await Task.Delay(1000);
-            _= LoadData();
+            _ = LoadData();
             await Task.Delay(1000);
         }
         finally

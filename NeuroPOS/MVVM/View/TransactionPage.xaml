@@ -87,6 +87,17 @@
                                     StyleClass="ModernPicker" />
                             </Border>
 
+                            <!--  Sort Filter Picker  -->
+                            <Border MinimumWidthRequest="140" StyleClass="FilterDropdownContainer">
+                                <Picker
+                                    x:Name="SortFilterPicker"
+                                    Title="Sort By"
+                                    HorizontalOptions="Fill"
+                                    ItemsSource="{Binding SortFilterOptions}"
+                                    SelectedItem="{Binding SelectedSortFilter, Mode=TwoWay}"
+                                    StyleClass="ModernPicker" />
+                            </Border>
+
                             <!--  Refresh Button  -->
                             <Button
                                 Padding="20,0"
