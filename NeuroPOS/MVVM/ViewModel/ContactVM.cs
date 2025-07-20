@@ -568,21 +568,28 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
-                Contacts.Remove(contact);
+                App.ContactRepo.DeleteItem(contact);
+                LoadDB();
                 if (SelectedContacts.Contains(contact))
                     SelectedContacts.Remove(contact);
                 DataSource.Refresh();
-                var snackbar = Snackbar.Make($"Deleted contact: {contact.Name}",
-                    duration: TimeSpan.FromSeconds(2));
+
+                var snackbar = Snackbar.Make(
+                    $"Deleted contact: {contact.Name}",
+                    async () => await UndoDeleteContact(contact),
+                    "UNDO",
+                    TimeSpan.FromSeconds(3));
                 await snackbar.Show();
             }
             catch (Exception ex)
             {
-                var snackbar = Snackbar.Make($"Error deleting contact: {ex.Message}",
+                var snackbar = Snackbar.Make(
+                    $"Error deleting contact: {ex.Message}",
                     duration: TimeSpan.FromSeconds(3));
                 await snackbar.Show();
             }
         }
+
         private async Task DeleteSelectedContacts()
         {
             try
@@ -607,10 +614,9 @@ namespace NeuroPOS.MVVM.ViewModel
                     return;
                 }
                 var deletedContacts = contactsToDelete.ToList();
-                var DBContacts = App.ContactRepo.GetItemsWithChildren();
-                foreach (var contact in contactsToDelete)
+               foreach (var contact in contactsToDelete)
                 {
-                    DBContacts.Remove(contact);
+                    App.ContactRepo.DeleteItem(contact);
                 }
                 LoadDB(); // Refresh the contacts list
                 DataSource.Refresh();
@@ -633,10 +639,10 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
-                var DBContacts = App.ContactRepo.GetItemsWithChildren();
+               
                 foreach (var contact in deletedContacts)
                 {
-                    DBContacts.Add(contact);
+                    App.ContactRepo.InsertItem(contact);
                 }
                 LoadDB();
                 DataSource.Refresh();
@@ -651,6 +657,28 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
+        private async Task UndoDeleteContact(Contact deletedContact)
+        {
+            try
+            {
+                App.ContactRepo.InsertItem(deletedContact);
+                LoadDB();
+                DataSource.Refresh();
+
+                var snackbar = Snackbar.Make(
+                    $"Restored contact: {deletedContact.Name}",
+                    duration: TimeSpan.FromSeconds(2));
+                await snackbar.Show();
+            }
+            catch (Exception ex)
+            {
+                var snackbar = Snackbar.Make(
+                    $"Error restoring contact: {ex.Message}",
+                    duration: TimeSpan.FromSeconds(3));
+                await snackbar.Show();
+            }
+        }
+
         private async Task SaveContact()
         {
             try
@@ -792,7 +820,7 @@ namespace NeuroPOS.MVVM.ViewModel
         public void LoadDB()
         {
             Contacts = new ObservableCollection<Contact>();
-            var DBContacts = App.ContactRepo.GetItemsWithChildren();
+            var DBContacts = App.ContactRepo.GetItemsWithChildren() ?? new List<Contact>();
             foreach (var contact in DBContacts)
             {
                 Contacts.Add(contact);
@@ -801,6 +829,7 @@ namespace NeuroPOS.MVVM.ViewModel
             AutocompleteSelectedContacts = new ObservableCollection<Contact>();
             SelectedItems = new ObservableCollection<object>();
             InitializeDataSource();
+
         }
         #endregion
     }
