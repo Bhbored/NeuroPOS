@@ -690,9 +690,8 @@ namespace NeuroPOS.MVVM.ViewModel
                     _editingContact.PhoneNumber = EditPhoneNumber;
                     _editingContact.Address = EditAddress;
                     _editingContact.DateAdded = EditDateAdded;
-                    App.ContactRepo.UpdateItem(_editingContact);
+                    App.ContactRepo.UpdateItemWithChildren(_editingContact);
                     LoadDB(); // Refresh the contacts list
-                    DataSource.Refresh();
                     CancelEdit();
                     var snackbar = Snackbar.Make($"Contact {EditName} saved successfully",
                         duration: TimeSpan.FromSeconds(2));
@@ -753,6 +752,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     {
                         contactTransaction.IsPaid = true;
                     }
+                    App.ContactRepo.UpdateItemWithChildren(_editingContact);
                 }
                 var snackbar = Snackbar.Make("Transaction marked as paid!",
                     duration: TimeSpan.FromSeconds(2));
