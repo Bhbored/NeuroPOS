@@ -90,15 +90,15 @@ namespace NeuroPOS.Data
         }
 
         public void InsertItemWithExistingChildren<TChild>(
-            T parent,
-            IEnumerable<TChild> existingChildren,
-            Action<T, IEnumerable<TChild>> assignRelation)
-            where TChild : Entity, new()
+          T parent,
+          IEnumerable<TChild> existingChildren,
+          Action<T, IEnumerable<TChild>> assignRelation)
+          where TChild : Entity, new()
         {
             try
             {
                 assignRelation(parent, existingChildren);
-                _connection.InsertWithChildren(parent, recursive: true);
+                _connection.InsertOrReplaceWithChildren(parent, recursive: true); // FIXED HERE
                 Debug.WriteLine($"[INSERT] {typeof(T).Name} + existing {typeof(TChild).Name}(s)");
             }
             catch (Exception ex)
@@ -106,6 +106,7 @@ namespace NeuroPOS.Data
                 Debug.WriteLine($"[ERROR][INSERT-EXISTING-CHILDREN] {ex}");
             }
         }
+
         #endregion
 
         #region Update

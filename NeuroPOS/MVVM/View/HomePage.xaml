@@ -13,16 +13,15 @@
     x:DataType="VM:HomeVM"
     BackgroundColor="{StaticResource NPLightBg}">
     <ContentPage.Resources>
-        <Converters:DTSelector x:Key="TemplateSelector"/>
-        <Converters:IntToBoolConverter x:Key="IntToBoolConverter"/>
-        <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter"/>
-        <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector"/>
+        <Converters:DTSelector x:Key="TemplateSelector" />
+        <Converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+        <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter" />
+        <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
     </ContentPage.Resources>
 
     <Grid ColumnDefinitions=".75*,.25*">
         <!--  Left Column: Top Bar, Filter Bar, Product List  -->
-        <Grid Grid.Column="0"
-                RowDefinitions="Auto,*">
+        <Grid Grid.Column="0" RowDefinitions="Auto,*">
             <!--  Top Bar: Title and Search (white background)  -->
             <Grid
                 Grid.Row="0"
@@ -35,7 +34,7 @@
                     FontSize="24"
                     Text="NeuroPOS"
                     TextColor="{StaticResource NPPrimaryBlue}"
-                    VerticalOptions="Center"/>
+                    VerticalOptions="Center" />
                 <VerticalStackLayout Grid.Column="1">
                     <Border
                         Margin="24,0,0,0"
@@ -61,25 +60,22 @@
                             TextHighlightMode="FirstOccurrence"
                             TextMemberPath="Name"
                             TokensWrapMode="Wrap"
-                            VerticalOptions="Start"/>
+                            VerticalOptions="Start" />
                     </Border>
-                    <HorizontalStackLayout Margin="24,10,0,-20"
-                            Spacing="15">
+                    <HorizontalStackLayout Margin="24,10,0,-20" Spacing="15">
                         <HorizontalStackLayout Spacing="8">
-                            <Label StyleClass="TitleText"
-                                    Text="Search Filter :"/>
+                            <Label StyleClass="TitleText" Text="Search Filter :" />
                             <Label
                                 x:Name="searchFilterValue"
                                 StyleClass="TitleText"
-                                Text="0"/>
+                                Text="0" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout Spacing="8">
-                            <Label StyleClass="TitleText"
-                                    Text="Selected Items :"/>
+                            <Label StyleClass="TitleText" Text="Selected Items :" />
                             <Label
                                 x:Name="selectedValue"
                                 StyleClass="TitleText"
-                                Text="0"/>
+                                Text="0" />
                         </HorizontalStackLayout>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
@@ -91,7 +87,7 @@
                 BackgroundColor="{StaticResource NPDivider}"
                 HeightRequest="1"
                 HorizontalOptions="Fill"
-                VerticalOptions="End"/>
+                VerticalOptions="End" />
             <!--  Everything below top bar: filter bar + product list, all with NPDivider background  -->
             <Grid
                 Grid.Row="2"
@@ -122,11 +118,10 @@
                                 FontSize="14"
                                 Text="All"
                                 TextColor="White"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding SwitchCategoryState}"
-                                    CommandParameter="All"/>
+                            <TapGestureRecognizer Command="{Binding SwitchCategoryState}" CommandParameter="All" />
                         </Border.GestureRecognizers>
                     </Border>
 
@@ -141,8 +136,7 @@
                         ItemsSource="{Binding Categories}"
                         VerticalOptions="Center">
                         <CollectionView.ItemsLayout>
-                            <LinearItemsLayout ItemSpacing="8"
-                                    Orientation="Horizontal"/>
+                            <LinearItemsLayout ItemSpacing="8" Orientation="Horizontal" />
                         </CollectionView.ItemsLayout>
                     </CollectionView>
                 </Grid>
@@ -167,16 +161,15 @@
                                 x:Name="Icon"
                                 Aspect="AspectFill"
                                 VerticalOptions="Center"
-                                WidthRequest="16"/>
+                                WidthRequest="16" />
                             <Label
                                 FontSize="14"
                                 StyleClass="NormalText"
                                 Text="{Binding SortLabel}"
-                                TextColor="{StaticResource NPLightBg}"/>
+                                TextColor="{StaticResource NPLightBg}" />
                         </HorizontalStackLayout>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ToggleSortCommand}"
-                                    Tapped="TapGestureRecognizer_Tapped"/>
+                            <TapGestureRecognizer Command="{Binding ToggleSortCommand}" Tapped="TapGestureRecognizer_Tapped" />
                         </Border.GestureRecognizers>
                     </Border>
 
@@ -194,15 +187,15 @@
                                 FontSize="14"
                                 Text="×"
                                 TextColor="White"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 FontSize="14"
                                 StyleClass="NormalText"
                                 Text="Clear All"
-                                TextColor="White"/>
+                                TextColor="White" />
                         </HorizontalStackLayout>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ClearAllSelectionsCommand}"/>
+                            <TapGestureRecognizer Command="{Binding ClearAllSelectionsCommand}" />
                         </Border.GestureRecognizers>
                     </Border>
 
@@ -226,7 +219,7 @@
                     SelectionGesture="Tap"
                     SelectionMode="Multiple">
                     <syncfusion:SfListView.ItemsLayout>
-                        <syncfusion:GridLayout SpanCount="4"/>
+                        <syncfusion:GridLayout SpanCount="4" />
                     </syncfusion:SfListView.ItemsLayout>
                     <syncfusion:SfListView.EmptyView>
                         <VerticalStackLayout
@@ -242,7 +235,7 @@
                                 BackgroundColor="Transparent"
                                 HeightRequest="160"
                                 IsAnimationPlaying="True"
-                                Source="noproduct.gif"/>
+                                Source="noproduct.gif" />
 
                             <!--  Message  -->
                             <Label
@@ -250,7 +243,7 @@
                                 HorizontalTextAlignment="Center"
                                 StyleClass="TitleText"
                                 Text="No products have been added yet."
-                                TextColor="{StaticResource NPTextSecondary}"/>
+                                TextColor="{StaticResource NPTextSecondary}" />
                         </VerticalStackLayout>
                     </syncfusion:SfListView.EmptyView>
                 </syncfusion:SfListView>
@@ -264,8 +257,7 @@
             BackgroundColor="{StaticResource NPDivider}"
             StrokeShape="RoundRectangle 24"
             StrokeThickness="0">
-            <Grid Padding="0,0,0,0"
-                    RowDefinitions="Auto,4,*,4,Auto">
+            <Grid Padding="0,0,0,0" RowDefinitions="Auto,4,*,4,Auto">
                 <!--  Header  -->
                 <StackLayout
                     Grid.Row="0"
@@ -275,11 +267,11 @@
                     <Label
                         StyleClass="TitleText"
                         Text="Current Order"
-                        TextColor="{StaticResource NPTextMain}"/>
+                        TextColor="{StaticResource NPTextMain}" />
                     <Label
                         StyleClass="SubtitleText"
                         Text="{Binding OrderDateTime}"
-                        TextColor="{StaticResource NPTextSecondary}"/>
+                        TextColor="{StaticResource NPTextSecondary}" />
                 </StackLayout>
                 <!--  Divider above order items (card width)  -->
                 <BoxView
@@ -287,7 +279,7 @@
                     BackgroundColor="{StaticResource NPDivider}"
                     HeightRequest="1"
                     HorizontalOptions="Center"
-                    WidthRequest="320"/>
+                    WidthRequest="320" />
                 <!--  Order Items Card  -->
                 <Border
                     Grid.Row="2"
@@ -302,12 +294,11 @@
                             Brush="Black"
                             Opacity="0.3"
                             Radius="12"
-                            Offset="5,5"/>
+                            Offset="5,5" />
                     </Border.Shadow>
                     <Grid VerticalOptions="Fill">
                         <!--  Cart Items  -->
-                        <ScrollView IsVisible="{Binding CurrentOrderItems.Count, Converter={StaticResource IntToBoolConverter}}"
-                                VerticalOptions="Fill">
+                        <ScrollView IsVisible="{Binding CurrentOrderItems.Count, Converter={StaticResource IntToBoolConverter}}" VerticalOptions="Fill">
                             <StackLayout
                                 Margin="0,4,0,4"
                                 BindableLayout.ItemsSource="{Binding CurrentOrderItems}"
@@ -335,7 +326,7 @@
                                                     <Image
                                                         Margin="4"
                                                         Aspect="AspectFit"
-                                                        Source="{Binding ImageUrl}"/>
+                                                        Source="{Binding ImageUrl}" />
                                                 </Border>
 
                                                 <!--  Product Info  -->
@@ -350,14 +341,14 @@
                                                         LineBreakMode="TailTruncation"
                                                         Text="{Binding Name}"
                                                         TextColor="{StaticResource NPTextMain}"
-                                                        VerticalOptions="Start"/>
+                                                        VerticalOptions="Start" />
 
                                                     <Label
                                                         FontFamily="PoppinsBold"
                                                         FontSize="14"
                                                         Text="{Binding Price, StringFormat='{0:C}'}"
                                                         TextColor="{StaticResource NPPrimaryBlue}"
-                                                        VerticalOptions="Start"/>
+                                                        VerticalOptions="Start" />
 
                                                     <!--  Quantity Controls  -->
                                                     <HorizontalStackLayout
@@ -376,7 +367,7 @@
                                                             HeightRequest="24"
                                                             Text="−"
                                                             TextColor="White"
-                                                            WidthRequest="24"/>
+                                                            WidthRequest="24" />
                                                         <!--  Quantity Display  -->
                                                         <Border
                                                             Padding="8,4"
@@ -391,7 +382,7 @@
                                                                 HorizontalTextAlignment="Center"
                                                                 Text="{Binding Stock}"
                                                                 TextColor="{StaticResource NPTextMain}"
-                                                                VerticalTextAlignment="Center"/>
+                                                                VerticalTextAlignment="Center" />
                                                         </Border>
                                                         <!--  Increase Quantity Button  -->
                                                         <Button
@@ -405,7 +396,7 @@
                                                             HeightRequest="24"
                                                             Text="+"
                                                             TextColor="White"
-                                                            WidthRequest="24"/>
+                                                            WidthRequest="24" />
                                                     </HorizontalStackLayout>
                                                 </VerticalStackLayout>
 
@@ -423,7 +414,7 @@
                                                     Text="×"
                                                     TextColor="White"
                                                     VerticalOptions="Start"
-                                                    WidthRequest="30"/>
+                                                    WidthRequest="30" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -452,25 +443,24 @@
                                     FontSize="42"
                                     HorizontalOptions="Center"
                                     Text="🛒"
-                                    VerticalOptions="Center"/>
+                                    VerticalOptions="Center" />
                             </Border>
 
                             <!--  Empty Message  -->
-                            <VerticalStackLayout HorizontalOptions="Center"
-                                    Spacing="12">
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="12">
                                 <Label
                                     FontFamily="PoppinsBold"
                                     FontSize="20"
                                     HorizontalTextAlignment="Center"
                                     Text="Your cart is empty"
-                                    TextColor="{StaticResource NPTextMain}"/>
+                                    TextColor="{StaticResource NPTextMain}" />
                                 <Label
                                     Margin="20,0"
                                     FontSize="15"
                                     HorizontalTextAlignment="Center"
                                     LineBreakMode="WordWrap"
                                     Text="Select products from the left to add them to your order"
-                                    TextColor="{StaticResource NPTextSecondary}"/>
+                                    TextColor="{StaticResource NPTextSecondary}" />
                             </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Grid>
@@ -482,25 +472,25 @@
                     BackgroundColor="{StaticResource NPDivider}">
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Label
                             StyleClass="NormalText"
                             Text="Subtotal"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                         <Label
                             Grid.Column="1"
                             StyleClass="NormalText"
                             Text="{Binding Subtotal, StringFormat='${0:F2}'}"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Label
                             Grid.Row="1"
                             StyleClass="NormalText"
                             Text="{Binding TaxRate, StringFormat='Tax ({0:F1}%)'}"
                             TextColor="{StaticResource NPTextSecondary}">
                             <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding EditTaxCommand}"/>
+                                <TapGestureRecognizer Command="{Binding EditTaxCommand}" />
                             </Label.GestureRecognizers>
                         </Label>
                         <Label
@@ -508,12 +498,12 @@
                             Grid.Column="1"
                             StyleClass="NormalText"
                             Text="{Binding Tax, StringFormat='${0:F2}'}"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Label
                             Grid.Row="2"
                             StyleClass="NormalText"
                             Text="Discount"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                         <Border
                             Grid.Row="2"
                             Grid.Column="1"
@@ -530,22 +520,21 @@
                                 Placeholder="$0.00"
                                 Text="{Binding Discount, StringFormat='{0:F2}', Mode=TwoWay}"
                                 TextColor="{StaticResource NPTextMain}"
-                                WidthRequest="80"/>
+                                WidthRequest="80" />
                         </Border>
                         <Label
                             Grid.Row="3"
                             StyleClass="TitleText"
                             Text="Total"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Label
                             Grid.Row="3"
                             Grid.Column="1"
                             StyleClass="TitleText"
                             Text="{Binding Total, StringFormat='${0:F2}'}"
-                            TextColor="{StaticResource NPPrimaryBlue}"/>
+                            TextColor="{StaticResource NPPrimaryBlue}" />
                     </Grid>
-                    <HorizontalStackLayout Margin="0,16,0,0"
-                            Spacing="12">
+                    <HorizontalStackLayout Margin="0,16,0,0" Spacing="12">
                         <Button
                             BackgroundColor="{StaticResource NPTextMain}"
                             Command="{Binding CashPaymentCommand}"
@@ -553,7 +542,7 @@
                             FontFamily="PoppinsBold"
                             HeightRequest="48"
                             Text="Cash"
-                            TextColor="White"/>
+                            TextColor="White" />
                         <Button
                             BackgroundColor="{StaticResource NPAccentYellow}"
                             Command="{Binding OnTabCommand}"
@@ -561,7 +550,7 @@
                             FontFamily="PoppinsBold"
                             HeightRequest="48"
                             Text="On Tab"
-                            TextColor="White"/>
+                            TextColor="White" />
                     </HorizontalStackLayout>
                 </StackLayout>
             </Grid>

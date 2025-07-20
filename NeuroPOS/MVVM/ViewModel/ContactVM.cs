@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Extensions;
-using Syncfusion.Maui.DataSource;
-using PropertyChanged;
-using Contact = NeuroPOS.MVVM.Model.Contact;
+using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls;
+using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.Popups;
+using PropertyChanged;
+using Syncfusion.Maui.DataSource;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,9 +15,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows.Input;
-using NeuroPOS.MVVM.Model;
-using NeuroPOS.MVVM.Popups;
+using Contact = NeuroPOS.MVVM.Model.Contact;
+using Transaction = NeuroPOS.MVVM.Model.Transaction;
 
 namespace NeuroPOS.MVVM.ViewModel
 {
@@ -519,7 +521,7 @@ namespace NeuroPOS.MVVM.ViewModel
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error canceling add contact: {ex.Message}");
+                Debug.WriteLine($"Error canceling add contact: {ex.Message}");
             }
         }
         public async Task ViewContactDetails(Contact contact)
@@ -568,6 +570,7 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
+                var oldTransactions = contact.Transactions?.ToList() ?? new List<Transaction>();
                 App.ContactRepo.DeleteItem(contact);
                 LoadDB();
                 if (SelectedContacts.Contains(contact))
@@ -576,7 +579,7 @@ namespace NeuroPOS.MVVM.ViewModel
 
                 var snackbar = Snackbar.Make(
                     $"Deleted contact: {contact.Name}",
-                    async () => await UndoDeleteContact(contact),
+                    async () => await UndoDeleteContact(contact, oldTransactions),
                     "UNDO",
                     TimeSpan.FromSeconds(3));
                 await snackbar.Show();
@@ -642,7 +645,7 @@ namespace NeuroPOS.MVVM.ViewModel
                
                 foreach (var contact in deletedContacts)
                 {
-                    App.ContactRepo.InsertItem(contact);
+                    App.ContactRepo.InsertItemWithChildren(contact);
                 }
                 LoadDB();
                 DataSource.Refresh();
@@ -657,11 +660,15 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
-        private async Task UndoDeleteContact(Contact deletedContact)
+        private async Task UndoDeleteContact(Contact deletedContact , List<Transaction> transactions)
         {
             try
             {
-                App.ContactRepo.InsertItem(deletedContact);
+                App.ContactRepo.InsertItemWithExistingChildren<Transaction>(
+           deletedContact,
+           transactions,  // pass the list directly
+           (contact, txs) => contact.Transactions = (List<Transaction>?)txs
+       );
                 LoadDB();
                 DataSource.Refresh();
 
@@ -722,18 +729,13 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 IsRefreshing = true;
                 await Task.Delay(1000);
-                DataSource.Refresh();
+                LoadDB(); 
                 IsRefreshing = false;
-                var snackbar = Snackbar.Make("Contacts refreshed",
-                    duration: TimeSpan.FromSeconds(1));
-                await snackbar.Show();
+               
             }
             catch (Exception ex)
             {
                 IsRefreshing = false;
-                var snackbar = Snackbar.Make($"Error refreshing contacts: {ex.Message}",
-                    duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
             }
         }
         private async Task MarkTransactionAsPaid(Transaction transaction)

@@ -19,32 +19,28 @@
                 Brush="Black"
                 Opacity="0.3"
                 Radius="20"
-                Offset="0,8"/>
+                Offset="0,8" />
         </Border.Shadow>
 
-        <Grid Padding="24"
-              RowDefinitions="Auto,*,Auto">
+        <Grid Padding="24" RowDefinitions="Auto,*,Auto">
             <!--  Header  -->
-            <VerticalStackLayout Grid.Row="0"
-                                 Spacing="8">
-                <HorizontalStackLayout HorizontalOptions="Center"
-                                       VerticalOptions="Center">
+            <VerticalStackLayout Grid.Row="0" Spacing="8">
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
                     <Label
                         FontFamily="PoppinsBold"
                         FontSize="24"
                         Text="On Tab Payment"
-                        TextColor="{StaticResource NPTextMain}"/>
+                        TextColor="{StaticResource NPTextMain}" />
                 </HorizontalStackLayout>
                 <Label
                     FontFamily="PoppinsRegular"
                     FontSize="16"
                     Text="Select a contact to create a credit transaction"
-                    TextColor="{StaticResource NPTextSecondary}"/>
+                    TextColor="{StaticResource NPTextSecondary}" />
             </VerticalStackLayout>
 
             <!--  Content  -->
-            <ScrollView Grid.Row="1"
-                        Margin="0,20">
+            <ScrollView Grid.Row="1" Margin="0,20">
                 <VerticalStackLayout Spacing="24">
                     <!--  Contact Selection  -->
                     <VerticalStackLayout Spacing="8">
@@ -52,7 +48,7 @@
                             FontFamily="PoppinsBold"
                             FontSize="16"
                             Text="Select Contact"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Border
                             BackgroundColor="White"
                             Stroke="#E0E0E0"
@@ -66,7 +62,7 @@
                                 ItemsSource="{Binding Contacts}"
                                 Placeholder="Search and select a contact..."
                                 Stroke="Transparent"
-                                TextColor="{StaticResource NPTextMain}"/>
+                                TextColor="{StaticResource NPTextMain}" />
                         </Border>
                     </VerticalStackLayout>
 
@@ -82,55 +78,56 @@
                                 FontFamily="PoppinsBold"
                                 FontSize="16"
                                 Text="Transaction Summary"
-                                TextColor="{StaticResource NPTextMain}"/>
+                                TextColor="{StaticResource NPTextMain}" />
 
-                            <Grid ColumnDefinitions="*,Auto"
-                                  ColumnSpacing="12"
-                                  RowSpacing="12"
-                                  RowDefinitions="Auto,Auto,Auto,Auto">
+                            <Grid
+                                ColumnDefinitions="*,Auto"
+                                ColumnSpacing="12"
+                                RowDefinitions="Auto,Auto,Auto,Auto"
+                                RowSpacing="12">
                                 <Label
                                     Grid.Row="0"
                                     Text="Subtotal"
-                                    TextColor="{StaticResource NPTextSecondary}"/>
+                                    TextColor="{StaticResource NPTextSecondary}" />
                                 <Label
                                     Grid.Row="0"
                                     Grid.Column="1"
                                     Text="{Binding Subtotal, StringFormat='${0:F2}'}"
-                                    TextColor="{StaticResource NPTextMain}"/>
+                                    TextColor="{StaticResource NPTextMain}" />
 
                                 <Label
                                     Grid.Row="1"
                                     Text="{Binding TaxRate, StringFormat='Tax ({0:F1}%)'}"
-                                    TextColor="{StaticResource NPTextSecondary}"/>
+                                    TextColor="{StaticResource NPTextSecondary}" />
                                 <Label
                                     Grid.Row="1"
                                     Grid.Column="1"
                                     Text="{Binding Tax, StringFormat='${0:F2}'}"
-                                    TextColor="{StaticResource NPTextMain}"/>
+                                    TextColor="{StaticResource NPTextMain}" />
 
                                 <Label
                                     Grid.Row="2"
                                     Text="Discount"
-                                    TextColor="{StaticResource NPTextSecondary}"/>
+                                    TextColor="{StaticResource NPTextSecondary}" />
                                 <Label
                                     Grid.Row="2"
                                     Grid.Column="1"
                                     Text="{Binding Discount, StringFormat='${0:F2}'}"
-                                    TextColor="{StaticResource NPTextMain}"/>
+                                    TextColor="{StaticResource NPTextMain}" />
 
                                 <Label
                                     Grid.Row="3"
                                     FontFamily="PoppinsBold"
                                     FontSize="16"
                                     Text="Total"
-                                    TextColor="{StaticResource NPTextMain}"/>
+                                    TextColor="{StaticResource NPTextMain}" />
                                 <Label
                                     Grid.Row="3"
                                     Grid.Column="1"
                                     FontFamily="PoppinsBold"
                                     FontSize="16"
                                     Text="{Binding Total, StringFormat='${0:F2}'}"
-                                    TextColor="{StaticResource NPPrimaryBlue}"/>
+                                    TextColor="{StaticResource NPPrimaryBlue}" />
                             </Grid>
                         </VerticalStackLayout>
                     </Border>
@@ -146,14 +143,14 @@
                             <Label
                                 FontSize="20"
                                 Text="⚠️"
-                                VerticalOptions="Start"/>
+                                VerticalOptions="Start" />
                             <Label
                                 FontFamily="PoppinsRegular"
                                 FontSize="14"
                                 LineBreakMode="WordWrap"
                                 Text="This will create a credit transaction. The customer will owe this amount."
                                 TextColor="#856404"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                         </HorizontalStackLayout>
                     </Border>
                 </VerticalStackLayout>
@@ -171,7 +168,7 @@
                     FontFamily="PoppinsBold"
                     HeightRequest="48"
                     Text="Cancel"
-                    TextColor="White"/>
+                    TextColor="White" />
 
                 <Button
                     BackgroundColor="{StaticResource NPAccentYellow}"
@@ -180,7 +177,7 @@
                     FontFamily="PoppinsBold"
                     HeightRequest="48"
                     Text="Create Credit Transaction"
-                    TextColor="White"/>
+                    TextColor="White" />
             </HorizontalStackLayout>
         </Grid>
     </Border>
