@@ -3,8 +3,8 @@
     x:Class="NeuroPOS.MVVM.Popups.AddProductPopup"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:DataType="VM:InventoryVM"
     BackgroundColor="Transparent"
     CanBeDismissedByTappingOutsideOfPopup="True">
@@ -20,7 +20,7 @@
                 Brush="Black"
                 Opacity="0.3"
                 Radius="25"
-                Offset="0,10"/>
+                Offset="0,10" />
         </Border.Shadow>
 
         <Grid RowDefinitions="Auto,Auto,*,Auto">
@@ -40,19 +40,18 @@
                             HorizontalOptions="Center"
                             Text="➕"
                             TextColor="White"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
                     </Border>
-                    <VerticalStackLayout Spacing="4"
-                                         VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
                         <Label
                             FontFamily="PoppinsBold"
                             FontSize="22"
                             Text="Add New Product"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Label
                             FontSize="14"
                             Text="Enter product details below"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
@@ -62,11 +61,10 @@
                 Grid.Row="1"
                 Margin="0,0,0,24"
                 BackgroundColor="{StaticResource NPDivider}"
-                HeightRequest="1"/>
+                HeightRequest="1" />
 
             <!--  Form Content  -->
-            <ScrollView Grid.Row="2"
-                        MaximumHeightRequest="400">
+            <ScrollView Grid.Row="2" MaximumHeightRequest="400">
                 <VerticalStackLayout Spacing="20">
 
                     <!--  Product ID (Auto-generated display)  -->
@@ -75,7 +73,7 @@
                             FontFamily="PoppinsBold"
                             FontSize="12"
                             Text="PRODUCT ID"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                         <Border
                             BackgroundColor="{StaticResource NPLightBg}"
                             Stroke="{StaticResource NPDivider}"
@@ -86,7 +84,7 @@
                                 FontFamily="PoppinsBold"
                                 FontSize="14"
                                 Text="{Binding NewProductId, StringFormat='#{0:000}'}"
-                                TextColor="{StaticResource NPTextSecondary}"/>
+                                TextColor="{StaticResource NPTextSecondary}" />
                         </Border>
                     </VerticalStackLayout>
 
@@ -96,7 +94,7 @@
                             FontFamily="PoppinsBold"
                             FontSize="12"
                             Text="PRODUCT NAME"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                         <Border
                             BackgroundColor="White"
                             Stroke="{StaticResource NPDivider}"
@@ -108,21 +106,19 @@
                                 BackgroundColor="Transparent"
                                 FontSize="16"
                                 Placeholder="Enter product name"
-                                Text="{Binding NewProductName, Mode=TwoWay}"/>
+                                Text="{Binding NewProductName, Mode=TwoWay}" />
                         </Border>
                     </VerticalStackLayout>
 
                     <!--  Price and Cost Row  -->
-                    <Grid ColumnDefinitions="*,16,*"
-                          ColumnSpacing="0">
+                    <Grid ColumnDefinitions="*,16,*" ColumnSpacing="0">
                         <!--  Price  -->
-                        <VerticalStackLayout Grid.Column="0"
-                                             Spacing="8">
+                        <VerticalStackLayout Grid.Column="0" Spacing="8">
                             <Label
                                 FontFamily="PoppinsBold"
                                 FontSize="12"
                                 Text="SELLING PRICE"
-                                TextColor="{StaticResource NPTextSecondary}"/>
+                                TextColor="{StaticResource NPTextSecondary}" />
                             <Border
                                 BackgroundColor="White"
                                 Stroke="{StaticResource NPDivider}"
@@ -134,18 +130,17 @@
                                     FontSize="16"
                                     Keyboard="Numeric"
                                     Placeholder="0.00"
-                                    Text="{Binding NewProductPrice, Mode=TwoWay}"/>
+                                    Text="{Binding NewProductPrice, Mode=TwoWay}" />
                             </Border>
                         </VerticalStackLayout>
 
                         <!--  Cost  -->
-                        <VerticalStackLayout Grid.Column="2"
-                                             Spacing="8">
+                        <VerticalStackLayout Grid.Column="2" Spacing="8">
                             <Label
                                 FontFamily="PoppinsBold"
                                 FontSize="12"
                                 Text="COST PRICE"
-                                TextColor="{StaticResource NPTextSecondary}"/>
+                                TextColor="{StaticResource NPTextSecondary}" />
                             <Border
                                 BackgroundColor="White"
                                 Stroke="{StaticResource NPDivider}"
@@ -157,7 +152,7 @@
                                     FontSize="16"
                                     Keyboard="Numeric"
                                     Placeholder="0.00"
-                                    Text="{Binding NewProductCost, Mode=TwoWay}"/>
+                                    Text="{Binding NewProductCost, Mode=TwoWay}" />
                             </Border>
                         </VerticalStackLayout>
                     </Grid>
@@ -168,7 +163,7 @@
                             FontFamily="PoppinsBold"
                             FontSize="12"
                             Text="CATEGORY"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                         <Border
                             BackgroundColor="White"
                             Stroke="{StaticResource NPDivider}"
@@ -176,13 +171,13 @@
                             StrokeThickness="1">
                             <Picker
                                 x:Name="CategoryPicker"
+                                Title="Select Category"
                                 Margin="16,4"
                                 BackgroundColor="Transparent"
                                 FontSize="16"
                                 ItemDisplayBinding="{Binding Name}"
                                 ItemsSource="{Binding Categories}"
-                                SelectedItem="{Binding NewProductCategory, Mode=TwoWay}"
-                                Title="Select Category"/>
+                                SelectedItem="{Binding NewProductCategory, Mode=TwoWay}" />
                         </Border>
                     </VerticalStackLayout>
 
@@ -192,14 +187,13 @@
                             FontFamily="PoppinsBold"
                             FontSize="12"
                             Text="PRODUCT IMAGE"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                         <Border
                             BackgroundColor="{StaticResource NPLightBg}"
                             Stroke="{StaticResource NPDivider}"
                             StrokeShape="RoundRectangle 12"
                             StrokeThickness="1">
-                            <Grid Padding="16"
-                                  RowDefinitions="120,Auto">
+                            <Grid Padding="16" RowDefinitions="120,Auto">
                                 <!--  Image Preview  -->
                                 <Border
                                     Grid.Row="0"
@@ -215,7 +209,7 @@
                                         Aspect="AspectFill"
                                         HorizontalOptions="Center"
                                         Source="{Binding NewProductImageUrl}"
-                                        VerticalOptions="Center"/>
+                                        VerticalOptions="Center" />
                                 </Border>
 
                                 <!--  Change Image Button  -->
@@ -229,7 +223,7 @@
                                     FontSize="14"
                                     HeightRequest="40"
                                     Text="📷 Select Image"
-                                    TextColor="White"/>
+                                    TextColor="White" />
                             </Grid>
                         </Border>
                     </VerticalStackLayout>
@@ -254,7 +248,7 @@
                     FontFamily="PoppinsBold"
                     FontSize="16"
                     Text="Cancel"
-                    TextColor="{StaticResource NPTextMain}"/>
+                    TextColor="{StaticResource NPTextMain}" />
                 <Button
                     x:Name="AddButton"
                     Padding="20,12"
@@ -264,7 +258,7 @@
                     FontFamily="PoppinsBold"
                     FontSize="16"
                     Text="✓ Add Product"
-                    TextColor="White"/>
+                    TextColor="White" />
             </HorizontalStackLayout>
         </Grid>
     </Border>

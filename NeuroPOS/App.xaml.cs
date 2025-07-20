@@ -42,7 +42,6 @@ namespace NeuroPOS
             OrderRepo = _order;
             _ = ProductTestData();
             _ = CategoryTestData();
-            _= ContactTestData();
             HomeVM = _homeVM;
             TransactionVM = _transactionVM;
             InventoryVM = _inventoryVM;
@@ -198,114 +197,7 @@ namespace NeuroPOS
             }
         }
 
-        public async Task ContactTestData()
-        {
-            try
-            {
-                var contacts = App.ContactRepo?.GetItemsWithChildren();
-                Debug.WriteLine($"Current contacts in database: {contacts?.Count ?? 0}");
-
-                if (contacts == null || contacts.Count == 0)
-                {
-                    var testContacts = new List<Contact>();
-
-                    for (int i = 1; i <= 5; i++)
-                    {
-                        var contact = new Contact
-                        {
-                            Name = $"Contact {i}",
-                            Email = $"contact{i}@example.com",
-                            PhoneNumber = $"555000{i:D3}",
-                            Address = $"Street {i}, City",
-                            DateAdded = DateTime.Now.AddDays(-i),
-                            Transactions = new List<Transaction>
-                    {
-                        new Transaction
-                        {
-                            Date = DateTime.Now.AddDays(-i),
-                            IsPaid = true,
-                            TransactionType = "sell",
-                            TotalAmount = 50 * i,
-                            ItemCount = 2,
-                            Lines = new List<TransactionLine>
-                            {
-                                new TransactionLine
-                                {
-                                    Name = $"Product A{i}",
-                                    Price = 10 * i,
-                                    Cost = 6 * i,
-                                    Stock = 2,
-                                    CategoryName = "General",
-                                    ImageUrl = "emptyproduct.png",
-                                    DateAdded = DateTime.Now.AddDays(-i)
-                                },
-                                new TransactionLine
-                                {
-                                    Name = $"Product B{i}",
-                                    Price = 15 * i,
-                                    Cost = 9 * i,
-                                    Stock = 1,
-                                    CategoryName = "General",
-                                    ImageUrl = "emptyproduct.png",
-                                    DateAdded = DateTime.Now.AddDays(-i)
-                                }
-                            }
-                        },
-                        new Transaction
-                        {
-                            Date = DateTime.Now.AddDays(-i + 1),
-                            IsPaid = false,
-                            TransactionType = "sell",
-                            TotalAmount = 60 * i,
-                            ItemCount = 2,
-                            Lines = new List<TransactionLine>
-                            {
-                                new TransactionLine
-                                {
-                                    Name = $"Product C{i}",
-                                    Price = 20 * i,
-                                    Cost = 12 * i,
-                                    Stock = 1,
-                                    CategoryName = "Uncategorized",
-                                    ImageUrl = "emptyproduct.png",
-                                    DateAdded = DateTime.Now.AddDays(-i + 1)
-                                },
-                                new TransactionLine
-                                {
-                                    Name = $"Product D{i}",
-                                    Price = 10 * i,
-                                    Cost = 7 * i,
-                                    Stock = 2,
-                                    CategoryName = "Uncategorized",
-                                    ImageUrl = "emptyproduct.png",
-                                    DateAdded = DateTime.Now.AddDays(-i + 1)
-                                }
-                            }
-                        }
-                    }
-                        };
-
-                        testContacts.Add(contact);
-                    }
-
-                    foreach (var contact in testContacts)
-                    {
-                        App.ContactRepo?.InsertItemWithChildren(contact, true);
-                        Debug.WriteLine($"Inserted contact: {contact.Name} with {contact.Transactions?.Count ?? 0} transactions.");
-                    }
-
-                    Debug.WriteLine($"✅ Added {testContacts.Count} test contacts with transactions and transaction lines.");
-                }
-                else
-                {
-                    Debug.WriteLine($"ℹ️ Database already contains {contacts.Count} contacts. Skipping insertion.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"❌ Error in ContactTestData: {ex.Message}");
-            }
-        }
+       
 
 
 

@@ -49,7 +49,7 @@ namespace NeuroPOS.MVVM.Model
         public double TotalCreditSales =>
     Transactions?
         .Where(t => t.TransactionType == "sell" && !t.IsPaid)
-        .Sum(t => t.CalculatedTotalAmount) ?? 0;
+        .Sum(t => t.TotalAmount) ?? 0;
 
         [Ignore]
         public string Summary =>

@@ -27,7 +27,7 @@ namespace NeuroPOS
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-            
+
             builder.Services.AddSingleton<BaseRepository<CashRegister>>();
             builder.Services.AddSingleton<BaseRepository<Category>>();
             builder.Services.AddSingleton<BaseRepository<Contact>>();
@@ -42,6 +42,9 @@ namespace NeuroPOS
             builder.Services.AddSingleton<InventoryVM>();
             builder.Services.AddSingleton<OrderVM>();
             builder.Services.AddSingleton<ContactVM>();
+
+            // Views
+            builder.Services.AddTransient<TransactionPage>();
 
             return builder.Build();
         }

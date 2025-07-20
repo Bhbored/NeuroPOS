@@ -27,7 +27,16 @@ namespace NeuroPOS.MVVM.Model
                 date = value;
             }
         }
+
         public double TotalAmount { get; set; }
+        public double Tax { get; set; }
+        public double Discount { get; set; }
+        public double SubTotalAMount =>
+        (Lines == null || Lines.Count == 0)
+        ? 0
+        : TransactionType?.Equals("buy", StringComparison.OrdinalIgnoreCase) == true
+            ? Lines.Sum(p => p.Cost * p.Stock)
+            : Lines.Sum(p => p.Price * p.Stock);
 
         public int ItemCount { get; set; }
 
@@ -38,11 +47,12 @@ namespace NeuroPOS.MVVM.Model
             set => transactionType = value;
         }
 
+        public bool IsExpanded { get; set; } = false;
+
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public List<TransactionLine> Lines { get; set; } = new();
 
         public bool IsPaid { get; set; } = true;
-        
 
         #region Ignore Properties
 
@@ -61,6 +71,8 @@ namespace NeuroPOS.MVVM.Model
             get => Date.ToString("hh:mm tt");
         }
 
+
+
         [Ignore]
         public string Status
         {
@@ -69,17 +81,7 @@ namespace NeuroPOS.MVVM.Model
                 return IsPaid ? "Completed" : "Pending";
             }
         }
-
-        [Ignore]
-        public bool IsExpanded { get; set; } = false;
-
-        [Ignore]                                             
-        public double CalculatedTotalAmount =>
-           (Lines == null || Lines.Count == 0)
-               ? 0
-               : TransactionType?.Equals("buy", StringComparison.OrdinalIgnoreCase) == true
-                   ? Lines.Sum(p => p.Cost)     // buy  → use cost
-                   : Lines.Sum(p => p.Price);   // sell → use price
+       
 
         [Ignore]                                             // not stored in DB
         public int CalculatedItemCount => Lines?.Count ?? 0;

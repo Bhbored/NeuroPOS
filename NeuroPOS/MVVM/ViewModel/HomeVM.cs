@@ -664,6 +664,9 @@ namespace NeuroPOS.MVVM.ViewModel
                 {
                     TransactionType = "sell",
                     IsPaid = true,
+                    Tax = Tax,
+                    Discount = Discount,
+                    TotalAmount = Total,
                     ItemCount = CurrentOrderItems.Count,
                     Lines = new List<TransactionLine>()
                 };

@@ -22,33 +22,39 @@ namespace NeuroPOS.MVVM.ViewModel;
 [AddINotifyPropertyChangedInterface]
 public partial class TransactionVM : ObservableObject
 {
+    public TransactionVM()
+    {
+        AllTransactions = new ObservableCollection<Transaction>();
+        Transactions = new ObservableCollection<Transaction>();
+        StatusFilterOptions = new ObservableCollection<string> { "All Status", "Completed", "Pending" };
+        TypeFilterOptions = new ObservableCollection<string> { "All Types", "buy", "sell" };
+        SortFilterOptions = new ObservableCollection<string> { "Newest First", "Oldest First" };
+
+        SelectedStatusFilter = "All Status";
+        SelectedTypeFilter = "All Types";
+        SelectedSortFilter = "Newest First";
+
+        TransactionCount = "";
+        IsRefreshing = false;
+        IsLoading = false;
+        IsInitialized = false;
+        AnyExpanded = false;
+    }
+
     #region Properties
-    public ObservableCollection<Transaction> Transactions { get; } = new();
     [ObservableProperty]
     private ObservableCollection<Transaction> _allTransactions = new();
-    [ObservableProperty]
-    private ObservableCollection<Transaction> _filteredTransactions = new();
-    private const int PageSize = 10;
+    private ObservableCollection<Transaction> _transactions = new();
     [ObservableProperty]
     private bool _anyExpanded = false;
     [ObservableProperty]
-    private int _currentPage = 1;
-    [ObservableProperty]
-    private int _totalPages;
-    [ObservableProperty]
-    private bool _canGoNext;
-    [ObservableProperty]
-    private bool _canGoPrevious;
-    [ObservableProperty]
-    private string _paginationInfo = "";
+    private string _transactionCount = "";
     [ObservableProperty]
     private bool _isRefreshing = false;
     [ObservableProperty]
     private bool _isLoading = false;
     [ObservableProperty]
     private bool _isInitialized = false;
-    private DateTime _lastButtonClick = DateTime.MinValue;
-    private const int ButtonCooldownMs = 100;
     [ObservableProperty]
     private DateTime? _filterStartDate;
     [ObservableProperty]
@@ -59,11 +65,9 @@ public partial class TransactionVM : ObservableObject
     private string _dateFilterSummary = string.Empty;
     [ObservableProperty]
     private ObservableCollection<string> _statusFilterOptions = new() { "All Status", "Completed", "Pending" };
-    [ObservableProperty]
     private string _selectedStatusFilter = "All Status";
     [ObservableProperty]
     private ObservableCollection<string> _typeFilterOptions = new() { "All Types", "buy", "sell" };
-    [ObservableProperty]
     private string _selectedTypeFilter = "All Types";
     [ObservableProperty]
     private bool _isStatusFilterActive = false;
@@ -71,56 +75,118 @@ public partial class TransactionVM : ObservableObject
     private bool _isTypeFilterActive = false;
     [ObservableProperty]
     private ObservableCollection<string> _sortFilterOptions = new() { "Newest First", "Oldest First" };
-    [ObservableProperty]
     private string _selectedSortFilter = "Newest First";
     [ObservableProperty]
     private bool _isSortFilterActive = false;
+
+    public ObservableCollection<Transaction> Transactions
+    {
+        get => _transactions;
+        set
+        {
+            if (_transactions != value)
+            {
+                _transactions = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public string SelectedStatusFilter
+    {
+        get => _selectedStatusFilter;
+        set => _selectedStatusFilter = value;
+    }
+
+    public string SelectedTypeFilter
+    {
+        get => _selectedTypeFilter;
+        set => _selectedTypeFilter = value;
+    }
+
+    public string SelectedSortFilter
+    {
+        get => _selectedSortFilter;
+        set => _selectedSortFilter = value;
+    }
+
     public bool HasAnyActiveFilter => IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive || IsSortFilterActive;
     #endregion
 
     #region Methods
-    public void UpdateButtonStates()
-    {
-        var newCanGoPrevious = CurrentPage > 1;
-        var newCanGoNext = CurrentPage < TotalPages;
-        CanGoPrevious = newCanGoPrevious;
-        CanGoNext = newCanGoNext;
-        OnPropertyChanged(nameof(CanGoPrevious));
-        OnPropertyChanged(nameof(CanGoNext));
-    }
-
     public async Task LoadData()
     {
-        if (IsLoading)
-        {
-            return;
-        }
+        if (IsLoading) return;
+
         try
         {
             IsLoading = true;
-            AllTransactions.Clear();
-            FilteredTransactions.Clear();
-            Transactions.Clear();
-            await Task.Delay(100);
-            var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
-            foreach (var item in DBTransactions)
+            Debug.WriteLine("LoadData: Starting to load transactions...");
+
+            if (App.TransactionRepo == null)
             {
-                AllTransactions.Add(item);
+                Debug.WriteLine("LoadData: TransactionRepo is null!");
+                return;
             }
-            IsDateFilterActive = false;
-            FilterStartDate = null;
-            FilterEndDate = null;
-            DateFilterSummary = string.Empty;
-            IsStatusFilterActive = false;
-            SelectedStatusFilter = "All Status";
-            IsTypeFilterActive = false;
-            SelectedTypeFilter = "All Types";
-            IsSortFilterActive = false;
-            SelectedSortFilter = "Newest First";
-            TotalPages = (int)Math.Ceiling((double)AllTransactions.Count / PageSize);
-            CurrentPage = 1;
-            LoadPage(CurrentPage);
-            IsInitialized = true;
+
+            var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
+            Debug.WriteLine($"LoadData: Retrieved {DBTransactions?.Count ?? 0} transactions from database");
+
+            if (DBTransactions == null || !DBTransactions.Any())
+            {
+                Debug.WriteLine("LoadData: No transactions found in database");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    AllTransactions.Clear();
+                    Transactions.Clear();
+                    TransactionCount = "No transactions found";
+                    IsInitialized = true;
+                });
+                return;
+            }
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                try
+                {
+                    Debug.WriteLine($"LoadData: Loading {DBTransactions.Count} transactions into UI...");
+
+                    AllTransactions.Clear();
+                    Transactions.Clear();
+
+                    foreach (var item in DBTransactions)
+                    {
+                        if (item == null) continue;
+                        if (item.Lines == null) item.Lines = new List<TransactionLine>();
+
+                        AllTransactions.Add(item);
+                        Transactions.Add(item);
+                    }
+
+                    Debug.WriteLine($"LoadData: Successfully loaded {AllTransactions.Count} transactions");
+
+                    // Reset filters
+                    IsDateFilterActive = false;
+                    FilterStartDate = null;
+                    FilterEndDate = null;
+                    DateFilterSummary = string.Empty;
+                    IsStatusFilterActive = false;
+                    SelectedStatusFilter = "All Status";
+                    IsTypeFilterActive = false;
+                    SelectedTypeFilter = "All Types";
+                    IsSortFilterActive = false;
+                    SelectedSortFilter = "Newest First";
+
+                    TransactionCount = $"Showing {AllTransactions.Count} transactions";
+                    IsInitialized = true;
+
+                    Debug.WriteLine($"LoadData: Final transaction count: {AllTransactions.Count}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"LoadData UI error: {ex.Message}");
+                }
+            });
         }
         catch (Exception ex)
         {
@@ -129,130 +195,6 @@ public partial class TransactionVM : ObservableObject
         finally
         {
             IsLoading = false;
-        }
-    }
-
-    private void LoadPage(int pageNumber)
-    {
-        var activeSource = GetActiveTransactionSource();
-        if (activeSource == null || pageNumber < 1 || pageNumber > TotalPages)
-        {
-            return;
-        }
-        try
-        {
-            var skipCount = (pageNumber - 1) * PageSize;
-            var takeCount = Math.Min(PageSize, activeSource.Count - skipCount);
-            var items = activeSource
-                .Skip(skipCount)
-                .Take(takeCount)
-                .ToList();
-            MainThread.BeginInvokeOnMainThread(() => UpdatePageUI(items, pageNumber, skipCount, takeCount));
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"LoadPage error: {ex}");
-        }
-    }
-
-    private void UpdatePageUI(List<Transaction> items, int pageNumber, int skipCount, int takeCount)
-    {
-        try
-        {
-            try
-            {
-                Transactions.Clear();
-            }
-            catch (Exception clearEx)
-            {
-                Debug.WriteLine($"UpdatePageUI: Error clearing collection: {clearEx.Message}");
-            }
-            System.Threading.Thread.Sleep(50);
-            int addedCount = 0;
-            foreach (var item in items)
-            {
-                try
-                {
-                    Transactions.Add(item);
-                    addedCount++;
-                    if (addedCount < items.Count)
-                    {
-                        System.Threading.Thread.Sleep(10);
-                    }
-                }
-                catch (Exception addEx)
-                {
-                    Debug.WriteLine($"UpdatePageUI: Error adding transaction #{item.Id}: {addEx.Message}");
-                }
-            }
-            var newCanGoPrevious = pageNumber > 1;
-            var newCanGoNext = pageNumber < TotalPages;
-            try
-            {
-                CanGoPrevious = newCanGoPrevious;
-                CanGoNext = newCanGoNext;
-                var startItem = skipCount + 1;
-                var endItem = skipCount + takeCount;
-                var totalCount = GetActiveTransactionSource().Count;
-                PaginationInfo = $"Showing {startItem} to {endItem} of {totalCount} results";
-                OnPropertyChanged(nameof(Transactions));
-                System.Threading.Thread.Sleep(10);
-                OnPropertyChanged(nameof(PaginationInfo));
-                System.Threading.Thread.Sleep(10);
-                OnPropertyChanged(nameof(CanGoNext));
-                System.Threading.Thread.Sleep(10);
-                OnPropertyChanged(nameof(CanGoPrevious));
-                System.Threading.Thread.Sleep(10);
-                OnPropertyChanged(nameof(CurrentPage));
-            }
-            catch (Exception propEx)
-            {
-                Debug.WriteLine($"UpdatePageUI: Error updating properties: {propEx.Message}");
-            }
-            System.Threading.Thread.Sleep(100);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"UpdatePageUI error: {ex.Message}");
-            Debug.WriteLine($"UpdatePageUI full error: {ex}");
-        }
-    }
-
-    public void NextPage()
-    {
-        var now = DateTime.Now;
-        if ((now - _lastButtonClick).TotalMilliseconds < ButtonCooldownMs)
-        {
-            return;
-        }
-        _lastButtonClick = now;
-        if (IsLoading)
-        {
-            return;
-        }
-        if (CurrentPage < TotalPages && CanGoNext)
-        {
-            CurrentPage++;
-            LoadPage(CurrentPage);
-        }
-    }
-
-    public void PreviousPage()
-    {
-        var now = DateTime.Now;
-        if ((now - _lastButtonClick).TotalMilliseconds < ButtonCooldownMs)
-        {
-            return;
-        }
-        _lastButtonClick = now;
-        if (IsLoading)
-        {
-            return;
-        }
-        if (CurrentPage > 1 && CanGoPrevious)
-        {
-            CurrentPage--;
-            LoadPage(CurrentPage);
         }
     }
 
@@ -267,7 +209,7 @@ public partial class TransactionVM : ObservableObject
 
     private void OnCollapseAll()
     {
-        foreach (var transaction in Transactions)
+        foreach (var transaction in AllTransactions)
         {
             transaction.IsExpanded = false;
         }
@@ -276,37 +218,65 @@ public partial class TransactionVM : ObservableObject
 
     private void UpdateAnyExpandedState()
     {
-        AnyExpanded = Transactions.Any(t => t.IsExpanded);
+        AnyExpanded = AllTransactions.Any(t => t.IsExpanded);
     }
 
     public async Task<bool> ApplyDateFilter(DateTime startDate, DateTime endDate)
     {
-        // Check if any transactions exist in the selected date range
-        var startDateOnly = startDate.Date;
-        var endDateOnly = endDate.Date.AddDays(1).AddTicks(-1);
-        var transactionsInRange = AllTransactions.Where(t => t.Date >= startDateOnly && t.Date <= endDateOnly).ToList();
-
-        if (!transactionsInRange.Any())
+        try
         {
-            // No transactions found in the date range, don't apply filter
+            var startDateOnly = startDate.Date;
+            var endDateOnly = endDate.Date.AddDays(1).AddTicks(-1);
+            var transactionsInRange = AllTransactions.Where(t => t.Date >= startDateOnly && t.Date <= endDateOnly).ToList();
+
+            if (!transactionsInRange.Any())
+            {
+                return false;
+            }
+
+            FilterStartDate = startDate;
+            FilterEndDate = endDate;
+            IsDateFilterActive = true;
+
+            if (startDate.Date == endDate.Date)
+            {
+                DateFilterSummary = $"Showing transactions for {startDate:MMM dd, yyyy}";
+            }
+            else
+            {
+                DateFilterSummary = $"Showing transactions from {startDate:MMM dd} to {endDate:MMM dd, yyyy}";
+            }
+
+            // Update the transactions list directly
+            var filteredTransactions = AllTransactions.Where(t => t.Date >= startDateOnly && t.Date <= endDateOnly).ToList();
+            Transactions = new ObservableCollection<Transaction>(filteredTransactions);
+            TransactionCount = $"Showing {Transactions.Count} transactions";
+
+            // Show success snackbar
+            string successMessage;
+            if (startDate.Date == endDate.Date)
+            {
+                successMessage = $"Found {Transactions.Count} transactions for {startDate:MMM dd, yyyy}";
+            }
+            else
+            {
+                successMessage = $"Found {Transactions.Count} transactions from {startDate:MMM dd} to {endDate:MMM dd, yyyy}";
+            }
+
+            var snackbarOptions = new SnackbarOptions
+            {
+                BackgroundColor = Colors.Green,
+                TextColor = Colors.White
+            };
+
+            await Snackbar.Make(successMessage, null, "ok", TimeSpan.FromSeconds(3), snackbarOptions).Show();
+
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
         }
-
-        FilterStartDate = startDate;
-        FilterEndDate = endDate;
-        IsDateFilterActive = true;
-        if (startDate.Date == endDate.Date)
-        {
-            DateFilterSummary = $"Showing transactions for {startDate:MMM dd, yyyy}";
-        }
-        else
-        {
-            DateFilterSummary = $"Showing transactions from {startDate:MMM dd} to {endDate:MMM dd, yyyy}";
-        }
-        OnPropertyChanged(nameof(HasAnyActiveFilter));
-        ApplyAllFilters();
-        await Task.Delay(500);
-        return true;
     }
 
     public void ClearDateFilter()
@@ -315,124 +285,174 @@ public partial class TransactionVM : ObservableObject
         FilterEndDate = null;
         IsDateFilterActive = false;
         DateFilterSummary = string.Empty;
-        ApplyAllFilters();
+        Transactions = new ObservableCollection<Transaction>(AllTransactions);
+        TransactionCount = $"Showing {Transactions.Count} transactions";
     }
 
-    partial void OnSelectedStatusFilterChanged(string value)
+    public void OnStatusFilterChanged()
     {
-        ApplyStatusFilter(value);
-    }
+        Debug.WriteLine($"OnStatusFilterChanged: {SelectedStatusFilter}");
 
-    partial void OnSelectedTypeFilterChanged(string value)
-    {
-        ApplyTypeFilter(value);
-    }
+        // Test with basic List first
+        var allTransactions = AllTransactions.ToList();
+        Debug.WriteLine($"Total transactions: {allTransactions.Count}");
 
-    partial void OnSelectedSortFilterChanged(string value)
-    {
-        ApplySortFilter(value);
-    }
+        List<Transaction> filteredList = new List<Transaction>();
 
-    public void ApplyStatusFilter(string selectedStatus)
-    {
-        SelectedStatusFilter = selectedStatus;
-        IsStatusFilterActive = selectedStatus != "All Status";
-        OnPropertyChanged(nameof(HasAnyActiveFilter));
-        ApplyAllFilters();
-    }
+        if (SelectedStatusFilter == "Completed")
+        {
+            filteredList = allTransactions.Where(t => t.IsPaid).ToList();
+            Debug.WriteLine($"Completed transactions: {filteredList.Count}");
+            IsStatusFilterActive = true;
+        }
+        else if (SelectedStatusFilter == "Pending")
+        {
+            filteredList = allTransactions.Where(t => !t.IsPaid).ToList();
+            Debug.WriteLine($"Pending transactions: {filteredList.Count}");
+            IsStatusFilterActive = true;
+        }
+        else
+        {
+            filteredList = allTransactions;
+            Debug.WriteLine($"All transactions: {filteredList.Count}");
+            IsStatusFilterActive = false;
+        }
 
-    public void ApplyTypeFilter(string selectedType)
-    {
-        SelectedTypeFilter = selectedType;
-        IsTypeFilterActive = selectedType != "All Types";
-        OnPropertyChanged(nameof(HasAnyActiveFilter));
-        ApplyAllFilters();
-    }
-
-    public void ApplySortFilter(string selectedSort)
-    {
-        SelectedSortFilter = selectedSort;
-        IsSortFilterActive = true; // Always active since we always have a sort order
-        OnPropertyChanged(nameof(HasAnyActiveFilter));
-        ApplyAllFilters();
-    }
-
-    private void ApplyAllFilters()
-    {
+        // Update UI safely
         try
         {
-            IsLoading = true;
-            FilteredTransactions.Clear();
-            var sourceTransactions = AllTransactions.AsEnumerable();
-            if (IsDateFilterActive && FilterStartDate.HasValue && FilterEndDate.HasValue)
-            {
-                var startDate = FilterStartDate.Value.Date;
-                var endDate = FilterEndDate.Value.Date.AddDays(1).AddTicks(-1);
-                sourceTransactions = sourceTransactions.Where(t => t.Date >= startDate && t.Date <= endDate);
-            }
-            if (IsStatusFilterActive)
-            {
-                sourceTransactions = sourceTransactions.Where(t =>
-                    SelectedStatusFilter == "Completed" ? t.IsPaid : !t.IsPaid);
-            }
-            if (IsTypeFilterActive)
-            {
-                sourceTransactions = sourceTransactions.Where(t =>
-                    string.Equals(t.TransactionType, SelectedTypeFilter, StringComparison.OrdinalIgnoreCase));
-            }
-
-            // Apply sorting based on selected sort filter
-            var filteredList = SelectedSortFilter == "Newest First"
-                ? sourceTransactions.OrderByDescending(t => t.Date).ToList()
-                : sourceTransactions.OrderBy(t => t.Date).ToList();
+            var newCollection = new ObservableCollection<Transaction>();
             foreach (var transaction in filteredList)
             {
-                FilteredTransactions.Add(transaction);
+                newCollection.Add(transaction);
             }
-            CurrentPage = 1;
-            TotalPages = (int)Math.Ceiling((double)GetActiveTransactionSource().Count / PageSize);
-            LoadPage(CurrentPage);
+            Transactions = newCollection;
+            TransactionCount = $"Showing {Transactions.Count} transactions";
+            Debug.WriteLine($"UI updated successfully with {Transactions.Count} transactions");
         }
-        finally
+        catch (Exception ex)
         {
-            IsLoading = false;
+            Debug.WriteLine($"Error updating UI: {ex.Message}");
+        }
+    }
+
+    public void OnTypeFilterChanged()
+    {
+        Debug.WriteLine($"OnTypeFilterChanged: {SelectedTypeFilter}");
+
+        // Test with basic List first
+        var allTransactions = AllTransactions.ToList();
+        Debug.WriteLine($"Total transactions: {allTransactions.Count}");
+
+        List<Transaction> filteredList = new List<Transaction>();
+
+        if (SelectedTypeFilter == "buy")
+        {
+            filteredList = allTransactions.Where(t => t.TransactionType == "buy").ToList();
+            Debug.WriteLine($"Buy transactions: {filteredList.Count}");
+            IsTypeFilterActive = true;
+        }
+        else if (SelectedTypeFilter == "sell")
+        {
+            filteredList = allTransactions.Where(t => t.TransactionType == "sell").ToList();
+            Debug.WriteLine($"Sell transactions: {filteredList.Count}");
+            IsTypeFilterActive = true;
+        }
+        else
+        {
+            filteredList = allTransactions;
+            Debug.WriteLine($"All transactions: {filteredList.Count}");
+            IsTypeFilterActive = false;
+        }
+
+        // Update UI safely
+        try
+        {
+            var newCollection = new ObservableCollection<Transaction>();
+            foreach (var transaction in filteredList)
+            {
+                newCollection.Add(transaction);
+            }
+            Transactions = newCollection;
+            TransactionCount = $"Showing {Transactions.Count} transactions";
+            Debug.WriteLine($"UI updated successfully with {Transactions.Count} transactions");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error updating UI: {ex.Message}");
+        }
+    }
+
+    public void OnSortFilterChanged()
+    {
+        Debug.WriteLine($"OnSortFilterChanged: {SelectedSortFilter}");
+
+        // Test with basic List first
+        var allTransactions = AllTransactions.ToList();
+        Debug.WriteLine($"Total transactions: {allTransactions.Count}");
+
+        List<Transaction> sortedList = new List<Transaction>();
+
+        if (SelectedSortFilter == "Newest First")
+        {
+            sortedList = allTransactions.OrderByDescending(t => t.Date).ToList();
+            Debug.WriteLine($"Newest first sorted: {sortedList.Count}");
+            IsSortFilterActive = true;
+        }
+        else if (SelectedSortFilter == "Oldest First")
+        {
+            sortedList = allTransactions.OrderBy(t => t.Date).ToList();
+            Debug.WriteLine($"Oldest first sorted: {sortedList.Count}");
+            IsSortFilterActive = true;
+        }
+        else
+        {
+            sortedList = allTransactions;
+            Debug.WriteLine($"No sorting applied: {sortedList.Count}");
+            IsSortFilterActive = false;
+        }
+
+        // Update UI safely
+        try
+        {
+            var newCollection = new ObservableCollection<Transaction>();
+            foreach (var transaction in sortedList)
+            {
+                newCollection.Add(transaction);
+            }
+            Transactions = newCollection;
+            TransactionCount = $"Showing {Transactions.Count} transactions";
+            Debug.WriteLine($"UI updated successfully with {Transactions.Count} transactions");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error updating UI: {ex.Message}");
         }
     }
 
     public void ClearAllFilters()
     {
-        try
-        {
-            IsLoading = true;
-            FilterStartDate = null;
-            FilterEndDate = null;
-            IsDateFilterActive = false;
-            DateFilterSummary = string.Empty;
-            SelectedStatusFilter = "All Status";
-            IsStatusFilterActive = false;
-            SelectedTypeFilter = "All Types";
-            IsTypeFilterActive = false;
-            SelectedSortFilter = "Newest First";
-            IsSortFilterActive = false;
-            OnPropertyChanged(nameof(HasAnyActiveFilter));
-            FilteredTransactions.Clear();
-            CurrentPage = 1;
-            TotalPages = (int)Math.Ceiling((double)AllTransactions.Count / PageSize);
-            LoadPage(CurrentPage);
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        Debug.WriteLine("ClearAllFilters: Starting");
+
+        // Reset properties
+        IsDateFilterActive = false;
+        FilterStartDate = null;
+        FilterEndDate = null;
+        DateFilterSummary = string.Empty;
+        IsStatusFilterActive = false;
+        SelectedStatusFilter = "All Status";
+        IsTypeFilterActive = false;
+        SelectedTypeFilter = "All Types";
+        IsSortFilterActive = false;
+        SelectedSortFilter = "Newest First";
+
+        // Show all transactions
+        Transactions = new ObservableCollection<Transaction>(AllTransactions);
+        TransactionCount = $"Showing {Transactions.Count} transactions";
+
+        Debug.WriteLine($"ClearAllFilters: Done, showing {Transactions.Count} transactions");
     }
 
-    private ObservableCollection<Transaction> GetActiveTransactionSource()
-    {
-        return (IsDateFilterActive || IsStatusFilterActive || IsTypeFilterActive || IsSortFilterActive) ? FilteredTransactions : AllTransactions;
-    }
-    #endregion
-
-    #region Tasks
     public async Task RefreshAsync()
     {
         if (IsRefreshing)
@@ -451,15 +471,78 @@ public partial class TransactionVM : ObservableObject
             IsRefreshing = false;
         }
     }
+
+    public void TestFilter()
+    {
+        Debug.WriteLine("TestFilter: Starting test");
+
+        try
+        {
+            // Test 1: Just count transactions
+            Debug.WriteLine($"TestFilter: AllTransactions count: {AllTransactions?.Count ?? 0}");
+
+            // Test 2: Check if transactions are null
+            if (AllTransactions == null)
+            {
+                Debug.WriteLine("TestFilter: AllTransactions is null!");
+                return;
+            }
+
+            // Test 3: Just iterate without accessing properties
+            Debug.WriteLine("TestFilter: Starting iteration test");
+            int count = 0;
+            foreach (var transaction in AllTransactions)
+            {
+                count++;
+                if (count > 5) break; // Just test first 5
+            }
+            Debug.WriteLine($"TestFilter: Iterated through {count} transactions successfully");
+
+            // Test 4: Try to create empty collection
+            Debug.WriteLine("TestFilter: Creating empty collection");
+            var emptyCollection = new ObservableCollection<Transaction>();
+            Debug.WriteLine("TestFilter: Empty collection created successfully");
+
+            // Test 5: Try to assign empty collection
+            Debug.WriteLine("TestFilter: Assigning empty collection to UI");
+            Transactions = emptyCollection;
+            Debug.WriteLine("TestFilter: Empty collection assigned successfully");
+
+            // Test 6: Update count
+            TransactionCount = "Test completed";
+            Debug.WriteLine("TestFilter: Count updated successfully");
+
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"TestFilter error: {ex.Message}");
+            Debug.WriteLine($"TestFilter stack trace: {ex.StackTrace}");
+        }
+    }
     #endregion
 
     #region Commands
     public ICommand ToggleExpandCommand => new Command<object>(OnToggleExpand);
     public ICommand CollapseAllCommand => new Command(OnCollapseAll);
-    public ICommand NextPageCommand => new Command(NextPage);
-    public ICommand PreviousPageCommand => new Command(PreviousPage);
     public ICommand RefreshCommand => new Command(async () => await RefreshAsync());
-    public ICommand UpdateButtonsCommand => new Command(UpdateButtonStates);
     public ICommand ClearAllFiltersCommand => new Command(ClearAllFilters);
+    public ICommand ShowTransactionDetailsCommand => new Command<Transaction>(OnShowTransactionDetails);
     #endregion
+
+    private async void OnShowTransactionDetails(Transaction transaction)
+    {
+        try
+        {
+            if (transaction != null)
+            {
+                var popup = new TransactionDetailsPopup();
+                popup.BindingContext = transaction;
+                await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"ShowTransactionDetails error: {ex.Message}");
+        }
+    }
 }

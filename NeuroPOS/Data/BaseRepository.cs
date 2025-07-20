@@ -22,9 +22,18 @@ namespace NeuroPOS.Data
         #region Ctor
         public BaseRepository()
         {
-            _connection = new SQLiteConnection(Constants.DatabasePath, Constants.Flags);
-            _connection.CreateTable<T>();
-            Debug.WriteLine($"[INIT] Table ensured: {typeof(T).Name}");
+            try
+            {
+                _connection = new SQLiteConnection(Constants.DatabasePath, Constants.Flags);
+                _connection.CreateTable<T>();
+                Debug.WriteLine($"[INIT] Table ensured: {typeof(T).Name}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ERROR][INIT] Failed to initialize {typeof(T).Name} repository: {ex.Message}");
+                Debug.WriteLine($"[ERROR][INIT] StackTrace: {ex.StackTrace}");
+                throw; // Re-throw to prevent silent failures
+            }
         }
         #endregion
 
@@ -320,13 +329,20 @@ namespace NeuroPOS.Data
         {
             try
             {
+                if (_connection == null)
+                {
+                    Debug.WriteLine($"[ERROR][SELECT-WITH-CHILDREN] Connection is null for {typeof(T).Name}");
+                    return new List<T>();
+                }
+
                 var list = _connection.GetAllWithChildren<T>().ToList();
                 Debug.WriteLine($"[SELECT] {list.Count} {typeof(T).Name}(s) WITH children");
                 return list;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[ERROR][SELECT-WITH-CHILDREN] {ex}");
+                Debug.WriteLine($"[ERROR][SELECT-WITH-CHILDREN] {ex.Message}");
+                Debug.WriteLine($"[ERROR][SELECT-WITH-CHILDREN] StackTrace: {ex.StackTrace}");
                 return new List<T>();
             }
         }
