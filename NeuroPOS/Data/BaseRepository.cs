@@ -201,6 +201,43 @@ namespace NeuroPOS.Data
             }
         }
 
+        public void AddNewChildToParentRecursively<TChild>(
+            T parent,
+            TChild newChild,
+            Action<T, IEnumerable<TChild>> assignRelation)
+            where TChild : Entity, new()
+        {
+            try
+            {
+                // Get existing children from DB
+                _connection.GetChildren(parent, true);
+
+                var list = parent.GetType()
+                                 .GetProperties()
+                                 .First(p => p.PropertyType == typeof(List<TChild>))
+                                 .GetValue(parent) as List<TChild> ?? new();
+
+                list.Add(newChild);
+                assignRelation(parent, list);
+
+                _connection.RunInTransaction(() =>
+                {
+                    // Recursively insert the child and its children (e.g., Transaction + TransactionLines)
+                    _connection.InsertWithChildren(newChild, true);
+
+                    // Recursively update the parent as well
+                    _connection.UpdateWithChildren(parent);
+                });
+
+                Debug.WriteLine($"[UPDATE] Recursively added {typeof(TChild).Name} to {typeof(T).Name}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ERROR][ADD-NEW-CHILD-RECURSIVE] {ex}");
+            }
+        }
+
+
         public void RemoveChildFromParent<TChild>(
             T parent,
             TChild child,
@@ -230,6 +267,21 @@ namespace NeuroPOS.Data
                 Debug.WriteLine($"[ERROR][REMOVE-CHILD] {ex}");
             }
         }
+
+        public void UpdateChildOnly<TChild>(TChild child)
+    where TChild : Entity, new()
+        {
+            try
+            {
+                _connection.Update(child);
+                Debug.WriteLine($"[UPDATE] Direct child {typeof(TChild).Name} Id={child.Id}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ERROR][UPDATE-CHILD] {ex}");
+            }
+        }
+
         #endregion
 
         #region Delete

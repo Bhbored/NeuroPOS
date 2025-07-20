@@ -752,7 +752,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     {
                         contactTransaction.IsPaid = true;
                     }
-                    App.ContactRepo.UpdateItemWithChildren(_editingContact);
+                    App.ContactRepo.UpdateChildOnly(transaction);
                 }
                 var snackbar = Snackbar.Make("Transaction marked as paid!",
                     duration: TimeSpan.FromSeconds(2));

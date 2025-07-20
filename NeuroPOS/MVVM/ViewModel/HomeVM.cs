@@ -21,18 +21,11 @@ using ListSortDirection = Syncfusion.Maui.DataSource.ListSortDirection;
 namespace NeuroPOS.MVVM.ViewModel
 {
     [AddINotifyPropertyChangedInterface]
+
     public class HomeVM : INotifyPropertyChanged
     {
-        public HomeVM()
-        {
-            Contacts = [
-                new Contact { Id =1,  Name = "John Doe" },
-                new Contact { Id =2, Name = "Jane Smith" },
-                new Contact { Id = 3, Name = "Alice Johnson" },
-                new Contact {Id = 4, Name = "Bob Brown"},
-                new Contact { Id =5, Name = "Charlie Davis" },
-                ];
-        }
+
+       
         #region Enums
         public enum SortDirectionState
         {
@@ -616,6 +609,11 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             await ProcessCashPayment();
         });
+
+        public ICommand OnTabCommand => new Command(async () =>
+        {
+            await ProcessOnTabPayment();
+        });
         #endregion
         #region Tasks
         public void SortProduct()
@@ -697,7 +695,81 @@ namespace NeuroPOS.MVVM.ViewModel
             catch (Exception ex)
             {
                 await Snackbar.Make($"Failed to process payment: {ex.Message}",
-                                    duration : TimeSpan.FromSeconds(3)).Show();
+                                    duration: TimeSpan.FromSeconds(3)).Show();
+            }
+        }
+
+        public async Task ProcessOnTabPayment()
+        {
+            try
+            {
+                if (CurrentOrderItems == null || CurrentOrderItems.Count == 0)
+                {
+                    await Snackbar.Make("Cart is empty. Please add items before creating a credit transaction.",
+                                        duration: TimeSpan.FromSeconds(3)).Show();
+                    return;
+                }
+
+                // Show contact selection popup
+                var popup = new OnTabPaymentPopup(this);
+                await AppShell.Current.ShowPopupAsync(popup);
+                if (!popup.IsConfirmed) return;
+
+                var selectedContact = popup.SelectedContact;
+                if (selectedContact == null)
+                {
+                    await Snackbar.Make("Please select a contact before proceeding.",
+                                        duration: TimeSpan.FromSeconds(3)).Show();
+                    return;
+                }
+
+                // Create the credit transaction
+                var transaction = new Transaction
+                {
+                    TransactionType = "sell",
+                    IsPaid = false, // Credit transaction - not paid
+                    Tax = Tax,
+                    Discount = Discount,
+                    TotalAmount = Total,
+                    ItemCount = CurrentOrderItems.Count,
+                    ContactId = selectedContact.Id, // Link to the selected contact
+                    Lines = new List<TransactionLine>()
+                };
+
+                var dbProducts = App.ProductRepo.GetItems().ToDictionary(p => p.Id);
+                foreach (var cartItem in CurrentOrderItems)
+                {
+                    if (!dbProducts.TryGetValue(cartItem.Id, out var dbProd))
+                        continue;
+                    transaction.Lines.Add(new TransactionLine
+                    {
+                        Name = dbProd.Name,
+                        Price = dbProd.Price,
+                        Stock = cartItem.Stock,
+                        CategoryName = dbProd.CategoryName,
+                        ImageUrl = dbProd.ImageUrl,
+                        Product = dbProd,
+                        ProductId = dbProd.Id
+                    });
+                    dbProd.Stock -= cartItem.Stock;
+                    App.ProductRepo.UpdateItem(dbProd);
+                }
+
+                App.ContactRepo.AddNewChildToParentRecursively(
+                 selectedContact,
+                 transaction,
+                 (contact, transactions) => contact.Transactions = transactions.ToList());
+
+                ClearAllSelections();
+                _ = LoadDB();
+
+                await Snackbar.Make($"Credit transaction created successfully for {selectedContact.Name}!",
+                                    duration: TimeSpan.FromSeconds(3)).Show();
+            }
+            catch (Exception ex)
+            {
+                await Snackbar.Make($"Failed to create credit transaction: {ex.Message}",
+                                    duration: TimeSpan.FromSeconds(3)).Show();
             }
         }
         public async Task LoadDB()
@@ -708,8 +780,10 @@ namespace NeuroPOS.MVVM.ViewModel
             }
             Products.Clear();
             Categories.Clear();
+            Contacts.Clear();
             var DBProducts = App.ProductRepo.GetItems();
             var DBCategories = App.CategoryRepo.GetItems();
+            var DBContacts = App.ContactRepo.GetItemsWithChildren();
             foreach (var item in DBProducts)
             {
                 Products.Add(item);
@@ -717,6 +791,10 @@ namespace NeuroPOS.MVVM.ViewModel
             foreach (var item in DBCategories)
             {
                 Categories.Add(item);
+            }
+            foreach (var item in DBContacts)
+            {
+                Contacts.Add(item);
             }
             SortProduct();
         }
