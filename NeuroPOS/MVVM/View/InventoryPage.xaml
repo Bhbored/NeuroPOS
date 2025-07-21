@@ -73,15 +73,6 @@
                     TextColor="{StaticResource NPTextMain}" />
                 <Button
                     Padding="16,12"
-                    BackgroundColor="#28A745"
-                    Command="{Binding RefreshDBCommand}"
-                    CornerRadius="8"
-                    FontFamily="PoppinsBold"
-                    FontSize="14"
-                    Text="🔄 Refresh DB"
-                    TextColor="White" />
-                <Button
-                    Padding="16,12"
                     BackgroundColor="#FF8C00"
                     Command="{Binding AddBuyingTransactionCommand}"
                     CornerRadius="8"

@@ -34,6 +34,7 @@ namespace NeuroPOS.MVVM.ViewModel
             Descending
         }
         #endregion
+
         #region Properties
         public ObservableCollection<Contact> Contacts { get; set; } = new ObservableCollection<Contact>();
 
@@ -166,6 +167,7 @@ namespace NeuroPOS.MVVM.ViewModel
         }
         public string OrderDateTime => DateTime.Now.ToString("MMM dd, yyyy - hh:mm tt");
         #endregion
+
         #region INotifyPropertyChanged Implementation
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -173,6 +175,7 @@ namespace NeuroPOS.MVVM.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
         #region Methods
         private void OnCurrentOrderItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -552,6 +555,7 @@ namespace NeuroPOS.MVVM.ViewModel
             _taxRate = newTaxRate;
         }
         #endregion
+
         #region Commands
         public ICommand ToggleSortCommand => new Command(() =>
         {
@@ -615,6 +619,7 @@ namespace NeuroPOS.MVVM.ViewModel
             await ProcessOnTabPayment();
         });
         #endregion
+
         #region Tasks
         public void SortProduct()
         {
