@@ -597,78 +597,86 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
+                // 1. Build a distinct list of contacts to delete
                 var contactsToDelete = new List<Contact>();
+
                 if (SelectedContacts != null)
                     contactsToDelete.AddRange(SelectedContacts);
+
                 if (SelectedItems != null)
                 {
-                    var itemsContacts = SelectedItems.OfType<Contact>().ToList();
-                    foreach (var contact in itemsContacts)
-                    {
-                        if (!contactsToDelete.Contains(contact))
-                            contactsToDelete.Add(contact);
-                    }
+                    foreach (var c in SelectedItems.OfType<Contact>())
+                        if (!contactsToDelete.Contains(c))
+                            contactsToDelete.Add(c);
                 }
+
                 if (contactsToDelete.Count == 0)
                 {
-                    var noSelectionSnackbar = Snackbar.Make("No contacts selected to delete",
-                        duration: TimeSpan.FromSeconds(2));
-                    await noSelectionSnackbar.Show();
+                    await Snackbar.Make("No contacts selected to delete",
+                                         duration: TimeSpan.FromSeconds(2))
+                                  .Show();
                     return;
                 }
-                var deletedContacts = contactsToDelete.ToList();
-               foreach (var contact in contactsToDelete)
-                {
-                    App.ContactRepo.DeleteItem(contact);
-                }
-                LoadDB(); // Refresh the contacts list
-                DataSource.Refresh();
-                OnPropertyChanged(nameof(HasSelectedItems));
-                var snackbar = Snackbar.Make(
-                    $"Deleted {contactsToDelete.Count} contacts",
-                    async () => await UndoDeleteContacts(deletedContacts),
-                    "UNDO",
-                    TimeSpan.FromSeconds(4));
-                await snackbar.Show();
-            }
-            catch (Exception ex)
-            {
-                var snackbar = Snackbar.Make($"Error deleting contacts: {ex.Message}",
-                    duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
-            }
-        }
-        private async Task UndoDeleteContacts(List<Contact> deletedContacts)
-        {
-            try
-            {
-               
-                foreach (var contact in deletedContacts)
-                {
-                    App.ContactRepo.InsertItemWithChildren(contact);
-                }
+
+                // 2. Snapshot each contact’s transactions for the undo
+                var backups = contactsToDelete
+                    .Select(c => new
+                    {
+                        Contact = c,
+                        Transactions = c.Transactions?.ToList() ?? new List<Transaction>()
+                    })
+                    .ToList();
+
+                // 3. Delete the contacts
+                foreach (var c in contactsToDelete)
+                    App.ContactRepo.DeleteItem(c);
+
                 LoadDB();
                 DataSource.Refresh();
-                var snackbar = Snackbar.Make($"Restored {deletedContacts.Count} contacts",
-                    duration: TimeSpan.FromSeconds(2));
+                OnPropertyChanged(nameof(HasSelectedItems));
+
+                // 4. Show snackbar with UNDO that calls UndoDeleteContact per entry
+                var snackbar = Snackbar.Make(
+                    $"Deleted {contactsToDelete.Count} contacts",
+                    async () =>
+                    {
+                        foreach (var b in backups)
+                            await UndoDeleteContact(b.Contact, b.Transactions);
+                    },
+                    "UNDO",
+                    TimeSpan.FromSeconds(4));
+
                 await snackbar.Show();
             }
             catch (Exception ex)
             {
-                var snackbar = Snackbar.Make($"Error restoring contacts: {ex.Message}",
-                    duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
+                await Snackbar.Make($"Error deleting contacts: {ex.Message}",
+                                     duration: TimeSpan.FromSeconds(3))
+                              .Show();
             }
         }
-        private async Task UndoDeleteContact(Contact deletedContact , List<Transaction> transactions)
+
+        private async Task UndoDeleteContact(Contact deletedContact, List<Transaction> transactions)
         {
             try
             {
                 App.ContactRepo.InsertItemWithExistingChildren<Transaction>(
-           deletedContact,
-           transactions,  // pass the list directly
-           (contact, txs) => contact.Transactions = (List<Transaction>?)txs
-       );
+                    deletedContact,
+                    transactions,
+                    (contact, txs) => contact.Transactions = (List<Transaction>?)txs
+                );
+                foreach (var tx in transactions)
+                {
+                    if (tx.Lines != null)
+                    {
+                        foreach (var line in tx.Lines)
+                        {
+                            line.TransactionId = tx.Id;
+                            App.TransactionLineRepo.InsertItem(line);
+                        }
+                    }
+                }
+
                 LoadDB();
                 DataSource.Refresh();
 
@@ -685,6 +693,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
+
 
         private async Task SaveContact()
         {
@@ -729,9 +738,9 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 IsRefreshing = true;
                 await Task.Delay(1000);
-                LoadDB(); 
+                LoadDB();
                 IsRefreshing = false;
-               
+
             }
             catch (Exception ex)
             {
@@ -818,7 +827,7 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Task
-       
+
         public void LoadDB()
         {
             Contacts = new ObservableCollection<Contact>();

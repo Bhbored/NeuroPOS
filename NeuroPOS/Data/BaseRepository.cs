@@ -107,6 +107,22 @@ namespace NeuroPOS.Data
             }
         }
 
+        public void InsertItemWithNestedChildren<T>(T parent)
+        {
+            try
+            {
+                _connection.InsertOrReplaceWithChildren(parent, recursive: true);
+                Debug.WriteLine($"[INSERT] {typeof(T).Name} + all children");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ERROR][INSERT-NESTED-CHILDREN] {ex}");
+            }
+        }
+
+
+
+
         #endregion
 
         #region Update
