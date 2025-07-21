@@ -445,7 +445,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 ProductCount = 0,
                 State = "Inactive Categorie"
             };
-            Categories.Add(newCategory);
+           App.CategoryRepo.InsertItem(newCategory);
+            _= RefreshDBAsync();
             OnPropertyChanged(nameof(Categories));
             OnPropertyChanged(nameof(NewCategoryId));
             PopulateCategoryFilterOptions();
@@ -626,12 +627,12 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public async Task LoadData()
         {
-            if (_isLoading) return; 
+            if (_isLoading) return;
 
             _isLoading = true;
             try
             {
-                if (App.ProductRepo == null || App.CategoryRepo == null)
+                if (App.ProductRepo == null || App.CategoryRepo == null || App.TransactionRepo == null || App.TransactionLineRepo == null)
                 {
                     return;
                 }
@@ -640,15 +641,18 @@ namespace NeuroPOS.MVVM.ViewModel
                 {
                     Products.Clear();
                     Categories.Clear();
+                    BuyingTransaction.Clear();
                 });
 
                 var DBProducts = await Task.Run(() => App.ProductRepo.GetItems());
                 var DBCategories = await Task.Run(() => App.CategoryRepo.GetItems());
+                var DBTransactions = await Task.Run(() => App.TransactionRepo.GetItemsWithChildren());
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
 
                     Products.Clear();
                     Categories.Clear();
+                    BuyingTransaction.Clear();
 
                     foreach (var item in DBProducts)
                     {
@@ -657,6 +661,10 @@ namespace NeuroPOS.MVVM.ViewModel
                     foreach (var item in DBCategories)
                     {
                         Categories.Add(item);
+                    }
+                    foreach (var item in DBTransactions)
+                    {
+                        BuyingTransaction.Add(item);
                     }
 
                     SortProduct();

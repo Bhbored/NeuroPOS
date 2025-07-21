@@ -95,11 +95,8 @@ public partial class BuyingTransactionPopup : Popup
             var transaction = CreateTransaction();
 
             // Add to the buying transactions collection
-            _inventoryVM.BuyingTransaction.Add(transaction);
-
-            // Update product stocks
+            App.TransactionRepo.InsertItemWithChildren(transaction);
             UpdateProductStocks();
-
             // Show success snackbar
             var snackbar = Snackbar.Make($"Buying transaction added successfully (${_totalTransactionAmount:F2})",
                 duration: TimeSpan.FromSeconds(4));
@@ -142,11 +139,6 @@ public partial class BuyingTransactionPopup : Popup
         return true;
     }
 
-    /// <summary>
-    /// Creates a new BUY transaction from the UI's _productEntries list.
-    /// Each cart entry becomes a TransactionLine that references an existing
-    /// Product row (no duplication).
-    /// </summary>
     private Transaction CreateTransaction()
     {
         // Keep only rows that passed validation in the UI
@@ -209,13 +201,12 @@ public partial class BuyingTransactionPopup : Popup
             var product = _inventoryVM.Products.FirstOrDefault(p => p.Id == entry.SelectedProduct.Id);
             if (product != null)
             {
-                product.Stock += entry.Quantity; // Add to existing stock
+                product.Stock += entry.Quantity; 
             }
+            App.ProductRepo.UpdateItem(product);
         }
 
-        // Refresh the data source
-        _inventoryVM.DataSource.Source = _inventoryVM.Products;
-        _inventoryVM.DataSource.RefreshFilter();
+        _=_inventoryVM.RefreshDBAsync();
     }
 
     private async void OnCancelClicked(object sender, EventArgs e)
