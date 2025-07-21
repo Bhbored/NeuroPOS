@@ -26,6 +26,7 @@ namespace NeuroPOS.MVVM.ViewModel
             Descending
         }
         #endregion
+
         #region Properties
         public ObservableCollection<Transaction> BuyingTransaction { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
@@ -176,6 +177,7 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
         #endregion
+
         #region INotifyPropertyChanged Implementation
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -183,6 +185,7 @@ namespace NeuroPOS.MVVM.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
         #region Methods
 
         public void PopulateCategoryFilterOptions()
@@ -341,12 +344,11 @@ namespace NeuroPOS.MVVM.ViewModel
                 SelectedProduct.Stock = EditStock;
                 SelectedProduct.CategoryName = SelectedEditCategory?.Name ?? EditCategory;
                 SelectedProduct.ImageUrl = EditImageUrl;
+                App.ProductRepo.UpdateItem(SelectedProduct);
+                _ = RefreshDBAsync();
                 SelectedProduct = null;
                 SelectedEditCategory = null;
-                ClearSearchFilter();
-                DataSource.Source = Products;
-                DataSource.Refresh();
-                PopulateCategoryFilterOptions();
+
             }
         }
         public void CancelEdit()
@@ -624,7 +626,6 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         });
         #endregion
-
 
         #region Tasks
         private bool _isLoading = false;

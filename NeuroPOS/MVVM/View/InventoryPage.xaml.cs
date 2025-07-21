@@ -271,9 +271,8 @@ public partial class InventoryPage : ContentPage
             product.Stock = previous.Stock;
             product.CategoryName = previous.CategoryName;
             product.ImageUrl = previous.ImageUrl;
-            _viewModel.DataSource.Source = _viewModel.Products;
-            _viewModel.DataSource.Refresh();
-            _viewModel.PopulateCategoryFilterOptions();
+            App.ProductRepo.UpdateItem(product);
+            _=_viewModel.RefreshDBAsync();
             _viewModel.RevalidateActiveFilters();
             _lastUndoData = null;
             ShowSuccessSnackbar($"'{productName}' changes reverted successfully");
@@ -380,7 +379,7 @@ public partial class InventoryPage : ContentPage
         else
         {
             _viewModel.CancelEdit();
-            ShowSuccessSnackbar("Edit mode canceled");
+          
         }
     }
     public async void ShowSaveEditConfirmation()
