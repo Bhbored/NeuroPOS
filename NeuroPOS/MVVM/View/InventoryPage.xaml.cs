@@ -248,12 +248,9 @@ public partial class InventoryPage : ContentPage
             var count = _lastUndoData.DeletedProducts.Count;
             foreach (var product in _lastUndoData.DeletedProducts)
             {
-                _viewModel.Products.Add(product);
+                App.ProductRepo.InsertItem(product);
             }
-            _viewModel.DataSource.Source = _viewModel.Products;
-            _viewModel.DataSource.Refresh();
-            _viewModel.PopulateCategoryFilterOptions();
-            _viewModel.RevalidateActiveFilters();
+            _=_viewModel.RefreshDBAsync();
             _lastUndoData = null;
             ShowSuccessSnackbar($"{count} product{(count > 1 ? "s" : "")} restored successfully");
         }

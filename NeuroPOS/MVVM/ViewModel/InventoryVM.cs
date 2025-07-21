@@ -417,10 +417,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 ImageUrl = NewProductImageUrl,
                 DateAdded = DateTime.Now
             };
-            Products.Add(newProduct);
-            DataSource.Source = Products;
-            DataSource.Refresh();
-            PopulateCategoryFilterOptions();
+             App.ProductRepo.InsertItem(newProduct);
+            _= RefreshDBAsync();
             ClearNewProductForm();
         }
         public void ClearNewCategoryForm()
@@ -488,18 +486,14 @@ namespace NeuroPOS.MVVM.ViewModel
                     var productToDelete = Products.FirstOrDefault(p => p.Id == productId);
                     if (productToDelete != null)
                     {
-                        Products.Remove(productToDelete);
+                        App.ProductRepo.DeleteItem(productToDelete);
                         if (SelectedProduct?.Id == productToDelete.Id)
                         {
                             SelectedProduct = null;
                         }
                     }
                 }
-                ClearAllSelections();
-                ClearSearchFilter();
-                DataSource.Source = Products;
-                DataSource.Refresh();
-                PopulateCategoryFilterOptions();
+              _= RefreshDBAsync();
             }
         }
         public bool HasUnsavedChanges()
