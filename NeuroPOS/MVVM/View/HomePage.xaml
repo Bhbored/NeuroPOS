@@ -306,115 +306,148 @@
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="Model:Product">
                                         <Border
-                                            Padding="12"
-                                            BackgroundColor="#F8F9FA"
+                                            Margin="0,8"
+                                            Padding="16"
+                                            BackgroundColor="White"
                                             Stroke="#E9ECEF"
                                             StrokeShape="RoundRectangle 12"
                                             StrokeThickness="1">
+                                            <Border.Shadow>
+                                                <Shadow
+                                                    Brush="Black"
+                                                    Opacity="0.08"
+                                                    Radius="8"
+                                                    Offset="0,2" />
+                                            </Border.Shadow>
+
                                             <Grid
-                                                ColumnDefinitions="60,*,Auto"
-                                                RowDefinitions="Auto"
-                                                VerticalOptions="Fill">
-                                                <!--  Product Image  -->
+                                                ColumnDefinitions="Auto,*,Auto"
+                                                ColumnSpacing="12"
+                                                RowDefinitions="Auto,Auto,Auto">
+
+                                                <!--  🖼 Product Image  -->
                                                 <Border
+                                                    Grid.Row="0"
+                                                    Grid.RowSpan="3"
                                                     Grid.Column="0"
-                                                    BackgroundColor="White"
-                                                    HeightRequest="60"
+                                                    BackgroundColor="#F8F9FA"
+                                                    HeightRequest="70"
+                                                    HorizontalOptions="Start"
                                                     StrokeShape="RoundRectangle 8"
                                                     VerticalOptions="Start"
-                                                    WidthRequest="60">
+                                                    WidthRequest="70">
                                                     <Image
-                                                        Margin="4"
+                                                        Margin="6"
                                                         Aspect="AspectFit"
                                                         Source="{Binding ImageUrl}" />
                                                 </Border>
 
-                                                <!--  Product Info  -->
-                                                <VerticalStackLayout
+                                                <!--  📛 Product Name  -->
+                                                <Label
+                                                    Grid.Row="0"
                                                     Grid.Column="1"
-                                                    Margin="12,0,8,0"
-                                                    Spacing="6"
-                                                    VerticalOptions="Fill">
-                                                    <Label
-                                                        FontFamily="PoppinsBold"
-                                                        FontSize="15"
-                                                        LineBreakMode="TailTruncation"
-                                                        Text="{Binding Name}"
-                                                        TextColor="{StaticResource NPTextMain}"
-                                                        VerticalOptions="Start" />
+                                                    FontFamily="PoppinsBold"
+                                                    FontSize="15"
+                                                    LineBreakMode="TailTruncation"
+                                                    MaxLines="2"
+                                                    Text="{Binding Name}"
+                                                    TextColor="{StaticResource NPTextMain}"
+                                                    VerticalOptions="Start" />
 
-                                                    <Label
-                                                        FontFamily="PoppinsBold"
-                                                        FontSize="14"
-                                                        Text="{Binding Price, StringFormat='{0:C}'}"
-                                                        TextColor="{StaticResource NPPrimaryBlue}"
-                                                        VerticalOptions="Start" />
+                                                <!--  💰 Price  -->
+                                                <Label
+                                                    Grid.Row="1"
+                                                    Grid.Column="1"
+                                                    Margin="0,2,0,0"
+                                                    FontFamily="PoppinsBold"
+                                                    FontSize="14"
+                                                    Text="{Binding Price, StringFormat='{0:C}'}"
+                                                    TextColor="{StaticResource NPPrimaryBlue}"
+                                                    VerticalOptions="Start" />
 
-                                                    <!--  Quantity Controls  -->
-                                                    <HorizontalStackLayout
-                                                        Margin="0,6,0,0"
-                                                        Spacing="8"
-                                                        VerticalOptions="End">
-                                                        <!--  Decrease Quantity Button  -->
-                                                        <Button
-                                                            Padding="0"
-                                                            BackgroundColor="{StaticResource NPTextSecondary}"
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DecrementQuantityCommand}"
-                                                            CommandParameter="{Binding .}"
-                                                            CornerRadius="12"
-                                                            FontFamily="PoppinsBold"
-                                                            FontSize="14"
-                                                            HeightRequest="24"
-                                                            Text="−"
-                                                            TextColor="White"
-                                                            WidthRequest="24" />
-                                                        <!--  Quantity Display  -->
-                                                        <Border
-                                                            Padding="8,4"
-                                                            BackgroundColor="White"
-                                                            MinimumWidthRequest="32"
-                                                            Stroke="#E0E0E0"
-                                                            StrokeShape="RoundRectangle 8"
-                                                            StrokeThickness="1">
-                                                            <Label
-                                                                FontFamily="PoppinsBold"
-                                                                FontSize="13"
-                                                                HorizontalTextAlignment="Center"
-                                                                Text="{Binding Stock}"
-                                                                TextColor="{StaticResource NPTextMain}"
-                                                                VerticalTextAlignment="Center" />
-                                                        </Border>
-                                                        <!--  Increase Quantity Button  -->
-                                                        <Button
-                                                            Padding="0"
-                                                            BackgroundColor="{StaticResource NPPrimaryBlue}"
-                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IncrementQuantityCommand}"
-                                                            CommandParameter="{Binding .}"
-                                                            CornerRadius="12"
-                                                            FontFamily="PoppinsBold"
-                                                            FontSize="14"
-                                                            HeightRequest="24"
-                                                            Text="+"
-                                                            TextColor="White"
-                                                            WidthRequest="24" />
-                                                    </HorizontalStackLayout>
-                                                </VerticalStackLayout>
-
-                                                <!--  Remove Button  -->
+                                                <!--  ❌ Remove Button  -->
                                                 <Button
+                                                    Grid.Row="0"
                                                     Grid.Column="2"
                                                     Padding="0"
                                                     BackgroundColor="#FF6B6B"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveFromCartCommand}"
                                                     CommandParameter="{Binding .}"
-                                                    CornerRadius="15"
+                                                    CornerRadius="8"
                                                     FontFamily="PoppinsBold"
-                                                    FontSize="18"
-                                                    HeightRequest="30"
+                                                    FontSize="14"
+                                                    HeightRequest="24"
                                                     Text="×"
                                                     TextColor="White"
                                                     VerticalOptions="Start"
-                                                    WidthRequest="30" />
+                                                    WidthRequest="24" />
+
+                                                <!--  ➖ Quantity Controls ➕  -->
+
+                                                <HorizontalStackLayout
+                                                    Grid.Row="2"
+                                                    Grid.Column="1"
+                                                    Grid.ColumnSpan="2"
+                                                    HorizontalOptions="Start"
+                                                    Spacing="5"
+                                                    VerticalOptions="Center">
+
+                                                    <!--  - Button  -->
+                                                    <Button
+                                                        Padding="0"
+                                                        BackgroundColor="#E9ECEF"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DecrementQuantityCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="6"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="16"
+                                                        HeightRequest="40"
+                                                        Text="−"
+                                                        TextColor="#6C757D"
+                                                        WidthRequest="40" />
+
+                                                    <!--  Entry inside Border  -->
+                                                    <Border
+                                                        BackgroundColor="White"
+                                                        HeightRequest="40"
+                                                        HorizontalOptions="Center"
+                                                        Stroke="#E9ECEF"
+                                                        StrokeShape="RoundRectangle 6"
+                                                        StrokeThickness="1"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="50">
+
+                                                        <Entry
+                                                            Margin="0"
+                                                            BackgroundColor="Transparent"
+                                                            FontFamily="PoppinsBold"
+                                                            FontSize="14"
+                                                            HeightRequest="40"
+                                                            HorizontalOptions="Center"
+                                                            HorizontalTextAlignment="Center"
+                                                            Text="{Binding Stock, Mode=TwoWay}"
+                                                            TextChanged="QuantityEntry_TextChanged"
+                                                            VerticalOptions="Center"
+                                                            VerticalTextAlignment="Center"
+                                                            WidthRequest="50" />
+                                                    </Border>
+
+                                                    <!--  + Button  -->
+                                                    <Button
+                                                        Padding="0"
+                                                        BackgroundColor="{StaticResource NPPrimaryBlue}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IncrementQuantityCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="6"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="16"
+                                                        HeightRequest="40"
+                                                        Text="+"
+                                                        TextColor="White"
+                                                        WidthRequest="40" />
+                                                </HorizontalStackLayout>
+
+
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -509,16 +542,17 @@
                             Grid.Column="1"
                             BackgroundColor="White"
                             Stroke="#E0E0E0"
-                            StrokeShape="RoundRectangle 5"
-                            StrokeThickness="0.5">
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
                             <Entry
                                 x:Name="DiscountEntry"
                                 FontFamily="PoppinsBold"
-                                FontSize="14"
+                                FontSize="13"
                                 HorizontalTextAlignment="Center"
                                 Keyboard="Numeric"
                                 Placeholder="$0.00"
                                 Text="{Binding Discount, StringFormat='{0:F2}', Mode=TwoWay}"
+                                TextChanged="DiscountEntry_TextChanged"
                                 TextColor="{StaticResource NPTextMain}"
                                 WidthRequest="80" />
                         </Border>

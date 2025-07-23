@@ -263,4 +263,40 @@ public partial class HomePage : ContentPage
         }
     }
 
+    private void DiscountEntry_TextChanged(object sender, TextChangedEventArgs e)
+    {
+
+        if (sender is Entry entry && BindingContext is HomeVM vm)
+        {
+            if (double.TryParse(e.NewTextValue, out double discountValue))
+            {
+                vm.UpdateDiscount(discountValue);
+            }
+            else if (string.IsNullOrEmpty(e.NewTextValue))
+            {
+                vm.UpdateDiscount(0);
+            }
+        }
+
+
+    }
+
+    private void QuantityEntry_TextChanged(object sender, TextChangedEventArgs e)
+    {
+
+        if (sender is Entry entry && entry.BindingContext is Product product && BindingContext is HomeVM vm)
+        {
+            if (int.TryParse(e.NewTextValue, out int quantity))
+            {
+                vm.ValidateAndUpdateQuantity(product, quantity.ToString());
+            }
+            else if (string.IsNullOrEmpty(e.NewTextValue))
+            {
+                vm.ValidateAndUpdateQuantity(product, "1");
+            }
+        }
+    }
+
+
+
 }

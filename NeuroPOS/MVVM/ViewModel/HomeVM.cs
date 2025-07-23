@@ -25,7 +25,7 @@ namespace NeuroPOS.MVVM.ViewModel
     public class HomeVM : INotifyPropertyChanged
     {
 
-       
+
         #region Enums
         public enum SortDirectionState
         {
@@ -204,7 +204,15 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             if (e.PropertyName == nameof(Product.Stock) || e.PropertyName == nameof(Product.Price))
             {
-                NotifyCalculatedPropertiesChanged();
+                if (e.PropertyName == nameof(Product.Stock) && sender is Product product)
+                {
+                    // Validate the quantity when Stock property changes
+                    ValidateAndUpdateQuantity(product, product.Stock.ToString());
+                }
+                else
+                {
+                    NotifyCalculatedPropertiesChanged();
+                }
             }
         }
         public void NotifyCalculatedPropertiesChanged()
@@ -802,6 +810,43 @@ namespace NeuroPOS.MVVM.ViewModel
                 Contacts.Add(item);
             }
             SortProduct();
+        }
+
+        public void UpdateCartTotals()
+        {
+            NotifyCalculatedPropertiesChanged();
+        }
+
+        public void ValidateAndUpdateQuantity(Product product, string newValue)
+        {
+            try
+            {
+                // Parse the new quantity value
+                if (int.TryParse(newValue, out int newQuantity))
+                {
+                    // Ensure quantity doesn't go below 1
+                    if (newQuantity < 1)
+                    {
+                        newQuantity = 1;
+                    }
+
+                    // Update the product's stock (quantity)
+                    product.Stock = newQuantity;
+
+                    // Update cart totals dynamically
+                    UpdateCartTotals();
+                }
+                else
+                {
+                    // If parsing fails, set to 1
+                    product.Stock = 1;
+                    UpdateCartTotals();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in quantity validation: {ex.Message}");
+            }
         }
         #endregion
     }
