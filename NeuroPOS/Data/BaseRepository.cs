@@ -43,10 +43,11 @@ namespace NeuroPOS.Data
             _connection.Close();
             Debug.WriteLine($"[CONNECTION] Closed for {typeof(T).Name}");
         }
-        #endregion
 
-        #region Insert
-        public int InsertItem(T item)
+            #endregion
+
+            #region Insert
+            public int InsertItem(T item)
         {
             try
             {

@@ -1,4 +1,12 @@
-﻿using System;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
+using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.Popups;
+using NeuroPOS.MVVM.ViewModel;
+using NeuroPOS.MVVM.View;
+using PropertyChanged;
+using Syncfusion.Maui.DataSource;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,17 +15,13 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using NeuroPOS.MVVM.Model;
-using PropertyChanged;
-using Syncfusion.Maui.DataSource;
+using Microsoft.Maui.ApplicationModel;
 using ListSortDirection = Syncfusion.Maui.DataSource.ListSortDirection;
 namespace NeuroPOS.MVVM.ViewModel
 {
     [AddINotifyPropertyChangedInterface]
     public class InventoryVM : INotifyPropertyChanged
     {
-
-
         #region Enums
         public enum SortDirectionState
         {
@@ -26,15 +30,12 @@ namespace NeuroPOS.MVVM.ViewModel
             Descending
         }
         #endregion
-
         #region Properties
         public ObservableCollection<Transaction> BuyingTransaction { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
         public ObservableCollection<object> SelectedItems { get; set; } = new ObservableCollection<object>();
         public IList<object> SelectedProducts { get; set; } = new List<object>();
-
         private ObservableCollection<Category> _categories = new ObservableCollection<Category>();
-
         public ObservableCollection<Category> Categories
         {
             get => _categories;
@@ -176,8 +177,54 @@ namespace NeuroPOS.MVVM.ViewModel
                 }
             }
         }
+        private bool _isCategoriesDetailsVisible = false;
+        public bool IsCategoriesDetailsVisible
+        {
+            get => _isCategoriesDetailsVisible;
+            set
+            {
+                if (_isCategoriesDetailsVisible != value)
+                {
+                    _isCategoriesDetailsVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private List<Category> _selectedCategoriesForEdit = new List<Category>();
+        public List<Category> SelectedCategoriesForEdit
+        {
+            get => _selectedCategoriesForEdit;
+            set
+            {
+                if (_selectedCategoriesForEdit != value)
+                {
+                    _selectedCategoriesForEdit = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsEditingCategory));
+                }
+            }
+        }
+        public bool IsEditingCategory => SelectedCategoriesForEdit?.Count > 0;
+        public string EditCategoryName { get; set; }
+        public string EditCategoryDescription { get; set; }
+        public bool IsEditingThisCategory(Category category)
+        {
+            return SelectedCategoriesForEdit?.Any(c => c.Id == category.Id) == true;
+        }
+        private Category _selectedCategoryForDelete;
+        public Category SelectedCategoryForDelete
+        {
+            get => _selectedCategoryForDelete;
+            set
+            {
+                if (_selectedCategoryForDelete != value)
+                {
+                    _selectedCategoryForDelete = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         #endregion
-
         #region INotifyPropertyChanged Implementation
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -185,9 +232,7 @@ namespace NeuroPOS.MVVM.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
-
         #region Methods
-
         public void PopulateCategoryFilterOptions()
         {
             var categoriesFromProducts = Products
@@ -348,7 +393,6 @@ namespace NeuroPOS.MVVM.ViewModel
                 _ = RefreshDBAsync();
                 SelectedProduct = null;
                 SelectedEditCategory = null;
-
             }
         }
         public void CancelEdit()
@@ -417,8 +461,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 ImageUrl = NewProductImageUrl,
                 DateAdded = DateTime.Now
             };
-             App.ProductRepo.InsertItem(newProduct);
-            _= RefreshDBAsync();
+            App.ProductRepo.InsertItem(newProduct);
+            _ = RefreshDBAsync();
             ClearNewProductForm();
         }
         public void ClearNewCategoryForm()
@@ -442,11 +486,10 @@ namespace NeuroPOS.MVVM.ViewModel
                 Id = NewCategoryId,
                 Name = NewCategoryName.Trim(),
                 Description = string.IsNullOrWhiteSpace(NewCategoryDescription) ? string.Empty : NewCategoryDescription.Trim(),
-                ProductCount = 0,
                 State = "Inactive Categorie"
             };
-           App.CategoryRepo.InsertItem(newCategory);
-            _= RefreshDBAsync();
+            App.CategoryRepo.InsertItem(newCategory);
+            _ = RefreshDBAsync();
             OnPropertyChanged(nameof(Categories));
             OnPropertyChanged(nameof(NewCategoryId));
             PopulateCategoryFilterOptions();
@@ -494,7 +537,7 @@ namespace NeuroPOS.MVVM.ViewModel
                         }
                     }
                 }
-              _= RefreshDBAsync();
+                _ = RefreshDBAsync();
             }
         }
         public bool HasUnsavedChanges()
@@ -545,9 +588,80 @@ namespace NeuroPOS.MVVM.ViewModel
                 IsRefreshing = false;
             }
         }
-
+        public void StartEditCategory(Category category)
+        {
+            foreach (var cat in SelectedCategoriesForEdit)
+            {
+                cat.IsBeingEdited = false;
+            }
+            SelectedCategoriesForEdit.Clear();
+            if (category != null)
+            {
+                category.IsBeingEdited = true;
+                SelectedCategoriesForEdit.Add(category);
+                EditCategoryName = category.Name;
+                EditCategoryDescription = category.Description ?? string.Empty;
+                OnPropertyChanged(nameof(EditCategoryName));
+                OnPropertyChanged(nameof(EditCategoryDescription));
+            }
+        }
+        public void CancelEditCategory()
+        {
+            foreach (var category in SelectedCategoriesForEdit)
+            {
+                category.IsBeingEdited = false;
+            }
+            SelectedCategoriesForEdit.Clear();
+            EditCategoryName = string.Empty;
+            EditCategoryDescription = string.Empty;
+            OnPropertyChanged(nameof(EditCategoryName));
+            OnPropertyChanged(nameof(EditCategoryDescription));
+        }
+        public void SaveCategoryChanges()
+        {
+            if (SelectedCategoriesForEdit?.Count > 0)
+            {
+                var oldCategoryNames = SelectedCategoriesForEdit.Select(c => c.Name).Distinct().ToList();
+                var DBProducts = App.ProductRepo.GetItems();
+                var relatedProducts = DBProducts
+                    .Where(p => oldCategoryNames.Contains(p.CategoryName))
+                    .ToList();
+                foreach (var product in relatedProducts)
+                {
+                    product.CategoryName = EditCategoryName;
+                    App.ProductRepo.UpdateItem(product);
+                }
+                foreach (var category in SelectedCategoriesForEdit)
+                {
+                    category.Name = EditCategoryName;
+                    category.Description = EditCategoryDescription;
+                    App.CategoryRepo.UpdateItem(category);
+                }
+                _ = RefreshDBAsync();
+                CancelEditCategory();
+                if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+                {
+                    page.ClosePopupAsync();
+                }
+            }
+        }
+        public void DeleteCategory(Category category)
+        {
+            SelectedCategoryForDelete = category;
+            var DBProducts = App.ProductRepo.GetItems();
+            var relatedProducts = DBProducts
+                .Where(p => p.CategoryName == category.Name)
+                .ToList();
+            foreach (var product in relatedProducts)
+            {
+                product.CategoryName = "Uncategorized";
+                App.ProductRepo.UpdateItem(product);
+            }
+            App.CategoryRepo.DeleteItem(category);
+            SelectedCategoryForDelete = null;
+            _ = RefreshDBAsync();
+        }
         #endregion
-
         #region Commands
         public ICommand ToggleSortCommand => new Command(() =>
         {
@@ -620,15 +734,44 @@ namespace NeuroPOS.MVVM.ViewModel
                 page.ShowBuyingTransactionPopup();
             }
         });
+        public ICommand AdjustCategoriesCommand => new Command(async () =>
+        {
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                var popup = new CategoriesDetailsPopup(this);
+                await page.ShowPopupAsync(popup);
+            }
+        });
+        public ICommand CloseCategoriesDetailsCommand => new Command(async () =>
+        {
+            CancelEditCategory();
+            if (PageReference is NeuroPOS.MVVM.View.InventoryPage page)
+            {
+                await page.ClosePopupAsync();
+            }
+        });
+        public ICommand EditCategoryCommand => new Command<Category>((category) =>
+        {
+            StartEditCategory(category);
+        });
+        public ICommand SaveCategoryChangesCommand => new Command(() =>
+        {
+            SaveCategoryChanges();
+        });
+        public ICommand CancelEditCategoryCommand => new Command(() =>
+        {
+            CancelEditCategory();
+        });
+        public ICommand DeleteCategoryCommand => new Command<Category>((category) =>
+        {
+            DeleteCategory(category);
+        });
         #endregion
-
         #region Tasks
         private bool _isLoading = false;
-
         public async Task LoadData()
         {
             if (_isLoading) return;
-
             _isLoading = true;
             try
             {
@@ -636,24 +779,20 @@ namespace NeuroPOS.MVVM.ViewModel
                 {
                     return;
                 }
-
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     Products.Clear();
                     Categories.Clear();
                     BuyingTransaction.Clear();
                 });
-
                 var DBProducts = await Task.Run(() => App.ProductRepo.GetItems());
                 var DBCategories = await Task.Run(() => App.CategoryRepo.GetItems());
                 var DBTransactions = await Task.Run(() => App.TransactionRepo.GetItemsWithChildren());
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-
                     Products.Clear();
                     Categories.Clear();
                     BuyingTransaction.Clear();
-
                     foreach (var item in DBProducts)
                     {
                         Products.Add(item);
@@ -666,7 +805,6 @@ namespace NeuroPOS.MVVM.ViewModel
                     {
                         BuyingTransaction.Add(item);
                     }
-
                     SortProduct();
                     PopulateCategoryFilterOptions();
                 });
@@ -676,7 +814,6 @@ namespace NeuroPOS.MVVM.ViewModel
                 _isLoading = false;
             }
         }
-
         #endregion
     }
 }

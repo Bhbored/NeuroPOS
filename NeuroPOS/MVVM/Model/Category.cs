@@ -16,13 +16,24 @@ namespace NeuroPOS.MVVM.Model
     public class Category : Entity
     {
         public string Name { get; set; }
-        public string? Description { get; set; } // Optional
-        public int ProductCount { get; set; }
+        public string? Description { get; set; }
+        public int ProductCount
+        {
+            get
+            {
+                return Products?.Count ?? 0;
+            }
+        }
 
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product>? Products { get; set; }
+        public List<Product>? Products =>
+            App.ProductRepo?.GetItems()?.Where(p => p.CategoryName == Name).ToList();
+
 
         [Ignore]
         public string State { get; set; } = "Inactive Categorie";
+
+        [Ignore]
+        public bool IsBeingEdited { get; set; } = false;
     }
 }

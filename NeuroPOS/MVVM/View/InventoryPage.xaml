@@ -80,6 +80,15 @@
                     FontSize="14"
                     Text="📦 Buy Products"
                     TextColor="White" />
+                <Button
+                    Padding="16,12"
+                    BackgroundColor="#9C27B0"
+                    Command="{Binding AdjustCategoriesCommand}"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="📂 Adjust Categories"
+                    TextColor="White" />
 
                 <!--  Conditional Selection Buttons  -->
                 <Button

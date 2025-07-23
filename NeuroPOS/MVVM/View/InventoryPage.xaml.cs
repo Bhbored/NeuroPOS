@@ -28,7 +28,7 @@ public partial class InventoryPage : ContentPage
         base.OnAppearing();
         if (BindingContext is InventoryVM vm)
         {
-            if 
+            if
                 (vm.Products.Count == 0 && vm.Categories.Count == 0)
             {
                 await vm.RefreshDBAsync();
@@ -250,7 +250,7 @@ public partial class InventoryPage : ContentPage
             {
                 App.ProductRepo.InsertItem(product);
             }
-            _=_viewModel.RefreshDBAsync();
+            _ = _viewModel.RefreshDBAsync();
             _lastUndoData = null;
             ShowSuccessSnackbar($"{count} product{(count > 1 ? "s" : "")} restored successfully");
         }
@@ -269,14 +269,13 @@ public partial class InventoryPage : ContentPage
             product.CategoryName = previous.CategoryName;
             product.ImageUrl = previous.ImageUrl;
             App.ProductRepo.UpdateItem(product);
-            _=_viewModel.RefreshDBAsync();
+            _ = _viewModel.RefreshDBAsync();
             _viewModel.RevalidateActiveFilters();
             _lastUndoData = null;
             ShowSuccessSnackbar($"'{productName}' changes reverted successfully");
         }
     }
     #endregion
-
 
     #region POPUPS logic
 
@@ -376,7 +375,7 @@ public partial class InventoryPage : ContentPage
         else
         {
             _viewModel.CancelEdit();
-          
+
         }
     }
     public async void ShowSaveEditConfirmation()
@@ -512,4 +511,5 @@ public partial class InventoryPage : ContentPage
 
     #endregion
 
+   
 }

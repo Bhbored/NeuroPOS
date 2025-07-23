@@ -155,25 +155,21 @@ namespace NeuroPOS
                 {
                     Name = "Beverages",
                     Description = "Soft drinks, juices, and water",
-                    ProductCount = 0,
                 },
                 new Category
                 {
                     Name = "Bakery",
                     Description = "Breads, cakes, and pastries",
-                    ProductCount = 0,
                 },
                 new Category
                 {
                     Name = "Dairy",
                     Description = "Milk, eggs, cheese, and yogurt",
-                    ProductCount = 0,
                 },
                 new Category
                 {
                     Name = "Personal Care",
                     Description = "Hygiene and grooming products",
-                    ProductCount = 0,
                 },
                
             };
