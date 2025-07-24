@@ -25,16 +25,10 @@ public partial class DatePickerPopup : Popup
 
     private void ResetDates()
     {
-        try
-        {
+       
             _viewModel.StartDate = null;
             _viewModel.EndDate = null;
-            Debug.WriteLine("Dates reset to null");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error resetting dates: {ex.Message}");
-        }
+       
     }
 
     private async void OnCancelClicked(object sender, EventArgs e)
@@ -46,8 +40,6 @@ public partial class DatePickerPopup : Popup
     {
         try
         {
-            Debug.WriteLine($"OnApplyFilterClicked - StartDate: {_viewModel.StartDate}, EndDate: {_viewModel.EndDate}");
-            Debug.WriteLine($"IsDateRangeValid: {_viewModel.IsDateRangeValid}");
 
             if (!_viewModel.IsDateRangeValid)
             {
@@ -55,29 +47,22 @@ public partial class DatePickerPopup : Popup
                 return;
             }
 
-            // Ensure both dates are set before applying filter
             var startDate = _viewModel.StartDate ?? _viewModel.EndDate ?? DateTime.Now;
             var endDate = _viewModel.EndDate ?? _viewModel.StartDate ?? DateTime.Now;
 
-            // Additional safety check - if we still don't have valid dates, use today's date
             if (startDate == DateTime.MinValue || endDate == DateTime.MinValue)
             {
-                Debug.WriteLine("Fallback: Using today's date for both start and end");
                 startDate = DateTime.Today;
                 endDate = DateTime.Today;
             }
 
-            Debug.WriteLine($"Applying filter with dates: {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}");
 
-            // Apply the filter to the TransactionVM
             var filterApplied = await _transactionVM.ApplyDateFilter(startDate, endDate);
 
             if (!filterApplied)
             {
-                // No transactions found in the date range
                 await CloseAsync();
 
-                // Show snackbar with appropriate message
                 string message;
                 if (startDate.Date == endDate.Date)
                 {
@@ -102,30 +87,18 @@ public partial class DatePickerPopup : Popup
         }
         catch (Exception ex)
         {
-            await App.Current.MainPage.DisplayAlert("Error",
+            await Application.Current.MainPage.DisplayAlert("Error",
                 $"Failed to apply date filter: {ex.Message}", "OK");
         }
     }
 
     private void DatePickerLimitations()
     {
-        try
-        {
-            // Set calendar limitations to prevent future dates and limit to last year
+       
             if (this.calendar != null)
             {
                 this.calendar.MinimumDate = DateTime.Now.AddYears(-1);
                 this.calendar.MaximumDate = DateTime.Now;
-                Debug.WriteLine("Calendar limitations set successfully");
             }
-            else
-            {
-                Debug.WriteLine("Calendar is null, cannot set limitations");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error setting calendar limitations: {ex.Message}");
-        }
     }
 }

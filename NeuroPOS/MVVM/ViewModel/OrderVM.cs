@@ -19,6 +19,9 @@ namespace NeuroPOS.MVVM.ViewModel
     [AddINotifyPropertyChangedInterface]
     public class OrderVM : INotifyPropertyChanged
     {
+
+        #region Private Fields
+
         private ObservableCollection<Order> _orders;
         private ObservableCollection<Order> _filteredOrders;
         private ObservableCollection<Order> _displayedOrders;
@@ -56,11 +59,15 @@ namespace NeuroPOS.MVVM.ViewModel
         private Contact _selectedContact;
         private Product _selectedProduct;
         private int _selectedProductQuantity = 1;
+        #endregion
+
         public OrderVM()
         {
-            InitializeCommands();
             LoadTestData();
         }
+
+        #region Properties
+
         public ObservableCollection<Order> Orders
         {
             get => _orders;
@@ -200,7 +207,6 @@ namespace NeuroPOS.MVVM.ViewModel
             set
             {
                 _selectedStatusFilter = value;
-                System.Diagnostics.Debug.WriteLine($"SelectedStatusFilter changed to: {value}");
                 OnPropertyChanged(nameof(SelectedStatusFilter));
                 ApplyFilters();
             }
@@ -415,47 +421,35 @@ namespace NeuroPOS.MVVM.ViewModel
                 OnPropertyChanged(nameof(SelectedProductQuantity));
             }
         }
-        public ICommand AddNewOrderCommand { get; private set; }
-        public ICommand EditOrderCommand { get; private set; }
-        public ICommand DeleteOrderCommand { get; private set; }
-        public ICommand SaveOrderCommand { get; private set; }
-        public ICommand CancelEditCommand { get; private set; }
-        public ICommand RefreshOrdersCommand { get; private set; }
-        public ICommand NextPageCommand { get; private set; }
-        public ICommand PreviousPageCommand { get; private set; }
-        public ICommand FirstPageCommand { get; private set; }
-        public ICommand LastPageCommand { get; private set; }
-        public ICommand ConfirmOrderCommand { get; private set; }
-        public ICommand ClearFiltersCommand { get; private set; }
-        public ICommand SelectOrderCommand { get; private set; }
-        public ICommand AddProductToOrderCommand { get; private set; }
-        public ICommand RemoveProductFromOrderCommand { get; private set; }
-        public ICommand AddSelectedProductToOrderCommand { get; private set; }
-        public ICommand IncreaseTaxRateCommand { get; private set; }
-        public ICommand DecreaseTaxRateCommand { get; private set; }
-        public ICommand ShowDatePickerCommand { get; private set; }
-        private void InitializeCommands()
-        {
-            AddNewOrderCommand = new Command(async () => await AddNewOrder());
-            EditOrderCommand = new Command<Order>(async (order) => await EditOrder(order));
-            DeleteOrderCommand = new Command<Order>(async (order) => await DeleteOrder(order));
-            SaveOrderCommand = new Command(async () => await SaveOrder());
-            CancelEditCommand = new Command(() => CancelEdit());
-            RefreshOrdersCommand = new Command(async () => await RefreshOrders());
-            NextPageCommand = new Command(() => NextPage(), () => HasNextPage);
-            PreviousPageCommand = new Command(() => PreviousPage(), () => HasPreviousPage);
-            FirstPageCommand = new Command(() => FirstPage(), () => HasPreviousPage);
-            LastPageCommand = new Command(() => LastPage(), () => HasNextPage);
-            ConfirmOrderCommand = new Command<Order>(async (order) => await ConfirmOrder(order));
-            ClearFiltersCommand = new Command(() => ClearFilters());
-            SelectOrderCommand = new Command<Order>((order) => SelectOrder(order));
-            AddProductToOrderCommand = new Command(async () => await AddProductToOrder());
-            RemoveProductFromOrderCommand = new Command<TransactionLine>((line) => RemoveProductFromOrder(line));
-            AddSelectedProductToOrderCommand = new Command(() => AddSelectedProductToOrder());
-            IncreaseTaxRateCommand = new Command(() => IncreaseTaxRate());
-            DecreaseTaxRateCommand = new Command(() => DecreaseTaxRate());
-            ShowDatePickerCommand = new Command(async () => await ShowDatePicker());
-        }
+
+        public List<string> StatusFilters => new List<string> { "All", "Completed", "Pending" };
+        #endregion
+
+        #region Commands
+
+        public ICommand AddNewOrderCommand => new Command(async () => await AddNewOrder());
+        public ICommand EditOrderCommand => new Command<Order>(async order => await EditOrder(order));
+        public ICommand DeleteOrderCommand => new Command<Order>(async order => await DeleteOrder(order));
+        public ICommand SaveOrderCommand => new Command(async () => await SaveOrder());
+        public ICommand CancelEditCommand => new Command(() => CancelEdit());
+        public ICommand RefreshOrdersCommand => new Command(async () => await RefreshOrders());
+        public ICommand NextPageCommand => new Command(() => NextPage(), () => HasNextPage);
+        public ICommand PreviousPageCommand => new Command(() => PreviousPage(), () => HasPreviousPage);
+        public ICommand FirstPageCommand => new Command(() => FirstPage(), () => HasPreviousPage);
+        public ICommand LastPageCommand => new Command(() => LastPage(), () => HasNextPage);
+        public ICommand ConfirmOrderCommand => new Command<Order>(async order => await ConfirmOrder(order));
+        public ICommand ClearFiltersCommand => new Command(() => ClearFilters());
+        public ICommand SelectOrderCommand => new Command<Order>(order => SelectOrder(order));
+        public ICommand AddProductToOrderCommand => new Command(async () => await AddProductToOrder());
+        public ICommand RemoveProductFromOrderCommand => new Command<TransactionLine>(line => RemoveProductFromOrder(line));
+        public ICommand AddSelectedProductToOrderCommand => new Command(() => AddSelectedProductToOrder());
+        public ICommand IncreaseTaxRateCommand => new Command(() => IncreaseTaxRate());
+        public ICommand DecreaseTaxRateCommand => new Command(() => DecreaseTaxRate());
+        public ICommand ShowDatePickerCommand => new Command(async () => await ShowDatePicker());
+        #endregion
+
+        #region Methods
+
         private void LoadTestData()
         {
             var testOrders = new List<Order>();
@@ -605,12 +599,10 @@ namespace NeuroPOS.MVVM.ViewModel
                 bool isConfirmed = SelectedStatusFilter == "Completed";
                 filtered = filtered.Where(o => o.IsConfirmed == isConfirmed);
                 IsStatusFilterActive = true;
-                System.Diagnostics.Debug.WriteLine($"Status filter applied: {SelectedStatusFilter}, isConfirmed: {isConfirmed}, filtered count: {filtered.Count()}");
             }
             else
             {
                 IsStatusFilterActive = false;
-                System.Diagnostics.Debug.WriteLine($"Status filter cleared, filtered count: {filtered.Count()}");
             }
             if (FilterStartDate.HasValue || FilterEndDate.HasValue)
             {
@@ -692,14 +684,7 @@ namespace NeuroPOS.MVVM.ViewModel
             CurrentPage = TotalPages;
             await ShowPaginationInfo();
         }
-        private async Task ShowPaginationInfo()
-        {
-            var startItem = (CurrentPage - 1) * PageSize + 1;
-            var endItem = Math.Min(CurrentPage * PageSize, TotalOrders);
-            var message = $"Showing orders {startItem}-{endItem} of {TotalOrders}";
-            var snackbar = Snackbar.Make(message, duration: TimeSpan.FromSeconds(1.5));
-            await snackbar.Show();
-        }
+
         private void UpdatePaginationCommands()
         {
             if (NextPageCommand is Command nextCmd)
@@ -731,37 +716,7 @@ namespace NeuroPOS.MVVM.ViewModel
             EditTotalAmount = order.TotalAmount;
             IsEditMode = 1;
         }
-        private async Task AddNewOrder()
-        {
-            try
-            {
-                ClearNewOrderForm();
-                var popup = new AddNewOrderPopup();
-                popup.BindingContext = this;
-                await Application.Current.MainPage.ShowPopupAsync(popup);
-                if (popup.Result == AddNewOrderResult.Add)
-                {
-                    if (ValidateNewOrder())
-                    {
-                        var orderName = NewOrderCustomerName;
-                        AddNewOrderToCollection();
-                        ApplyFilters();
-                        ShowSuccessSnackbar($"Order for '{orderName}' added successfully");
-                    }
-                    else
-                    {
-                        await Application.Current.MainPage.DisplayAlert("Validation Error",
-                        "Please fill in all required fields correctly.", "OK");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var snackbar = Snackbar.Make($"Error adding order: {ex.Message}",
-                duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
-            }
-        }
+
         private void ClearNewOrderForm()
         {
             NewOrderId = Orders.Count + 1;
@@ -804,6 +759,161 @@ namespace NeuroPOS.MVVM.ViewModel
             var snackbar = Snackbar.Make(message, duration: TimeSpan.FromSeconds(2));
             await snackbar.Show();
         }
+
+        private void CancelEdit()
+        {
+            IsEditMode = 0;
+            _editingOrder = null;
+            EditCustomerName = "";
+            EditDate = DateTime.Now;
+            EditIsConfirmed = false;
+            EditTotalAmount = 0;
+        }
+        private void RemoveProductFromOrder(TransactionLine line)
+        {
+            try
+            {
+                if (NewOrderLines != null && line != null)
+                {
+                    NewOrderLines.Remove(line);
+                    UpdateNewOrderTotal();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        private void UpdateNewOrderTotal()
+        {
+            if (NewOrderLines != null)
+            {
+                NewOrderSubTotalAmount = NewOrderLines.Sum(p => p.Price * p.Stock);
+                NewOrderTotalAmount = NewOrderSubTotalAmount - NewOrderDiscount + (NewOrderSubTotalAmount * NewOrderTaxRate / 100);
+            }
+        }
+        private void AddSelectedProductToOrder()
+        {
+            if (SelectedProduct != null && SelectedProductQuantity > 0)
+            {
+                if (NewOrderLines == null)
+                {
+                    NewOrderLines = new ObservableCollection<TransactionLine>();
+                }
+                var lineToAdd = new TransactionLine
+                {
+                    Id = DateTime.Now.Millisecond,
+                    Name = SelectedProduct.Name,
+                    Price = SelectedProduct.Price,
+                    Cost = SelectedProduct.Cost,
+                    Stock = SelectedProductQuantity,
+                    CategoryName = SelectedProduct.CategoryName,
+                    DateAdded = DateTime.Now,
+                    ProductId = SelectedProduct.Id
+                };
+                NewOrderLines.Add(lineToAdd);
+                UpdateNewOrderTotal();
+                SelectedProduct = null;
+                SelectedProductQuantity = 1;
+            }
+        }
+        private void IncreaseTaxRate()
+        {
+            NewOrderTaxRate += 0.5;
+        }
+        private void DecreaseTaxRate()
+        {
+            if (NewOrderTaxRate > 0)
+            {
+                NewOrderTaxRate -= 0.5;
+            }
+        }
+        private async Task ShowDatePicker()
+        {
+
+            var tempTransactionVM = new TransactionVM();
+            var popup = new DatePickerPopup(tempTransactionVM);
+            var result = await Application.Current.MainPage.ShowPopupAsync(popup);
+            if (popup.BindingContext is DatePickerVM datePickerVM)
+            {
+                FilterStartDate = datePickerVM.StartDate;
+                FilterEndDate = datePickerVM.EndDate;
+                if (FilterStartDate.HasValue && FilterEndDate.HasValue)
+                {
+                    if (FilterStartDate.Value.Date == FilterEndDate.Value.Date)
+                    {
+                        DateFilterSummary = $"Filtering orders for {FilterStartDate.Value:MMM dd, yyyy}";
+                    }
+                    else
+                    {
+                        DateFilterSummary = $"Filtering orders from {FilterStartDate.Value:MMM dd} to {FilterEndDate.Value:MMM dd, yyyy}";
+                    }
+                }
+                else if (FilterStartDate.HasValue)
+                {
+                    DateFilterSummary = $"Filtering orders from {FilterStartDate.Value:MMM dd, yyyy}";
+                }
+                else if (FilterEndDate.HasValue)
+                {
+                    DateFilterSummary = $"Filtering orders until {FilterEndDate.Value:MMM dd, yyyy}";
+                }
+                ApplyFilters();
+            }
+
+        }
+        #endregion
+
+        #region OnPropertyChanged interface
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+
+        #region Tasks
+
+        private async Task ShowPaginationInfo()
+        {
+            var startItem = (CurrentPage - 1) * PageSize + 1;
+            var endItem = Math.Min(CurrentPage * PageSize, TotalOrders);
+            var message = $"Showing orders {startItem}-{endItem} of {TotalOrders}";
+            var snackbar = Snackbar.Make(message, duration: TimeSpan.FromSeconds(1.5));
+            await snackbar.Show();
+        }
+
+        private async Task AddNewOrder()
+        {
+            try
+            {
+                ClearNewOrderForm();
+                var popup = new AddNewOrderPopup();
+                popup.BindingContext = this;
+                await Application.Current.MainPage.ShowPopupAsync(popup);
+                if (popup.Result == AddNewOrderResult.Add)
+                {
+                    if (ValidateNewOrder())
+                    {
+                        var orderName = NewOrderCustomerName;
+                        AddNewOrderToCollection();
+                        ApplyFilters();
+                        ShowSuccessSnackbar($"Order for '{orderName}' added successfully");
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Validation Error",
+                        "Please fill in all required fields correctly.", "OK");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var snackbar = Snackbar.Make($"Error adding order: {ex.Message}",
+                duration: TimeSpan.FromSeconds(3));
+                await snackbar.Show();
+            }
+        }
+
         private async Task EditOrder(Order order)
         {
             try
@@ -860,15 +970,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
-        private void CancelEdit()
-        {
-            IsEditMode = 0;
-            _editingOrder = null;
-            EditCustomerName = "";
-            EditDate = DateTime.Now;
-            EditIsConfirmed = false;
-            EditTotalAmount = 0;
-        }
+
         private async Task RefreshOrders()
         {
             try
@@ -937,107 +1039,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
-        private void RemoveProductFromOrder(TransactionLine line)
-        {
-            try
-            {
-                if (NewOrderLines != null && line != null)
-                {
-                    NewOrderLines.Remove(line);
-                    UpdateNewOrderTotal();
-                }
-            }
-            catch (Exception ex)
-            {
-            }
-        }
-        private void UpdateNewOrderTotal()
-        {
-            if (NewOrderLines != null)
-            {
-                NewOrderSubTotalAmount = NewOrderLines.Sum(p => p.Price * p.Stock);
-                NewOrderTotalAmount = NewOrderSubTotalAmount - NewOrderDiscount + (NewOrderSubTotalAmount * NewOrderTaxRate / 100);
-            }
-        }
-        private void AddSelectedProductToOrder()
-        {
-            if (SelectedProduct != null && SelectedProductQuantity > 0)
-            {
-                if (NewOrderLines == null)
-                {
-                    NewOrderLines = new ObservableCollection<TransactionLine>();
-                }
-                var lineToAdd = new TransactionLine
-                {
-                    Id = DateTime.Now.Millisecond,
-                    Name = SelectedProduct.Name,
-                    Price = SelectedProduct.Price,
-                    Cost = SelectedProduct.Cost,
-                    Stock = SelectedProductQuantity,
-                    CategoryName = SelectedProduct.CategoryName,
-                    DateAdded = DateTime.Now,
-                    ProductId = SelectedProduct.Id
-                };
-                NewOrderLines.Add(lineToAdd);
-                UpdateNewOrderTotal();
-                SelectedProduct = null;
-                SelectedProductQuantity = 1;
-            }
-        }
-        private void IncreaseTaxRate()
-        {
-            NewOrderTaxRate += 0.5;
-        }
-        private void DecreaseTaxRate()
-        {
-            if (NewOrderTaxRate > 0)
-            {
-                NewOrderTaxRate -= 0.5;
-            }
-        }
-        private async Task ShowDatePicker()
-        {
-            try
-            {
-                var tempTransactionVM = new TransactionVM();
-                var popup = new DatePickerPopup(tempTransactionVM);
-                var result = await Application.Current.MainPage.ShowPopupAsync(popup);
-                if (popup.BindingContext is DatePickerVM datePickerVM)
-                {
-                    FilterStartDate = datePickerVM.StartDate;
-                    FilterEndDate = datePickerVM.EndDate;
-                    if (FilterStartDate.HasValue && FilterEndDate.HasValue)
-                    {
-                        if (FilterStartDate.Value.Date == FilterEndDate.Value.Date)
-                        {
-                            DateFilterSummary = $"Filtering orders for {FilterStartDate.Value:MMM dd, yyyy}";
-                        }
-                        else
-                        {
-                            DateFilterSummary = $"Filtering orders from {FilterStartDate.Value:MMM dd} to {FilterEndDate.Value:MMM dd, yyyy}";
-                        }
-                    }
-                    else if (FilterStartDate.HasValue)
-                    {
-                        DateFilterSummary = $"Filtering orders from {FilterStartDate.Value:MMM dd, yyyy}";
-                    }
-                    else if (FilterEndDate.HasValue)
-                    {
-                        DateFilterSummary = $"Filtering orders until {FilterEndDate.Value:MMM dd, yyyy}";
-                    }
-                    ApplyFilters();
-                }
-            }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Error", "Failed to show date picker.", "OK");
-            }
-        }
-        public List<string> StatusFilters => new List<string> { "All", "Completed", "Pending" };
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        #endregion
+
     }
 }

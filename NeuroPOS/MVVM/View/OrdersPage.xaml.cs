@@ -11,18 +11,13 @@ public partial class OrdersPage : ContentPage
 	{
 		InitializeComponent();
 		BindingContext = new OrderVM();
-		
-		// Wire up status filter picker event handler
-		StatusFilterPicker.SelectedIndexChanged += OnStatusFilterChanged;
-		
-		// Ensure the picker is properly initialized
-		StatusFilterPicker.SelectedIndex = 0; // Set to "All" by default
+		StatusFilterPicker.SelectedIndexChanged += OnStatusFilterChanged;	
+		StatusFilterPicker.SelectedIndex = 0;
 	}
 
 	protected override void OnAppearing()
 	{
 		base.OnAppearing();
-		// Any additional initialization when page appears
 	}
 
 	private void OnStatusFilterChanged(object sender, EventArgs e)
@@ -30,7 +25,6 @@ public partial class OrdersPage : ContentPage
 		if (BindingContext is OrderVM vm && sender is Picker picker)
 		{
 			vm.SelectedStatusFilter = picker.SelectedItem?.ToString() ?? "All";
-			// The ApplyFilters method will be called automatically through the property setter
 		}
 	}
 }
