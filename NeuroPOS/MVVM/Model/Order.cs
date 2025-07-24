@@ -18,12 +18,18 @@ namespace NeuroPOS.MVVM.Model
         public bool IsConfirmed { get; set; } = false;
 
         public double TotalAmount { get; set; }
-
         public int ItemCount { get; set; }
+
         public string CustomerName { get; set; }
 
+        public double Tax { get; set; }
+        public double Discount { get; set; }
+
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Product> OrderItems { get; set; } = new List<Product>();
+        public List<TransactionLine> Lines { get; set; } = new();
+        public double SubTotalAmount =>
+        (Lines == null || Lines.Count == 0)
+        ? 0 : Lines.Sum(p => p.Price * p.Stock);
 
         #region ignore Properties
 
@@ -51,9 +57,9 @@ namespace NeuroPOS.MVVM.Model
         }
         [Ignore]
         public double CalculatedTotalAmount =>
-            (OrderItems == null || OrderItems.Count == 0)
+            (Lines == null ||Lines.Count == 0)
                 ? 0
-                : OrderItems.Sum(item => item.Price * item.Stock);
+                : SubTotalAmount - Discount + (SubTotalAmount * Tax / 100);
         #endregion
 
 

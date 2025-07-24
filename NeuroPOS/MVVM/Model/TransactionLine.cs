@@ -50,7 +50,13 @@ namespace NeuroPOS.MVVM.Model
         [ForeignKey(typeof(Product))]
         public int ProductId { get; set; }
 
+        [ForeignKey(typeof(Order))]
+        public int OrderId { get; set; }
+
         [ManyToOne] public Transaction Transaction { get; set; }
+
         [ManyToOne] public Product Product { get; set; }
+
+        [ManyToOne] public Order Order { get; set; }
     }
 }
