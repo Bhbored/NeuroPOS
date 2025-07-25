@@ -1,20 +1,23 @@
-﻿using System;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using NeuroPOS.MVVM.Model;
+using NeuroPOS.MVVM.Popups;
+using PropertyChanged;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using NeuroPOS.MVVM.Model;
-using NeuroPOS.MVVM.Popups;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Extensions;
-using Microsoft.Maui.Controls;
-using PropertyChanged;
+using Application = Microsoft.Maui.Controls.Application;
 using Contact = NeuroPOS.MVVM.Model.Contact;
-using System.Diagnostics;
 namespace NeuroPOS.MVVM.ViewModel
 {
     [AddINotifyPropertyChangedInterface]
@@ -47,6 +50,9 @@ namespace NeuroPOS.MVVM.ViewModel
         private DateTime _editDate = DateTime.Now;
         private bool _editIsConfirmed = false;
         private double _editTotalAmount = 0;
+        private double _editDiscount = 0;
+        private double _editTaxRate = 2.0;
+        private ObservableCollection<TransactionLine> _editOrderLines;
         private int _newOrderId = 0;
         private string _newOrderCustomerName = "";
         private DateTime _newOrderDate = DateTime.Now;
@@ -298,6 +304,36 @@ namespace NeuroPOS.MVVM.ViewModel
                 OnPropertyChanged(nameof(EditTotalAmount));
             }
         }
+        public double EditDiscount
+        {
+            get => _editDiscount;
+            set
+            {
+                _editDiscount = value;
+                OnPropertyChanged(nameof(EditDiscount));
+                UpdateEditOrderTotal();
+            }
+        }
+        public double EditTaxRate
+        {
+            get => _editTaxRate;
+            set
+            {
+                _editTaxRate = value;
+                OnPropertyChanged(nameof(EditTaxRate));
+                UpdateEditOrderTotal();
+            }
+        }
+        public ObservableCollection<TransactionLine> EditOrderLines
+        {
+            get => _editOrderLines;
+            set
+            {
+                _editOrderLines = value;
+                OnPropertyChanged(nameof(EditOrderLines));
+                UpdateEditOrderTotal();
+            }
+        }
         public int NewOrderId
         {
             get => _newOrderId;
@@ -438,12 +474,14 @@ namespace NeuroPOS.MVVM.ViewModel
         public ICommand ConfirmOrderCommand => new Command<Order>(async order => await ConfirmOrder(order));
         public ICommand ClearFiltersCommand => new Command(() => ClearFilters());
         public ICommand SelectOrderCommand => new Command<Order>(order => SelectOrder(order));
-        public ICommand AddProductToOrderCommand => new Command(async () => await AddProductToOrder());
         public ICommand RemoveProductFromOrderCommand => new Command<TransactionLine>(line => RemoveProductFromOrder(line));
         public ICommand AddSelectedProductToOrderCommand => new Command(() => AddSelectedProductToOrder());
         public ICommand IncreaseTaxRateCommand => new Command(() => IncreaseTaxRate());
         public ICommand DecreaseTaxRateCommand => new Command(() => DecreaseTaxRate());
         public ICommand ShowDatePickerCommand => new Command(async () => await ShowDatePicker());
+        public ICommand IncreaseEditLineQuantityCommand => new Command<TransactionLine>(line => IncreaseEditLineQuantity(line));
+        public ICommand DecreaseEditLineQuantityCommand => new Command<TransactionLine>(line => DecreaseEditLineQuantity(line));
+        public ICommand DeleteEditLineCommand => new Command<TransactionLine>(line => DeleteEditLine(line));
         #endregion
 
         #region Methods
@@ -645,7 +683,10 @@ namespace NeuroPOS.MVVM.ViewModel
             EditCustomerName = order.CustomerName;
             EditDate = order.Date;
             EditIsConfirmed = order.IsConfirmed;
-            EditTotalAmount = order.TotalAmount;
+            EditDiscount = order.Discount;
+            EditTaxRate = order.Tax;
+            EditOrderLines = new ObservableCollection<TransactionLine>(order.Lines?.ToList() ?? new List<TransactionLine>());
+            UpdateEditOrderTotal();
             IsEditMode = 1;
         }
 
@@ -701,7 +742,6 @@ namespace NeuroPOS.MVVM.ViewModel
                     Tax = NewOrderTaxRate,
                     Lines = NewOrderLines?.ToList() ?? new List<TransactionLine>()
                 };
-                // Fix: Use InsertItemWithChildren consistently for both cases
                 App.OrderRepo.InsertItemWithChildren(newOrder);
                 ShowSuccessSnackbar($"Order Entered succesfully for {NewOrderCustomerName}");
                 _ = RefreshOrders();
@@ -722,6 +762,9 @@ namespace NeuroPOS.MVVM.ViewModel
             EditDate = DateTime.Now;
             EditIsConfirmed = false;
             EditTotalAmount = 0;
+            EditDiscount = 0;
+            EditTaxRate = 2.0;
+            EditOrderLines = null;
         }
         private void RemoveProductFromOrder(TransactionLine line)
         {
@@ -743,6 +786,14 @@ namespace NeuroPOS.MVVM.ViewModel
             {
                 NewOrderSubTotalAmount = NewOrderLines.Sum(p => p.Price * p.Stock);
                 NewOrderTotalAmount = NewOrderSubTotalAmount - NewOrderDiscount + (NewOrderSubTotalAmount * NewOrderTaxRate / 100);
+            }
+        }
+        private void UpdateEditOrderTotal()
+        {
+            if (EditOrderLines != null)
+            {
+                var subTotal = EditOrderLines.Sum(p => p.Price * p.Stock);
+                EditTotalAmount = subTotal - EditDiscount + (subTotal * EditTaxRate / 100);
             }
         }
         private void AddSelectedProductToOrder()
@@ -780,6 +831,30 @@ namespace NeuroPOS.MVVM.ViewModel
             if (NewOrderTaxRate > 0)
             {
                 NewOrderTaxRate -= 0.5;
+            }
+        }
+        private void IncreaseEditLineQuantity(TransactionLine line)
+        {
+            if (line != null && EditOrderLines != null)
+            {
+                line.Stock++;
+                UpdateEditOrderTotal();
+            }
+        }
+        private void DecreaseEditLineQuantity(TransactionLine line)
+        {
+            if (line != null && EditOrderLines != null && line.Stock > 1)
+            {
+                line.Stock--;
+                UpdateEditOrderTotal();
+            }
+        }
+        private void DeleteEditLine(TransactionLine line)
+        {
+            if (line != null && EditOrderLines != null)
+            {
+                EditOrderLines.Remove(line);
+                UpdateEditOrderTotal();
             }
         }
         private async Task ShowDatePicker()
@@ -887,11 +962,15 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
-                Orders.Remove(order);
-                ApplyFilters();
-                var snackbar = Snackbar.Make($"Deleted order #{order.Id}",
-                duration: TimeSpan.FromSeconds(2));
-                await snackbar.Show();
+                var oldLines = order.Lines;
+                App.OrderRepo.DeleteItem(order);
+                await RefreshOrders();
+                await Snackbar.Make(
+                    $"Deleted order #{order.Id}",
+                    async () => await UndoDeleteOrder(order),
+                    "UNDO",
+                    TimeSpan.FromSeconds(2)
+                ).Show();
             }
             catch (Exception ex)
             {
@@ -900,6 +979,18 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
+
+        private async Task UndoDeleteOrder(Order order)
+        {
+            App.OrderRepo.InsertItemWithChildren(order); 
+            await RefreshOrders(); 
+            await Task.CompletedTask;
+            await Snackbar.Make(
+                  $"Restored order #{order.Id}",
+                  duration: TimeSpan.FromSeconds(2)
+              ).Show();
+        }
+
         private async Task SaveOrder()
         {
             try
@@ -910,7 +1001,14 @@ namespace NeuroPOS.MVVM.ViewModel
                     _editingOrder.CustomerName = EditCustomerName;
                     _editingOrder.Date = EditDate;
                     _editingOrder.IsConfirmed = EditIsConfirmed;
+                    _editingOrder.Discount = EditDiscount;
+                    _editingOrder.Tax = EditTaxRate;
                     _editingOrder.TotalAmount = EditTotalAmount;
+                    _editingOrder.Lines = EditOrderLines?.ToList() ?? new List<TransactionLine>();
+
+                    // Update the order in the database
+                    App.OrderRepo.UpdateItemWithChildren(_editingOrder);
+
                     ApplyFilters();
                     CancelEdit();
                     var snackbar = Snackbar.Make($"Order #{orderId} saved successfully",
@@ -963,35 +1061,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 await snackbar.Show();
             }
         }
-        private async Task AddProductToOrder()
-        {
-            try
-            {
-                var sampleLine = new TransactionLine
-                {
-                    Id = NewOrderLines?.Count + 1 ?? 1,
-                    Name = $"Product {NewOrderLines?.Count + 1 ?? 1}",
-                    Price = 25.99,
-                    Cost = 15.50,
-                    Stock = 1,
-                    CategoryName = "Electronics",
-                    DateAdded = DateTime.Now
-                    // Remove manual OrderId assignment - let ORM handle it
-                };
-                if (NewOrderLines == null)
-                {
-                    NewOrderLines = new ObservableCollection<TransactionLine>();
-                }
-                NewOrderLines.Add(sampleLine);
-                UpdateNewOrderTotal();
-            }
-            catch (Exception ex)
-            {
-                var snackbar = Snackbar.Make($"Error adding product: {ex.Message}",
-                duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
-            }
-        }
+
         #endregion
 
     }

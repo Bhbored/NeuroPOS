@@ -66,6 +66,12 @@ namespace NeuroPOS.MVVM.Model
             (Lines == null ||Lines.Count == 0)
                 ? 0
                 : SubTotalAmount - Discount + (SubTotalAmount * Tax / 100);
+        
+        [Ignore]
+        public double CalculatedTaxAmount =>
+            (Lines == null || Lines.Count == 0)
+                ? 0
+                : SubTotalAmount * Tax / 100;
         #endregion
 
 

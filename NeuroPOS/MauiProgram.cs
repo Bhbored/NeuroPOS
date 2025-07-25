@@ -42,6 +42,7 @@ namespace NeuroPOS
             builder.Services.AddSingleton<InventoryVM>();
             builder.Services.AddSingleton<OrderVM>();
             builder.Services.AddSingleton<ContactVM>();
+            builder.Services.AddSingleton<CashRegisterVM>();
 
             // Views
             builder.Services.AddTransient<TransactionPage>();

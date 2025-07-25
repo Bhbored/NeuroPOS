@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeuroPOS.MVVM.View.CashRegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    BackgroundColor="{StaticResource NPLightBg}">
+
+    <ContentPage.Resources>
+        <Converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        <Converters:FilterButtonColorConverter x:Key="FilterButtonColorConverter"/>
+        <Converters:FilterButtonTextColorConverter x:Key="FilterButtonTextColorConverter"/>
+    </ContentPage.Resources>
+
+    <ContentPage.BindingContext>
+        <vm:CashRegisterVM/>
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20"
+                             Spacing="25">
+
+            <!-- Header -->
+            <Label Text="Cash Register"
+                   StyleClass="LargeTitle"
+                   Margin="0,0,0,10"/>
+
+            <!-- Summary Cards -->
+            <Grid ColumnDefinitions="*,*,*,*"
+                  ColumnSpacing="15">
+
+                <!-- Total Sales Card -->
+                <Border StyleClass="ModernCardShadow"
+                        Padding="20">
+                    <Grid RowDefinitions="Auto,Auto"
+                          RowSpacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Sales"
+                                   StyleClass="SubtitleText"
+                                   TextColor="{StaticResource NPTextSecondary}"/>
+                            <Image Source="wallet.png"
+                                   HeightRequest="20"
+                                   WidthRequest="20"
+                                   Grid.Column="1"/>
+                        </Grid>
+                        <Label Text="{Binding CashRegister.TotalIncome, StringFormat='${0:N0}'}"
+                               StyleClass="LargeTitle"
+                               TextColor="{StaticResource NPStockGreen}"
+                               FontSize="24"/>
+                    </Grid>
+                </Border>
+
+                <!-- Total Purchases Card -->
+                <Border StyleClass="ModernCardShadow"
+                        Padding="20"
+                        Grid.Column="1">
+                    <Grid RowDefinitions="Auto,Auto"
+                          RowSpacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Purchases"
+                                   StyleClass="SubtitleText"
+                                   TextColor="{StaticResource NPTextSecondary}"/>
+                            <Image Source="redcart.png"
+                                   HeightRequest="20"
+                                   WidthRequest="20"
+                                   Grid.Column="1"/>
+                        </Grid>
+                        <Label Text="{Binding CashRegister.TotalExpenses, StringFormat='${0:N0}'}"
+                               StyleClass="LargeTitle"
+                               TextColor="{StaticResource NPStockRed}"
+                               FontSize="24"/>
+                    </Grid>
+                </Border>
+
+                <!-- Net Balance Card -->
+                <Border StyleClass="ModernCardShadow"
+                        Padding="20"
+                        Grid.Column="2">
+                    <Grid RowDefinitions="Auto,Auto"
+                          RowSpacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Balance"
+                                   StyleClass="SubtitleText"
+                                   TextColor="{StaticResource NPTextSecondary}"/>
+                            <Image Source="credit.png"
+                                   HeightRequest="20"
+                                   WidthRequest="20"
+                                   Grid.Column="1"/>
+                        </Grid>
+                        <Label Text="{Binding CashRegister.NetProfit, StringFormat='${0:N0}'}"
+                               StyleClass="LargeTitle"
+                               TextColor="{StaticResource NPPrimaryBlue}"
+                               FontSize="24"/>
+                    </Grid>
+                </Border>
+
+                <!-- Total Transactions Card -->
+                <Border StyleClass="ModernCardShadow"
+                        Padding="20"
+                        Grid.Column="3">
+                    <Grid RowDefinitions="Auto,Auto"
+                          RowSpacing="8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Transactions"
+                                   StyleClass="SubtitleText"
+                                   TextColor="{StaticResource NPTextSecondary}"/>
+                            <Image Source="transaction.png"
+                                   HeightRequest="20"
+                                   WidthRequest="20"
+                                   Grid.Column="1"/>
+                        </Grid>
+                        <Label Text="{Binding CashRegister.TotalTransactions}"
+                               StyleClass="LargeTitle"
+                               TextColor="{StaticResource NPTextMain}"
+                               FontSize="24"/>
+                    </Grid>
+                </Border>
+
+            </Grid>
+
+            <!-- Main Content -->
+            <Grid ColumnDefinitions="2*,1*"
+                  ColumnSpacing="20">
+
+                <!-- Transactions Section -->
+                <VerticalStackLayout Grid.Column="0"
+                                     Spacing="15">
+
+                    <!-- Transactions Header -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Transactions"
+                               StyleClass="TitleText"
+                               Grid.Column="0"/>
+
+                        <!-- Filter Buttons -->
+                        <HorizontalStackLayout Grid.Column="1"
+                                               Spacing="8">
+                            <Button Text="All"
+                                    Command="{Binding FilterCommand}"
+                                    CommandParameter="All"
+                                    BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterButtonColorConverter}, ConverterParameter=All}"
+                                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterButtonTextColorConverter}, ConverterParameter=All}"
+                                    CornerRadius="20"
+                                    Padding="16,8"
+                                    Margin="0,0,8,0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"/>
+                            <Button Text="Paid"
+                                    Command="{Binding FilterCommand}"
+                                    CommandParameter="Paid"
+                                    BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterButtonColorConverter}, ConverterParameter=Paid}"
+                                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterButtonTextColorConverter}, ConverterParameter=Paid}"
+                                    CornerRadius="20"
+                                    Padding="16,8"
+                                    Margin="0,0,8,0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"/>
+                            <Button Text="Pending"
+                                    Command="{Binding FilterCommand}"
+                                    CommandParameter="Pending"
+                                    BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterButtonColorConverter}, ConverterParameter=Pending}"
+                                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterButtonTextColorConverter}, ConverterParameter=Pending}"
+                                    CornerRadius="20"
+                                    Padding="16,8"
+                                    Margin="0,0,8,0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"/>
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <!-- Transactions Table -->
+                    <Border StyleClass="ModernCardShadow"
+                            Padding="0"
+                            HeightRequest="350">
+                        <Grid RowDefinitions="Auto,*">
+
+                            <!-- Table Header -->
+                            <Grid StyleClass="TableRow"
+                                  ColumnDefinitions="Auto,*,Auto,Auto,Auto"
+                                  BackgroundColor="{StaticResource NPLightBg}">
+                                <Label Text="DATE"
+                                       StyleClass="ColumnHeader"
+                                       Grid.Column="0"
+                                       Margin="20,16,0,16"/>
+                                <Label Text="TYPE"
+                                       StyleClass="ColumnHeader"
+                                       Grid.Column="1"
+                                       Margin="0,16,0,16"/>
+                                <Label Text="ITEM COUNT"
+                                       StyleClass="ColumnHeader"
+                                       Grid.Column="2"
+                                       Margin="0,16,0,16"/>
+                                <Label Text="TOTAL AMOUNT"
+                                       StyleClass="ColumnHeader"
+                                       Grid.Column="3"
+                                       Margin="0,16,0,16"/>
+                                <Label Text="STATUS"
+                                       StyleClass="ColumnHeader"
+                                       Grid.Column="4"
+                                       Margin="0,16,20,16"/>
+                            </Grid>
+
+                            <!-- Table Content -->
+                            <CollectionView Grid.Row="1"
+                                            ItemsSource="{Binding Transactions}"
+                                            SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"
+                                              StyleClass="TableRow">
+
+                                            <!-- Date -->
+                                            <Label Text="{Binding FormattedDate}"
+                                                   StyleClass="TableCell"
+                                                   Grid.Column="0"
+                                                   Margin="20,16,0,16"/>
+
+                                            <!-- Type -->
+                                            <Label Text="{Binding TransactionType, StringFormat='{0:U}'}"
+                                                   StyleClass="TableCell"
+                                                   Grid.Column="1"
+                                                   Margin="0,16,0,16"/>
+
+                                            <!-- Item Count -->
+                                            <Label Text="{Binding CalculatedItemCount}"
+                                                   StyleClass="TableCell"
+                                                   Grid.Column="2"
+                                                   Margin="0,16,0,16"/>
+
+                                            <!-- Total Amount -->
+                                            <Label Text="{Binding TotalAmount, StringFormat='${0:N2}'}"
+                                                   StyleClass="TableCell"
+                                                   Grid.Column="3"
+                                                   Margin="0,16,0,16"/>
+
+                                            <!-- Status -->
+                                            <Border Grid.Column="4"
+                                                    StyleClass="StatusBadge"
+                                                    BackgroundColor="{Binding IsPaid, Converter={StaticResource StatusToColorConverter}}"
+                                                    Margin="0,16,20,16">
+                                                <Label Text="{Binding Status}"
+                                                       StyleClass="TableCell"
+                                                       TextColor="White"
+                                                       FontSize="12"
+                                                       FontFamily="PoppinsBold"/>
+                                            </Border>
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+
+                <!-- Balance Overview Section -->
+                <VerticalStackLayout Grid.Column="1"
+                                     Spacing="15">
+
+                    <Label Text="Balance Overview"
+                           StyleClass="TitleText"/>
+
+                    <Border StyleClass="ModernCardShadow"
+                            Padding="20"
+                            HeightRequest="250">
+                        <VerticalStackLayout Spacing="20">
+
+                            <!-- Paid Status -->
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="Paid"
+                                           StyleClass="NormalText"
+                                           TextColor="{StaticResource NPTextMain}"/>
+                                    <Label Text="{Binding CashRegister.TotalIncome, StringFormat='${0:N0}'}"
+                                           StyleClass="NormalText"
+                                           TextColor="{StaticResource NPStockGreen}"
+                                           Grid.Column="1"/>
+                                </Grid>
+                                <ProgressBar Progress="0.85"
+                                             ProgressColor="{StaticResource NPStockGreen}"
+                                             HeightRequest="8"
+                                             BackgroundColor="{StaticResource NPLightBg}"/>
+                            </VerticalStackLayout>
+
+                            <!-- Pending Status -->
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="Pending"
+                                           StyleClass="NormalText"
+                                           TextColor="{StaticResource NPTextMain}"/>
+                                    <Label Text="{Binding CashRegister.TotalCreditSales, StringFormat='${0:N0}'}"
+                                           StyleClass="NormalText"
+                                           TextColor="{StaticResource NPAccentYellow}"
+                                           Grid.Column="1"/>
+                                </Grid>
+                                <ProgressBar Progress="0.15"
+                                             ProgressColor="{StaticResource NPAccentYellow}"
+                                             HeightRequest="8"
+                                             BackgroundColor="{StaticResource NPLightBg}"/>
+                            </VerticalStackLayout>
+
+                            <!-- Overdue Status -->
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="Overdue"
+                                           StyleClass="NormalText"
+                                           TextColor="{StaticResource NPTextMain}"/>
+                                    <Label Text="$300"
+                                           StyleClass="NormalText"
+                                           TextColor="{StaticResource NPStockRed}"
+                                           Grid.Column="1"/>
+                                </Grid>
+                                <ProgressBar Progress="0.05"
+                                             ProgressColor="{StaticResource NPStockRed}"
+                                             HeightRequest="8"
+                                             BackgroundColor="{StaticResource NPLightBg}"/>
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
