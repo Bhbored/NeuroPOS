@@ -1,20 +1,41 @@
 ﻿using PropertyChanged;
 using SQLite;
+using Humanizer;
 using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NeuroPOS.MVVM.Model
 {
     [AddINotifyPropertyChangedInterface]
-    public class CashRegister : Entity
+    public class CashRegister : Entity, INotifyPropertyChanged
     {
+        private List<Transaction> _transactions = new List<Transaction>();
+
         [OneToMany(CascadeOperations = CascadeOperation.All)]
-        public List<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public List<Transaction> Transactions
+        {
+            get => _transactions;
+            set
+            {
+                _transactions = value;
+                OnPropertyChanged(nameof(Transactions));
+                // Trigger property change notifications for calculated properties
+                OnPropertyChanged(nameof(TotalIncome));
+                OnPropertyChanged(nameof(TotalExpenses));
+                OnPropertyChanged(nameof(NetProfit));
+                OnPropertyChanged(nameof(TotalTransactions));
+                OnPropertyChanged(nameof(TotalItemsSold));
+                OnPropertyChanged(nameof(TotalItemsBought));
+                OnPropertyChanged(nameof(TotalCreditSales));
+            }
+        }
 
         #region Ignore Properties
         [Ignore]
@@ -54,6 +75,17 @@ namespace NeuroPOS.MVVM.Model
         [Ignore]
         public string Summary =>
             $"Sales: {TotalIncome:C}, Expenses: {TotalExpenses:C}, Profit: {NetProfit:C}";
+
+        #endregion
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         #endregion
     }

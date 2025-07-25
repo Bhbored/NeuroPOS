@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NeuroPOS.MVVM.Model;
+using PropertyChanged;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -6,21 +8,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using NeuroPOS.MVVM.Model;
 
 namespace NeuroPOS.MVVM.ViewModel
 {
+    [AddINotifyPropertyChangedInterface]
     public class CashRegisterVM : INotifyPropertyChanged
     {
-        private CashRegister _cashRegister;
-        private ObservableCollection<Transaction> _transactions;
+        private CashRegister _cashRegister = new CashRegister();
+        private ObservableCollection<Transaction> _transactions = new ObservableCollection<Transaction>();
         private string _selectedFilter = "All";
-
-        public CashRegisterVM()
-        {
-            InitializeData();
-            InitializeCommands();
-        }
+        private bool _isNewestFirst = true; // true = newest first, false = oldest first
 
         #region Properties
 
@@ -55,113 +52,47 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
+        public bool IsNewestFirst
+        {
+            get => _isNewestFirst;
+            set
+            {
+                _isNewestFirst = value;
+                OnPropertyChanged(nameof(IsNewestFirst));
+                FilterTransactions();
+            }
+        }
+
         #endregion
 
         #region Commands
 
-        public ICommand FilterCommand { get; private set; }
-
-        private void InitializeCommands()
-        {
-            FilterCommand = new Command<string>(filter => SelectedFilter = filter);
-        }
+        public ICommand FilterCommand => new Command<string>(filter => SelectedFilter = filter);
+        public ICommand ToggleSortCommand => new Command(() => IsNewestFirst = !IsNewestFirst);
 
         #endregion
 
         #region Methods
 
-        private void InitializeData()
+        public async Task LoadDB()
         {
-            // Initialize CashRegister with test data
-            _cashRegister = new CashRegister();
-
-            // Create test transactions that match the image values
-            var testTransactions = new List<Transaction>
+            var dbTransactions = App.TransactionRepo.GetItemsWithChildren();
+            await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-1),
-                    TransactionType = "sell",
-                    TotalAmount = 250.00,
-                    IsPaid = true,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Price = 250.00 }
-                    }
-                },
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-1),
-                    TransactionType = "sell",
-                    TotalAmount = 180.00,
-                    IsPaid = true,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Price = 180.00 }
-                    }
-                },
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-2),
-                    TransactionType = "buy",
-                    TotalAmount = 300.00,
-                    IsPaid = false,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Cost = 300.00 }
-                    }
-                },
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-2),
-                    TransactionType = "sell",
-                    TotalAmount = 220.00,
-                    IsPaid = true,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Price = 220.00 }
-                    }
-                },
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-3),
-                    TransactionType = "buy",
-                    TotalAmount = 400.00,
-                    IsPaid = true,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Cost = 400.00 }
-                    }
-                },
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-4),
-                    TransactionType = "sell",
-                    TotalAmount = 150.00,
-                    IsPaid = true,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Price = 150.00 }
-                    }
-                },
-                new Transaction
-                {
-                    Date = DateTime.Now.AddDays(-5),
-                    TransactionType = "buy",
-                    TotalAmount = 500.00,
-                    IsPaid = false,
-                    Lines = new List<TransactionLine>
-                    {
-                        new TransactionLine { Stock = 1, Cost = 500.00 }
-                    }
-                }
-            };
+                CashRegister = new CashRegister();
+                Transactions.Clear();
+            });
 
-            // Add transactions to cash register
-            _cashRegister.Transactions = testTransactions;
+            foreach (var item in dbTransactions)
+            {
+                Transactions.Add(item);
+            }
 
-            // Initialize collections
-            _transactions = new ObservableCollection<Transaction>(testTransactions);
+            // Set the transactions list in CashRegister to trigger property change notifications
+            CashRegister.Transactions = new List<Transaction>(Transactions);
+
+            // Trigger property change notifications for calculated properties
+            OnPropertyChanged(nameof(CashRegister));
         }
 
         private void FilterTransactions()
@@ -179,6 +110,16 @@ namespace NeuroPOS.MVVM.ViewModel
                 default:
                     // "All" - no filtering needed
                     break;
+            }
+
+            // Apply sorting
+            if (_isNewestFirst)
+            {
+                filteredTransactions = filteredTransactions.OrderByDescending(t => t.Date);
+            }
+            else
+            {
+                filteredTransactions = filteredTransactions.OrderBy(t => t.Date);
             }
 
             Transactions = new ObservableCollection<Transaction>(filteredTransactions);
