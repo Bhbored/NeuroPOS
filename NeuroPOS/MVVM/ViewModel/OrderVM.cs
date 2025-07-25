@@ -14,6 +14,7 @@ using CommunityToolkit.Maui.Extensions;
 using Microsoft.Maui.Controls;
 using PropertyChanged;
 using Contact = NeuroPOS.MVVM.Model.Contact;
+using System.Diagnostics;
 namespace NeuroPOS.MVVM.ViewModel
 {
     [AddINotifyPropertyChangedInterface]
@@ -22,9 +23,9 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #region Private Fields
 
-        private ObservableCollection<Order> _orders;
-        private ObservableCollection<Order> _filteredOrders;
-        private ObservableCollection<Order> _displayedOrders;
+        private ObservableCollection<Order> _orders = new ObservableCollection<Order>();
+        private ObservableCollection<Order> _filteredOrders = new ObservableCollection<Order>();
+        private ObservableCollection<Order> _displayedOrders = new ObservableCollection<Order>();
         private Order _selectedOrder;
         private string _searchText = "";
         private bool _isRefreshing = false;
@@ -61,10 +62,7 @@ namespace NeuroPOS.MVVM.ViewModel
         private int _selectedProductQuantity = 1;
         #endregion
 
-        public OrderVM()
-        {
-            LoadTestData();
-        }
+
 
         #region Properties
 
@@ -78,8 +76,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 ApplyFilters();
             }
         }
-        public ObservableCollection<Product> Products { get; set; }
-        public ObservableCollection<Contact> Contacts { get; set; }
+        public ObservableCollection<Product> Products { get; set; } = new ObservableCollection<Product>();
+        public ObservableCollection<Contact> Contacts { get; set; } = new ObservableCollection<Contact>();
         public ObservableCollection<Order> FilteredOrders
         {
             get => _filteredOrders;
@@ -450,110 +448,44 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #region Methods
 
-        private void LoadTestData()
+        private async Task LoadDB()
         {
-            var testOrders = new List<Order>();
-            var customerNames = new[] { "Sophie Carter", "Owen Bennett", "Olivia Hayes", "Jackson Hayes", "Emma Wilson",
-"Liam Davis", "Ava Miller", "Noah Garcia", "Mia Anderson", "Ethan Thompson",
-"Isabella Martinez", "William Johnson", "Sophia Brown", "James Wilson", "Charlotte Davis",
-"Benjamin Miller", "Amelia Garcia", "Lucas Rodriguez", "Harper Martinez", "Henry Anderson",
-"Evelyn Taylor", "Alexander Thomas", "Abigail Hernandez", "Michael Lopez", "Emily Gonzalez",
-"Daniel Perez", "Elizabeth Torres", "Matthew Sanchez", "Sofia Ramirez", "David Flores" };
-            var productNames = new[] { "Laptop", "Smartphone", "Tablet", "Headphones", "Mouse", "Keyboard", "Monitor",
-"Speaker", "Camera", "Printer", "Scanner", "Router", "Cable", "Adapter", "Charger" };
-            var random = new Random();
-            var startDate = new DateTime(2024, 1, 1);
-            for (int i = 1; i <= 50; i++)
+            var DBOrders = App.OrderRepo.GetItemsWithChildren() ?? new List<Order>();
+            await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                var orderDate = startDate.AddDays(random.Next(0, 365));
-                var customerName = customerNames[random.Next(customerNames.Length)];
-                var isConfirmed = random.Next(2) == 1;
-                var itemCount = random.Next(1, 6);
-                var totalAmount = 0.0;
-                var orderLines = new List<TransactionLine>();
-                for (int j = 0; j < itemCount; j++)
-                {
-                    var productName = productNames[random.Next(productNames.Length)];
-                    var price = Math.Round(random.NextDouble() * 50 + 5, 2);
-                    var quantity = random.Next(1, 4);
-                    var cost = Math.Round(price * 0.6, 2);
-                    var line = new TransactionLine
-                    {
-                        Id = i * 100 + j,
-                        Name = productName,
-                        Price = price,
-                        Cost = cost,
-                        Stock = quantity,
-                        DateAdded = orderDate,
-                        CategoryName = "Electronics",
-                        OrderId = i
-                    };
-                    orderLines.Add(line);
-                    totalAmount += price * quantity;
-                }
-                testOrders.Add(new Order
-                {
-                    Id = i,
-                    Date = orderDate,
-                    CustomerName = customerName,
-                    IsConfirmed = isConfirmed,
-                    TotalAmount = Math.Round(totalAmount, 2),
-                    ItemCount = itemCount,
-                    Lines = orderLines
-                });
+                Orders.Clear();
+                FilteredOrders.Clear();
+                DisplayedOrders.Clear();
+            });
+            foreach (var item in DBOrders)
+            {
+                Orders.Add(item);
             }
-            Orders = new ObservableCollection<Order>(testOrders);
-            FilteredOrders = new ObservableCollection<Order>(testOrders);
+            FilteredOrders = new ObservableCollection<Order>(Orders);
             DisplayedOrders = new ObservableCollection<Order>();
-            LoadTestProducts();
-            LoadTestContacts();
+            var DBProducts = App.ProductRepo.GetItems() ?? new List<Product>();
+            var DBContacts = App.ContactRepo.GetItemsWithChildren() ?? new List<Contact>();
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Products.Clear();
+            });
+            foreach (var item in DBProducts)
+            {
+                Products.Add(item);
+            }
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Contacts.Clear();
+            });
+            foreach (var item in DBContacts)
+            {
+                Contacts.Add(item);
+            }
+            ClearFilters();
             UpdatePagination();
         }
-        private void LoadTestProducts()
-        {
-            var testProducts = new List<Product>();
-            var productNames = new[] { "Laptop", "Smartphone", "Tablet", "Headphones", "Mouse", "Keyboard", "Monitor",
-"Speaker", "Camera", "Printer", "Scanner", "Router", "Cable", "Adapter", "Charger" };
-            var random = new Random();
-            for (int i = 1; i <= 15; i++)
-            {
-                var productName = productNames[i - 1];
-                var price = Math.Round(random.NextDouble() * 50 + 5, 2);
-                var cost = Math.Round(price * 0.6, 2);
-                testProducts.Add(new Product
-                {
-                    Id = i,
-                    Name = productName,
-                    Price = price,
-                    Cost = cost,
-                    Stock = random.Next(1, 50),
-                    CategoryName = "Electronics",
-                    DateAdded = DateTime.Now
-                });
-            }
-            Products = new ObservableCollection<Product>(testProducts);
-        }
-        private void LoadTestContacts()
-        {
-            var testContacts = new List<Contact>();
-            var contactNames = new[] { "Sophie Carter", "Owen Bennett", "Olivia Hayes", "Jackson Hayes", "Emma Wilson",
-"Liam Davis", "Ava Miller", "Noah Garcia", "Mia Anderson", "Ethan Thompson",
-"Isabella Martinez", "William Johnson", "Sophia Brown", "James Wilson", "Charlotte Davis" };
-            var random = new Random();
-            for (int i = 1; i <= 15; i++)
-            {
-                testContacts.Add(new Contact
-                {
-                    Id = i,
-                    Name = contactNames[i - 1],
-                    Email = $"{contactNames[i - 1].ToLower().Replace(" ", ".")}@example.com",
-                    PhoneNumber = $"+1-555-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                    Address = $"{random.Next(100, 9999)} Main St, City {i}",
-                    DateAdded = DateTime.Now
-                });
-            }
-            Contacts = new ObservableCollection<Contact>(testContacts);
-        }
+
+
         private void ShowOrderDetails(Order order)
         {
             if (order == null) return;
@@ -696,7 +628,7 @@ namespace NeuroPOS.MVVM.ViewModel
             if (LastPageCommand is Command lastCmd)
                 lastCmd.ChangeCanExecute();
         }
-        private void ClearFilters()
+        public void ClearFilters()
         {
             SearchText = "";
             SelectedStatusFilter = "All";
@@ -719,7 +651,6 @@ namespace NeuroPOS.MVVM.ViewModel
 
         private void ClearNewOrderForm()
         {
-            NewOrderId = Orders.Count + 1;
             NewOrderCustomerName = "";
             NewOrderDate = DateTime.Now;
             NewOrderIsConfirmed = false;
@@ -740,19 +671,42 @@ namespace NeuroPOS.MVVM.ViewModel
         }
         private void AddNewOrderToCollection()
         {
-            var newOrder = new Order
+
+            if (UseExistingContact == true)
             {
-                Id = NewOrderId,
-                CustomerName = NewOrderCustomerName,
-                Date = NewOrderDate,
-                IsConfirmed = NewOrderIsConfirmed,
-                TotalAmount = NewOrderTotalAmount,
-                Discount = NewOrderDiscount,
-                Tax = NewOrderTaxRate,
-                ItemCount = NewOrderLines?.Count ?? 0,
-                Lines = NewOrderLines?.ToList() ?? new List<TransactionLine>()
-            };
-            Orders.Add(newOrder);
+                var existingCustomer = App.ContactRepo.GetItemsWithChildren().Where(x => x.Name == NewOrderCustomerName).FirstOrDefault();
+                var newOrder = new Order
+                {
+                    CustomerName = NewOrderCustomerName,
+                    Date = NewOrderDate,
+                    IsConfirmed = NewOrderIsConfirmed,
+                    TotalAmount = NewOrderTotalAmount,
+                    Discount = NewOrderDiscount,
+                    Tax = NewOrderTaxRate,
+                    ContactId = existingCustomer.Id,
+                    Lines = NewOrderLines?.ToList() ?? new List<TransactionLine>()
+                };
+                App.OrderRepo.InsertItemWithChildren(newOrder);
+                _ = RefreshOrders();
+            }
+            else
+            {
+                var newOrder = new Order
+                {
+                    CustomerName = NewOrderCustomerName,
+                    Date = NewOrderDate,
+                    IsConfirmed = NewOrderIsConfirmed,
+                    TotalAmount = NewOrderTotalAmount,
+                    Discount = NewOrderDiscount,
+                    Tax = NewOrderTaxRate,
+                    Lines = NewOrderLines?.ToList() ?? new List<TransactionLine>()
+                };
+                // Fix: Use InsertItemWithChildren consistently for both cases
+                App.OrderRepo.InsertItemWithChildren(newOrder);
+                ShowSuccessSnackbar($"Order Entered succesfully for {NewOrderCustomerName}");
+                _ = RefreshOrders();
+            }
+
         }
         private async void ShowSuccessSnackbar(string message)
         {
@@ -809,6 +763,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     CategoryName = SelectedProduct.CategoryName,
                     DateAdded = DateTime.Now,
                     ProductId = SelectedProduct.Id
+                    // Remove manual OrderId assignment - let ORM handle it
                 };
                 NewOrderLines.Add(lineToAdd);
                 UpdateNewOrderTotal();
@@ -971,27 +926,24 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
 
-        private async Task RefreshOrders()
+        public async Task RefreshOrders()
         {
             try
             {
                 IsRefreshing = true;
-                await Task.Delay(1000);
+                await Task.Delay(500);
+                await LoadDB();
                 ApplyFilters();
                 IsRefreshing = false;
                 var totalConfirmed = Orders.Count(o => o.IsConfirmed);
                 var totalPending = Orders.Count(o => !o.IsConfirmed);
                 var totalRevenue = Orders.Where(o => o.IsConfirmed).Sum(o => o.TotalAmount);
-                var message = $"Orders refreshed - {totalConfirmed} confirmed, {totalPending} pending, ${totalRevenue:N2} total revenue";
-                var snackbar = Snackbar.Make(message, duration: TimeSpan.FromSeconds(2));
-                await snackbar.Show();
+
             }
             catch (Exception ex)
             {
                 IsRefreshing = false;
-                var snackbar = Snackbar.Make($"Error refreshing orders: {ex.Message}",
-                duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
+                Debug.WriteLine($"couldn't refresh because : {ex.Message} ");
             }
         }
         private async Task ConfirmOrder(Order order)
@@ -1024,6 +976,7 @@ namespace NeuroPOS.MVVM.ViewModel
                     Stock = 1,
                     CategoryName = "Electronics",
                     DateAdded = DateTime.Now
+                    // Remove manual OrderId assignment - let ORM handle it
                 };
                 if (NewOrderLines == null)
                 {

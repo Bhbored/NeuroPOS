@@ -12,11 +12,11 @@
     BackgroundColor="{StaticResource NPLightBg}">
 
     <ContentPage.Resources>
-        <Converters:IntToBoolConverter x:Key="IntToBoolConverter"/>
-        <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter"/>
-        <Converters:ViewModeConverter x:Key="ViewModeConverter"/>
-        <Converters:StatusToColorConverter x:Key="StatusToColor"/>
-        <Converters:ProductTotalConverter x:Key="ProductTotalConverter"/>
+        <Converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+        <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter" />
+        <Converters:ViewModeConverter x:Key="ViewModeConverter" />
+        <Converters:StatusToColorConverter x:Key="StatusToColor" />
+        <Converters:ProductTotalConverter x:Key="ProductTotalConverter" />
     </ContentPage.Resources>
     <ScrollView>
         <Grid ColumnDefinitions=".75*,.25*">
@@ -35,11 +35,11 @@
                         FontFamily="PoppinsBold"
                         FontSize="28"
                         Text="Orders"
-                        TextColor="{StaticResource NPTextMain}"/>
+                        TextColor="{StaticResource NPTextMain}" />
                     <Label
                         FontSize="16"
                         Text="Manage and track all your orders."
-                        TextColor="{StaticResource NPTextSecondary}"/>
+                        TextColor="{StaticResource NPTextSecondary}" />
                 </VerticalStackLayout>
 
                 <!--  Action Buttons  -->
@@ -55,7 +55,7 @@
                         FontFamily="PoppinsBold"
                         FontSize="14"
                         Text="+ Add Order"
-                        TextColor="White"/>
+                        TextColor="White" />
                     <Button
                         Padding="16,12"
                         BackgroundColor="{StaticResource NPTextSecondary}"
@@ -65,7 +65,7 @@
                         FontSize="14"
                         IsVisible="{Binding HasAnyActiveFilter}"
                         Text="Clear Filters"
-                        TextColor="White"/>
+                        TextColor="White" />
                 </HorizontalStackLayout>
 
                 <!--  Search and Filter Bar  -->
@@ -85,7 +85,7 @@
                             BackgroundColor="Transparent"
                             FontSize="14"
                             Placeholder="Search orders by customer or order number"
-                            Text="{Binding SearchText}"/>
+                            Text="{Binding SearchText}" />
                     </Border>
 
                     <Border
@@ -97,12 +97,12 @@
                         StrokeThickness="1">
                         <Picker
                             x:Name="StatusFilterPicker"
+                            Title="Status"
                             BackgroundColor="Transparent"
                             FontSize="14"
                             ItemsSource="{Binding StatusFilters}"
-                            SelectedItem="{Binding SelectedStatusFilter}"
-                            Title="Status"
-                            SelectedIndex="0"/>
+                            SelectedIndex="0"
+                            SelectedItem="{Binding SelectedStatusFilter}" />
                     </Border>
 
                     <Border
@@ -117,7 +117,7 @@
                             Command="{Binding ShowDatePickerCommand}"
                             FontSize="14"
                             Text="📅 Date Range"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                     </Border>
                 </Grid>
 
@@ -127,22 +127,22 @@
                     Margin="0,0,0,16"
                     Padding="16,10"
                     BackgroundColor="{StaticResource NPAccentYellow}"
+                    HorizontalOptions="Start"
                     IsVisible="{Binding IsDateFilterActive}"
                     StrokeShape="RoundRectangle 8"
                     StrokeThickness="0"
-                    HorizontalOptions="Start"
                     WidthRequest="400">
                     <HorizontalStackLayout Spacing="8">
                         <Label
                             FontSize="14"
                             Text="🔍"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
                         <Label
                             FontFamily="PoppinsBold"
                             FontSize="13"
                             Text="{Binding DateFilterSummary}"
                             TextColor="White"
-                            VerticalOptions="Center"/>
+                            VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>
 
@@ -165,37 +165,37 @@
                                 Grid.Column="0"
                                 StyleClass="ColumnHeader"
                                 Text="DATE"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="1"
                                 StyleClass="ColumnHeader"
                                 Text="ORDER #"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="2"
                                 StyleClass="ColumnHeader"
                                 Text="CUSTOMER"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="3"
                                 StyleClass="ColumnHeader"
                                 Text="ITEMS"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="4"
                                 StyleClass="ColumnHeader"
                                 Text="TOTAL"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="5"
                                 StyleClass="ColumnHeader"
                                 Text="STATUS"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 Grid.Column="6"
                                 StyleClass="ColumnHeader"
                                 Text=""
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                         </Grid>
 
                         <!--  Orders Items with RefreshView  -->
@@ -218,8 +218,7 @@
 
                                             <!--  Clickable Order Row  -->
                                             <Grid.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectOrderCommand}"
-                                                                      CommandParameter="{Binding .}"/>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectOrderCommand}" CommandParameter="{Binding .}" />
                                             </Grid.GestureRecognizers>
 
                                             <!--  Date  -->
@@ -228,7 +227,7 @@
                                                 FontSize="12"
                                                 Text="{Binding FormattedDate}"
                                                 TextColor="{StaticResource NPTextSecondary}"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
 
                                             <!--  Order Number  -->
                                             <Label
@@ -237,7 +236,7 @@
                                                 FontSize="14"
                                                 Text="{Binding Id, StringFormat='Order #{0}'}"
                                                 TextColor="{StaticResource NPTextMain}"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
 
                                             <!--  Customer Name  -->
                                             <Label
@@ -246,24 +245,24 @@
                                                 FontSize="14"
                                                 Text="{Binding CustomerName}"
                                                 TextColor="{StaticResource NPTextMain}"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
 
                                             <!--  Items Count  -->
                                             <Label
                                                 Grid.Column="3"
                                                 FontSize="12"
-                                                Text="{Binding ItemCount, StringFormat='{0} items'}"
+                                                Text="{Binding ComputedItemCount, StringFormat='{0} items'}"
                                                 TextColor="{StaticResource NPTextSecondary}"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
 
                                             <!--  Total Amount  -->
                                             <Label
                                                 Grid.Column="4"
                                                 FontFamily="PoppinsBold"
                                                 FontSize="14"
-                                                Text="{Binding TotalAmount, StringFormat='${0:N2}'}"
+                                                Text="{Binding CalculatedTotalAmount, StringFormat='${0:N2}'}"
                                                 TextColor="{StaticResource NPStockGreen}"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
 
                                             <!--  Status  -->
                                             <Border
@@ -278,7 +277,7 @@
                                                     HorizontalOptions="Center"
                                                     Text="{Binding Status}"
                                                     TextColor="White"
-                                                    VerticalOptions="Center"/>
+                                                    VerticalOptions="Center" />
                                             </Border>
 
                                             <!--  Actions  -->
@@ -294,7 +293,7 @@
                                                     FontSize="16"
                                                     HeightRequest="32"
                                                     Text="✏️"
-                                                    WidthRequest="32"/>
+                                                    WidthRequest="32" />
                                                 <Button
                                                     Padding="0"
                                                     BackgroundColor="Transparent"
@@ -303,7 +302,7 @@
                                                     FontSize="16"
                                                     HeightRequest="32"
                                                     Text="🗑️"
-                                                    WidthRequest="32"/>
+                                                    WidthRequest="32" />
                                             </HorizontalStackLayout>
                                         </Grid>
                                     </DataTemplate>
@@ -317,18 +316,18 @@
                                         <Image
                                             Aspect="AspectFit"
                                             HeightRequest="120"
-                                            Source="emptyproduct.png"/>
+                                            Source="emptyproduct.png" />
                                         <Label
                                             FontFamily="PoppinsBold"
                                             FontSize="18"
                                             HorizontalTextAlignment="Center"
                                             Text="No orders found"
-                                            TextColor="{StaticResource NPTextMain}"/>
+                                            TextColor="{StaticResource NPTextMain}" />
                                         <Label
                                             FontSize="14"
                                             HorizontalTextAlignment="Center"
                                             Text="Start by adding your first order"
-                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                            TextColor="{StaticResource NPTextSecondary}" />
                                     </VerticalStackLayout>
                                 </CollectionView.EmptyView>
                             </CollectionView>
@@ -344,21 +343,19 @@
                     Stroke="{StaticResource NPDivider}"
                     StrokeShape="RoundRectangle 8"
                     StrokeThickness="1">
-                    <Grid Padding="16"
-                          ColumnDefinitions="*,Auto">
+                    <Grid Padding="16" ColumnDefinitions="*,Auto">
                         <!--  Page Info  -->
-                        <VerticalStackLayout Grid.Column="0"
-                                             Spacing="2">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
                             <Label
                                 FontSize="12"
                                 Text="{Binding TotalOrders, StringFormat='Total: {0} orders'}"
                                 TextColor="{StaticResource NPTextSecondary}"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                             <Label
                                 FontSize="10"
                                 Text="{Binding CurrentPage, StringFormat='Page {0} of {1}', FallbackValue='Page 1 of 1'}"
                                 TextColor="{StaticResource NPTextMuted}"
-                                VerticalOptions="Center"/>
+                                VerticalOptions="Center" />
                         </VerticalStackLayout>
 
                         <!--  Pagination Buttons  -->
@@ -375,7 +372,7 @@
                                 IsEnabled="{Binding HasPreviousPage}"
                                 Text="First"
                                 TextColor="White"
-                                WidthRequest="60"/>
+                                WidthRequest="60" />
                             <Button
                                 BackgroundColor="{StaticResource NPPrimaryBlue}"
                                 Command="{Binding PreviousPageCommand}"
@@ -385,7 +382,7 @@
                                 IsEnabled="{Binding HasPreviousPage}"
                                 Text="Prev"
                                 TextColor="White"
-                                WidthRequest="60"/>
+                                WidthRequest="60" />
                             <Border
                                 Padding="12,8"
                                 BackgroundColor="{StaticResource NPLightBg}"
@@ -395,7 +392,7 @@
                                     FontSize="12"
                                     Text="{Binding CurrentPage, StringFormat='{0} of {1}', FallbackValue='1 of 1'}"
                                     TextColor="{StaticResource NPTextMain}"
-                                    VerticalOptions="Center"/>
+                                    VerticalOptions="Center" />
                             </Border>
                             <Button
                                 BackgroundColor="{StaticResource NPPrimaryBlue}"
@@ -406,7 +403,7 @@
                                 IsEnabled="{Binding HasNextPage}"
                                 Text="Next"
                                 TextColor="White"
-                                WidthRequest="60"/>
+                                WidthRequest="60" />
                             <Button
                                 BackgroundColor="{StaticResource NPPrimaryBlue}"
                                 Command="{Binding LastPageCommand}"
@@ -416,7 +413,7 @@
                                 IsEnabled="{Binding HasNextPage}"
                                 Text="Last"
                                 TextColor="White"
-                                WidthRequest="60"/>
+                                WidthRequest="60" />
                         </HorizontalStackLayout>
 
 
@@ -432,8 +429,7 @@
                 Stroke="{StaticResource NPDivider}"
                 StrokeShape="RoundRectangle 12"
                 StrokeThickness="1">
-                <Grid Padding="24"
-                      RowDefinitions="Auto,Auto,*">
+                <Grid Padding="24" RowDefinitions="Auto,Auto,*">
                     <!--  Header  -->
                     <VerticalStackLayout
                         Grid.Row="0"
@@ -443,11 +439,11 @@
                             FontFamily="PoppinsBold"
                             FontSize="18"
                             Text="Order Details"
-                            TextColor="{StaticResource NPTextMain}"/>
+                            TextColor="{StaticResource NPTextMain}" />
                         <Label
                             FontSize="14"
                             Text="View and edit order information"
-                            TextColor="{StaticResource NPTextSecondary}"/>
+                            TextColor="{StaticResource NPTextSecondary}" />
                     </VerticalStackLayout>
 
                     <!--  Divider  -->
@@ -455,7 +451,7 @@
                         Grid.Row="1"
                         Margin="0,0,0,20"
                         BackgroundColor="{StaticResource NPDivider}"
-                        HeightRequest="1"/>
+                        HeightRequest="1" />
 
                     <!--  Content with Dynamic Templates  -->
                     <Grid Grid.Row="2">
@@ -478,22 +474,21 @@
                                     FontSize="40"
                                     HorizontalOptions="Center"
                                     Text="📋"
-                                    VerticalOptions="Center"/>
+                                    VerticalOptions="Center" />
                             </Border>
-                            <VerticalStackLayout HorizontalOptions="Center"
-                                                 Spacing="12">
+                            <VerticalStackLayout HorizontalOptions="Center" Spacing="12">
                                 <Label
                                     FontFamily="PoppinsBold"
                                     FontSize="18"
                                     HorizontalTextAlignment="Center"
                                     Text="No Order Selected"
-                                    TextColor="{StaticResource NPTextMain}"/>
+                                    TextColor="{StaticResource NPTextMain}" />
                                 <Label
                                     FontSize="14"
                                     HorizontalTextAlignment="Center"
                                     LineBreakMode="WordWrap"
                                     Text="Select an order from the list to view its details, products, and manage its status"
-                                    TextColor="{StaticResource NPTextSecondary}"/>
+                                    TextColor="{StaticResource NPTextSecondary}" />
                             </VerticalStackLayout>
                         </VerticalStackLayout>
 
@@ -525,7 +520,7 @@
                                                 FontSize="24"
                                                 HorizontalOptions="Center"
                                                 Text="📦"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
                                         </Border>
 
                                         <!--  Order Info  -->
@@ -537,11 +532,11 @@
                                                 FontFamily="PoppinsBold"
                                                 FontSize="18"
                                                 Text="{Binding SelectedOrder.CustomerName}"
-                                                TextColor="{StaticResource NPTextMain}"/>
+                                                TextColor="{StaticResource NPTextMain}" />
                                             <Label
                                                 FontSize="14"
                                                 Text="{Binding SelectedOrder.Date, StringFormat='Ordered on {0:dd MMM yyyy}'}"
-                                                TextColor="{StaticResource NPTextSecondary}"/>
+                                                TextColor="{StaticResource NPTextSecondary}" />
                                         </VerticalStackLayout>
 
                                         <!--  Status Row  -->
@@ -553,12 +548,12 @@
                                                 Padding="8,6"
                                                 BackgroundColor="{Binding SelectedOrder.Status, Converter={StaticResource StatusToColor}}"
                                                 HorizontalOptions="Start"
-                                                StrokeShape="RoundRectangle 16">
+                                                StrokeShape="RoundRectangle 5">
                                                 <Label
                                                     FontFamily="PoppinsBold"
                                                     FontSize="12"
                                                     Text="{Binding SelectedOrder.Status}"
-                                                    TextColor="White"/>
+                                                    TextColor="White" />
                                             </Border>
 
                                             <!--  Mark Completed Button (only for Pending orders)  -->
@@ -573,7 +568,7 @@
                                                 HorizontalOptions="Start"
                                                 IsVisible="{Binding SelectedOrder.IsConfirmed, Converter={StaticResource IntToInverseBoolConverter}}"
                                                 Text="Mark Completed"
-                                                TextColor="White"/>
+                                                TextColor="White" />
                                         </VerticalStackLayout>
 
                                         <!--  Total Amount  -->
@@ -582,14 +577,41 @@
                                             Grid.Column="1"
                                             Spacing="4">
                                             <Label
+                                                FontSize="10"
+                                                Text="SubTotal"
+                                                TextColor="{StaticResource NPTextSecondary}" />
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="18"
+                                                Text="{Binding SelectedOrder.SubTotalAmount, StringFormat='${0:N2}'}"
+                                                TextColor="{StaticResource NPStockGreen}" />
+                                            <Label
+                                                FontSize="10"
+                                                Text="Discount"
+                                                TextColor="{StaticResource NPTextSecondary}" />
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="18"
+                                                Text="{Binding SelectedOrder.Discount, StringFormat='${0:N2}'}"
+                                                TextColor="{StaticResource NPStockGreen}" />
+                                            <Label
+                                                FontSize="10"
+                                                Text="Tax"
+                                                TextColor="{StaticResource NPTextSecondary}" />
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="18"
+                                                Text="{Binding SelectedOrder.Tax, StringFormat='${0:N2}'}"
+                                                TextColor="{StaticResource NPStockGreen}" />
+                                            <Label
                                                 FontSize="12"
                                                 Text="TOTAL AMOUNT"
-                                                TextColor="{StaticResource NPTextSecondary}"/>
+                                                TextColor="{StaticResource NPTextSecondary}" />
                                             <Label
                                                 FontFamily="PoppinsBold"
                                                 FontSize="20"
-                                                Text="{Binding SelectedOrder.TotalAmount, StringFormat='${0:N2}'}"
-                                                TextColor="{StaticResource NPStockGreen}"/>
+                                                Text="{Binding SelectedOrder.CalculatedTotalAmount, StringFormat='${0:N2}'}"
+                                                TextColor="{StaticResource NPStockGreen}" />
                                         </VerticalStackLayout>
                                     </Grid>
                                 </Border>
@@ -600,11 +622,11 @@
                                         FontFamily="PoppinsBold"
                                         FontSize="16"
                                         Text="Order Products"
-                                        TextColor="{StaticResource NPTextMain}"/>
+                                        TextColor="{StaticResource NPTextMain}" />
                                     <Label
                                         FontSize="12"
-                                        Text="{Binding SelectedOrder.Lines.Count, StringFormat='{0} items in this order'}"
-                                        TextColor="{StaticResource NPTextSecondary}"/>
+                                        Text="{Binding SelectedOrder.ComputedItemCount, StringFormat='{0} items in this order'}"
+                                        TextColor="{StaticResource NPTextSecondary}" />
                                 </VerticalStackLayout>
 
                                 <!--  Products List  -->
@@ -618,8 +640,7 @@
                                                 Stroke="{StaticResource NPDivider}"
                                                 StrokeShape="RoundRectangle 12"
                                                 StrokeThickness="1">
-                                                <Grid ColumnDefinitions="Auto,*,Auto"
-                                                      ColumnSpacing="12">
+                                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                                                     <!--  Product Icon  -->
                                                     <Border
                                                         Grid.Column="0"
@@ -631,25 +652,24 @@
                                                         <Image
                                                             HorizontalOptions="Center"
                                                             Source="{Binding ImageUrl}"
-                                                            VerticalOptions="Center"/>
+                                                            VerticalOptions="Center" />
                                                     </Border>
 
                                                     <!--  Product Details  -->
-                                                    <VerticalStackLayout Grid.Column="1"
-                                                                         Spacing="4">
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
                                                         <Label
                                                             FontFamily="PoppinsBold"
                                                             FontSize="14"
                                                             Text="{Binding Name}"
-                                                            TextColor="{StaticResource NPTextMain}"/>
+                                                            TextColor="{StaticResource NPTextMain}" />
                                                         <Label
                                                             FontSize="12"
                                                             Text="{Binding CategoryName}"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
                                                         <Label
                                                             FontSize="11"
                                                             Text="{Binding Stock, StringFormat='Quantity: {0}'}"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
                                                     </VerticalStackLayout>
 
                                                     <!--  Price and Total  -->
@@ -661,13 +681,13 @@
                                                             FontSize="12"
                                                             HorizontalOptions="End"
                                                             Text="{Binding Price, StringFormat='${0:N2}'}"
-                                                            TextColor="{StaticResource NPTextSecondary}"/>
+                                                            TextColor="{StaticResource NPTextSecondary}" />
                                                         <Label
                                                             FontFamily="PoppinsBold"
                                                             FontSize="16"
                                                             HorizontalOptions="End"
                                                             Text="{Binding TotalPrice, StringFormat='${0:N2}'}"
-                                                            TextColor="{StaticResource NPStockGreen}"/>
+                                                            TextColor="{StaticResource NPStockGreen}" />
                                                     </VerticalStackLayout>
                                                 </Grid>
                                             </Border>
@@ -683,7 +703,7 @@
                                                 FontSize="12"
                                                 HorizontalTextAlignment="Center"
                                                 Text="No products in this order"
-                                                TextColor="{StaticResource NPTextSecondary}"/>
+                                                TextColor="{StaticResource NPTextSecondary}" />
                                         </VerticalStackLayout>
                                     </CollectionView.EmptyView>
                                 </CollectionView>
@@ -699,13 +719,13 @@
                                         FontFamily="PoppinsBold"
                                         FontSize="12"
                                         Text="CUSTOMER NAME"
-                                        TextColor="{StaticResource NPTextSecondary}"/>
+                                        TextColor="{StaticResource NPTextSecondary}" />
                                     <Border StyleClass="ModernEntry">
                                         <Entry
                                             BackgroundColor="Transparent"
                                             FontSize="14"
                                             Placeholder="Enter customer name"
-                                            Text="{Binding EditCustomerName}"/>
+                                            Text="{Binding EditCustomerName}" />
                                     </Border>
                                 </VerticalStackLayout>
 
@@ -715,12 +735,12 @@
                                         FontFamily="PoppinsBold"
                                         FontSize="12"
                                         Text="ORDER DATE"
-                                        TextColor="{StaticResource NPTextSecondary}"/>
+                                        TextColor="{StaticResource NPTextSecondary}" />
                                     <Border StyleClass="ModernEntry">
                                         <DatePicker
                                             BackgroundColor="Transparent"
                                             Date="{Binding EditDate}"
-                                            FontSize="14"/>
+                                            FontSize="14" />
                                     </Border>
                                 </VerticalStackLayout>
 
@@ -730,14 +750,14 @@
                                         FontFamily="PoppinsBold"
                                         FontSize="12"
                                         Text="TOTAL AMOUNT"
-                                        TextColor="{StaticResource NPTextSecondary}"/>
+                                        TextColor="{StaticResource NPTextSecondary}" />
                                     <Border StyleClass="ModernEntry">
                                         <Entry
                                             BackgroundColor="Transparent"
                                             FontSize="14"
                                             Keyboard="Numeric"
                                             Placeholder="Enter total amount"
-                                            Text="{Binding EditTotalAmount}"/>
+                                            Text="{Binding EditTotalAmount}" />
                                     </Border>
                                 </VerticalStackLayout>
 
@@ -747,31 +767,28 @@
                                         FontFamily="PoppinsBold"
                                         FontSize="12"
                                         Text="ORDER STATUS"
-                                        TextColor="{StaticResource NPTextSecondary}"/>
+                                        TextColor="{StaticResource NPTextSecondary}" />
                                     <Border StyleClass="ModernEntry">
-                                        <HorizontalStackLayout Spacing="8"
-                                                               VerticalOptions="Center">
-                                            <CheckBox IsChecked="{Binding EditIsConfirmed}"
-                                                      VerticalOptions="Center"/>
+                                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                            <CheckBox IsChecked="{Binding EditIsConfirmed}" VerticalOptions="Center" />
                                             <Label
                                                 FontSize="14"
                                                 Text="Confirmed"
                                                 TextColor="{StaticResource NPTextMain}"
-                                                VerticalOptions="Center"/>
+                                                VerticalOptions="Center" />
                                         </HorizontalStackLayout>
                                     </Border>
                                 </VerticalStackLayout>
 
                                 <!--  Action Buttons  -->
-                                <HorizontalStackLayout Margin="0,20,0,0"
-                                                       Spacing="8">
+                                <HorizontalStackLayout Margin="0,20,0,0" Spacing="8">
                                     <Button
                                         Command="{Binding SaveOrderCommand}"
                                         FontSize="12"
                                         HeightRequest="40"
                                         HorizontalOptions="Fill"
                                         StyleClass="PrimaryButton"
-                                        Text="Save Changes"/>
+                                        Text="Save Changes" />
                                     <Button
                                         BackgroundColor="{StaticResource NPTextSecondary}"
                                         Command="{Binding CancelEditCommand}"
@@ -781,7 +798,7 @@
                                         HeightRequest="40"
                                         HorizontalOptions="Fill"
                                         Text="Cancel"
-                                        TextColor="White"/>
+                                        TextColor="White" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </ScrollView>

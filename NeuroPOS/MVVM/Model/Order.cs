@@ -22,6 +22,8 @@ namespace NeuroPOS.MVVM.Model
 
         public string CustomerName { get; set; }
 
+        public int ContactId { get; set; } = 0;
+
         public double Tax { get; set; }
         public double Discount { get; set; }
 
@@ -30,6 +32,10 @@ namespace NeuroPOS.MVVM.Model
         public double SubTotalAmount =>
         (Lines == null || Lines.Count == 0)
         ? 0 : Lines.Sum(p => p.Price * p.Stock);
+
+        // Computed property for item count to ensure consistency
+        [Ignore]
+        public int ComputedItemCount => Lines?.Count ?? 0;
 
         #region ignore Properties
 

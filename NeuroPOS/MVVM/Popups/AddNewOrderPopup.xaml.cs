@@ -1,3 +1,5 @@
+using ABI.Microsoft.UI.Xaml;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Views;
 
 namespace NeuroPOS.MVVM.Popups
@@ -28,7 +30,7 @@ namespace NeuroPOS.MVVM.Popups
             // Basic validation
             if (string.IsNullOrWhiteSpace(CustomerNameEntry.Text))
             {
-                await Application.Current.MainPage.DisplayAlert("Validation Error", "Please enter a customer name.", "OK");
+                await Snackbar.Make("Some Entries Still Empty", duration: TimeSpan.FromSeconds(2)).Show();
                 return;
             }
 
