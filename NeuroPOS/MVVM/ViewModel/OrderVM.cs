@@ -982,8 +982,8 @@ namespace NeuroPOS.MVVM.ViewModel
 
         private async Task UndoDeleteOrder(Order order)
         {
-            App.OrderRepo.InsertItemWithChildren(order); 
-            await RefreshOrders(); 
+            App.OrderRepo.InsertItemWithChildren(order);
+            await RefreshOrders();
             await Task.CompletedTask;
             await Snackbar.Make(
                   $"Restored order #{order.Id}",
@@ -1005,11 +1005,8 @@ namespace NeuroPOS.MVVM.ViewModel
                     _editingOrder.Tax = EditTaxRate;
                     _editingOrder.TotalAmount = EditTotalAmount;
                     _editingOrder.Lines = EditOrderLines?.ToList() ?? new List<TransactionLine>();
-
-                    // Update the order in the database
                     App.OrderRepo.UpdateItemWithChildren(_editingOrder);
-
-                    ApplyFilters();
+                    await RefreshOrders();
                     CancelEdit();
                     var snackbar = Snackbar.Make($"Order #{orderId} saved successfully",
                     duration: TimeSpan.FromSeconds(2));
@@ -1048,17 +1045,97 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
+                if (order.Lines == null || order.Lines.Count == 0)
+                {
+                    await Snackbar.Make("Order has no products. Cannot confirm empty order.",
+                                        duration: TimeSpan.FromSeconds(3)).Show();
+                    return;
+                }
+                var dbProducts = App.ProductRepo.GetItems().ToList();
+                var stockValidationErrors = new List<string>();
+
+                foreach (var orderLine in order.Lines)
+                {
+                    var dbProduct = dbProducts.FirstOrDefault(p => p.Name == orderLine.Name);
+                    if (dbProduct == null)
+                    {
+                        stockValidationErrors.Add($"Product '{orderLine.Name}' not found in database");
+                        continue;
+                    }
+
+                    if (dbProduct.Stock < orderLine.Stock)
+                    {
+                        stockValidationErrors.Add($"Insufficient stock for '{orderLine.Name}'. Available: {dbProduct.Stock}, Required: {orderLine.Stock}");
+                    }
+                }
+
+                if (stockValidationErrors.Any())
+                {
+                    var errorMessage = "Stock validation failed:\n" + string.Join("\n", stockValidationErrors);
+                    await Snackbar.Make(errorMessage, duration: TimeSpan.FromSeconds(5)).Show();
+                    return;
+                }
+
+                var transaction = new Transaction
+                {
+                    TransactionType = "sell",
+                    IsPaid = order.ContactId == 0,
+                    Tax = order.CalculatedTaxAmount,
+                    Discount = order.Discount,
+                    TotalAmount = order.CalculatedTotalAmount,
+                    ItemCount = order.Lines.Count,
+                    ContactId = order.ContactId == 0 ? null : order.ContactId,
+                    Lines = new List<TransactionLine>()
+                };
+                foreach (var orderLine in order.Lines)
+                {
+                    var dbProduct = dbProducts.FirstOrDefault(p => p.Name == orderLine.Name);
+                    if (dbProduct != null)
+                    {
+                        transaction.Lines.Add(new TransactionLine
+                        {
+                            Name = orderLine.Name,
+                            Price = orderLine.Price,
+                            Stock = orderLine.Stock,
+                            CategoryName = orderLine.CategoryName,
+                            ImageUrl = orderLine.ImageUrl,
+                            Product = dbProduct,
+                            ProductId = dbProduct.Id
+                        });
+
+                        dbProduct.Stock -= orderLine.Stock;
+                        App.ProductRepo.UpdateItem(dbProduct);
+                    }
+                }
+
+                if (order.ContactId != 0)
+                {
+                    var customer = App.ContactRepo.GetItemsWithChildren()?.FirstOrDefault(c => c.Id == order.ContactId);
+                    if (customer != null)
+                    {
+                        App.ContactRepo.AddNewChildToParentRecursively(
+                            customer,
+                            transaction,
+                            (contact, transactions) => contact.Transactions = transactions.ToList());
+                    }
+                }
+                else
+                {
+                    App.TransactionRepo.InsertItemWithChildren(transaction);
+                }
                 order.IsConfirmed = true;
-                ApplyFilters();
-                var snackbar = Snackbar.Make($"Order #{order.Id} confirmed",
-                duration: TimeSpan.FromSeconds(2));
-                await snackbar.Show();
+                App.OrderRepo.UpdateItemWithChildren(order);
+                await RefreshOrders();
+                var message = order.ContactId == 0
+                    ? $"Order #{order.Id} confirmed and transaction processed!"
+                    : $"Order #{order.Id} confirmed and credit transaction created!";
+
+                await Snackbar.Make(message, duration: TimeSpan.FromSeconds(3)).Show();
             }
             catch (Exception ex)
             {
-                var snackbar = Snackbar.Make($"Error confirming order: {ex.Message}",
-                duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
+                await Snackbar.Make($"Error confirming order: {ex.Message}",
+                                    duration: TimeSpan.FromSeconds(3)).Show();
             }
         }
 
