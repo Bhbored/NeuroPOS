@@ -415,12 +415,12 @@
                                 <Grid ColumnDefinitions="*,Auto">
                                     <Label
                                         StyleClass="NormalText"
-                                        Text="Overdue"
+                                        Text="Purchases"
                                         TextColor="{StaticResource NPTextMain}" />
                                     <Label
                                         Grid.Column="1"
                                         StyleClass="NormalText"
-                                        Text="$300"
+                                        Text="{Binding CashRegister.TotalExpenses, StringFormat='${0:N0}'}"
                                         TextColor="{StaticResource NPStockRed}" />
                                 </Grid>
                                 <ProgressBar

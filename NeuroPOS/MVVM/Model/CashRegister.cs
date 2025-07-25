@@ -13,7 +13,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NeuroPOS.MVVM.Model
 {
-    [AddINotifyPropertyChangedInterface]
+
     public class CashRegister : Entity, INotifyPropertyChanged
     {
         private List<Transaction> _transactions = new List<Transaction>();
