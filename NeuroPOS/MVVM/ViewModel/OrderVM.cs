@@ -68,8 +68,6 @@ namespace NeuroPOS.MVVM.ViewModel
         private int _selectedProductQuantity = 1;
         #endregion
 
-
-
         #region Properties
 
         public ObservableCollection<Order> Orders

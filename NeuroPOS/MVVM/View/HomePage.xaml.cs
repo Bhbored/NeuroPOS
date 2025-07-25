@@ -1,302 +1,180 @@
+using System;
+using System.Linq;
+using Microsoft.Maui.Controls;
 using NeuroPOS.MVVM.Model;
 using NeuroPOS.MVVM.ViewModel;
-using Syncfusion.Maui.DataSource.Extensions;
+using Syncfusion.Maui.DataSource;
+using Syncfusion.Maui.ListView;
 using Syncfusion.Maui.Inputs;
-using System.Collections.ObjectModel;
 
-namespace NeuroPOS.MVVM.View;
-
-public partial class HomePage : ContentPage
+namespace NeuroPOS.MVVM.View
 {
-    public HomePage(HomeVM vm)
+    public partial class HomePage : ContentPage
     {
-        InitializeComponent();
-        BindingContext = vm;
-        vm.SelectedItems.Clear();
-        RefreshListView();
-        vm.PageReference = this;
+        public HomePage(HomeVM vm)
+        {
+            InitializeComponent();
+            BindingContext = vm;
 
-    }
+            vm.SelectedItems.Clear();
+            vm.PageReference = this;
 
-    #region filering logic
-    public void ListView_SelectionChanged(object sender, Syncfusion.Maui.ListView.ItemSelectionChangedEventArgs e)
-    {
-        try
+            ConfigureListView();
+        }
+        private void ConfigureListView()
         {
 
-            var vm = BindingContext as HomeVM;
-            if (vm != null)
+            if (listView.DataSource != null)
+                listView.DataSource.LiveDataUpdateMode = LiveDataUpdateMode.Default;
+
+            listView.SelectionChanged += ListView_SelectionChanged;
+
+            searchFilterValue.Text = "0";
+            selectedValue.Text = "0";
+        }
+        public void ListView_SelectionChanged(object sender, ItemSelectionChangedEventArgs e)
+        {
+            if (BindingContext is not HomeVM vm || sender is not SfListView lv)
+                return;
+
+            foreach (var prod in e.AddedItems.OfType<Product>())
             {
-                var listView = sender as Syncfusion.Maui.ListView.SfListView;
-
-                // Update the selected count display based on actual ListView selection (for cart)
-                // Update the selected items display using persistent count
-                vm?.UpdateSelectedItemsCountDisplay();
-
-                // Update the ViewModel SelectedItems and persistent selection
-                if (e.AddedItems != null)
+                if (prod.Stock <= 0)
                 {
-                    foreach (var item in e.AddedItems)
-                    {
-                        // Small if - only add to SelectedItems if stock > 0
-                        if (item is Product product && product.Stock > 0)
-                        {
-                            if (!vm.SelectedItems.Contains(item))
-                            {
-                                vm.SelectedItems.Add(item);
-                                vm.AddToPersistentSelection(product.Id);
-                            }
-                        }
-                        else if (item is Product zeroStockProduct)
-                        {
-                            // Remove from ListView selection immediately
-                            listView.SelectedItems.Remove(item);
-                        }
-                    }
+                    lv.SelectedItems.Remove(prod); // ignore out-of-stock
+                    continue;
                 }
 
-                if (e.RemovedItems != null)
+                if (!vm.SelectedItems.Contains(prod))
                 {
-                    foreach (var item in e.RemovedItems)
-                    {
-                        vm.SelectedItems.Remove(item);
-                        if (item is Product product)
-                        {
-                            vm.RemoveFromPersistentSelection(product.Id);
-                        }
-                    }
+                    vm.SelectedItems.Add(prod);
+                    vm.AddToPersistentSelection(prod.Id);
                 }
 
-                // Add newly selected items to current order
-                if (e.AddedItems != null)
-                {
-                    foreach (var item in e.AddedItems)
-                    {
-                        if (item is Product product)
-                        {
-                            // Small if - don't add items with 0 stock
-                            if (product.Stock > 0)
-                            {
-                                // Check if this product is already in the cart before adding
-                                var existingCartItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
-                                if (existingCartItem == null)
-                                {
-                                    vm.AddToCurrentOrder(product, fromListViewSelection: true);
-                                }
-                                else
-                                {
-                                    // If already in cart, just increment quantity
-                                    vm.IncrementQuantity(existingCartItem);
-                                }
-                            }
-                            else
-                            {
-                                // Remove selection for 0 stock items
-                                listView.SelectedItems.Remove(item);
-                            }
-                        }
-                        else
-                        {
-                        }
-                    }
-                }
-
-
-                // Remove unselected items from current order 
-                if (e.RemovedItems != null)
-                {
-                    foreach (var item in e.RemovedItems)
-                    {
-                        if (item is Product product)
-                        {
-                            var existingItem = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == product.Id);
-                            if (existingItem != null)
-                            {
-                                // Use RemoveFromCurrentOrder to properly update stock display
-                                vm.RemoveFromCurrentOrder(existingItem);
-                            }
-                        }
-                    }
-                }
-
-
-                // Notify that selection has changed for HasSelectedItems property
-                vm.NotifySelectionChanged();
-
+                var inCart = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == prod.Id);
+                if (inCart == null)
+                    vm.AddToCurrentOrder(prod, fromListViewSelection: true);
+                else
+                    vm.IncrementQuantity(inCart);
             }
 
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] Error in ListView selection changed: {ex.Message}");
-            Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
-        }
-    }
-    private void autocomplete_SelectionChanged(object sender, Syncfusion.Maui.Inputs.SelectionChangedEventArgs e)
-    {
-        try
-        {
-            if (autocomplete != null)
+            foreach (var prod in e.RemovedItems.OfType<Product>())
             {
-                // Update the search filter count display - shows how many items selected in autocomplete
-                searchFilterValue.Text = autocomplete.SelectedItems?.Count.ToString() ?? "0";
+                vm.SelectedItems.Remove(prod);
+                vm.RemoveFromPersistentSelection(prod.Id);
 
-                // Get the ViewModel
-                var vm = BindingContext as HomeVM;
+                var inCart = vm.CurrentOrderItems.FirstOrDefault(x => x.Id == prod.Id);
+                if (inCart != null)
+                    vm.RemoveFromCurrentOrder(inCart);
+            }
 
-                // Create a new list to avoid reference issues
-                var selectedProducts = new List<object>();
-                if (autocomplete.SelectedItems != null)
-                {
-                    foreach (var item in autocomplete.SelectedItems)
-                    {
-                        if (item is Product product)
-                        {
-                            selectedProducts.Add(product);
-                        }
-                    }
-                }
+            vm.UpdateSelectedItemsCountDisplay();
+            vm.NotifySelectionChanged();
+        }
 
-                // Update the selected products in ViewModel for filtering
-                vm.SelectedProducts = selectedProducts;
 
-                // Apply filtering with proper null checks
-                if (listView?.DataSource != null)
-                {
-                    listView.DataSource.Filter = FilterProducts;
 
-                    try
-                    {
-                        listView.DataSource.RefreshFilter();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error refreshing filter: {ex.Message}");
-                    }
+        internal void RefreshRow(Product p)
+        {
 
-                    // Restore selections after search filtering
-                    vm?.RestoreListViewSelections();
 
-                    // Update selected count after filtering
-                    vm?.UpdateSelectedItemsCountDisplay();
-                }
+            if (listView.DataSource != null)
+            {
+
+                var index = listView.DataSource.DisplayItems.IndexOf(p);
+                if (index >= 0)
+                    listView.RefreshItem(index);
+                else
+                    listView.RefreshView();
+            }
+            else
+            {
+                listView.RefreshView();
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in autocomplete selection changed: {ex.Message}");
-        }
-    }
 
-    private bool FilterProducts(object obj)
-    {
-        try
+
+
+        private void Autocomplete_SelectionChanged(object sender, Syncfusion.Maui.Inputs.SelectionChangedEventArgs e)
         {
-            if (obj is not Product product)
+            if (BindingContext is not HomeVM vm)
+                return;
+
+            searchFilterValue.Text = autocomplete.SelectedItems?.Count.ToString() ?? "0";
+
+            vm.SelectedProducts = autocomplete.SelectedItems?
+                .OfType<Product>()
+                .Cast<object>()
+                .ToList() ?? new System.Collections.Generic.List<object>();
+
+            if (listView.DataSource == null)
+                return;
+
+            listView.DataSource.Filter = FilterProducts;
+            listView.DataSource.RefreshFilter();
+
+            vm.RestoreListViewSelections();
+            vm.UpdateSelectedItemsCountDisplay();
+        }
+
+        private bool FilterProducts(object obj)
+        {
+            if (obj is not Product p || BindingContext is not HomeVM vm)
                 return false;
 
-            var vm = BindingContext as HomeVM;
+            return vm.SelectedProducts == null || vm.SelectedProducts.Count == 0
+                   || vm.SelectedProducts.OfType<Product>()
+                        .Any(sel => sel.Id == p.Id ||
+                                    p.Name.Equals(sel.Name, StringComparison.OrdinalIgnoreCase));
+        }
 
-            // If no items are selected, show all products
-            if (vm?.SelectedProducts == null || vm.SelectedProducts.Count == 0)
+
+
+        private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+        {
+            if (BindingContext is not HomeVM vm)
+                return;
+
+            Icon.Source = vm.SortState switch
             {
-                return true;
-            }
-
-            // Check if the product matches any of the selected items
-            foreach (var selectedItem in vm.SelectedProducts)
-            {
-                if (selectedItem is Product selectedProduct)
-                {
-                    if (product.Id == selectedProduct.Id ||
-                        product.Name.Equals(selectedProduct.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+                HomeVM.SortDirectionState.Ascending => "ascending.png",
+                HomeVM.SortDirectionState.Descending => "descending.png",
+                _ => string.Empty
+            };
         }
-        catch (Exception ex)
+
+
+
+        protected override void OnAppearing()
         {
-            Console.WriteLine($"Error in filter: {ex.Message}");
-            return true; // Default to showing the product if there's an error
+            base.OnAppearing();
+            (BindingContext as HomeVM)?.LoadDB();
         }
-    }
-    #endregion
 
-    #region other logic
-    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
-    {
-        if (sender is not Border border)
-            return;
-        var vm = BindingContext as HomeVM;
-        if (vm.SortState == HomeVM.SortDirectionState.Ascending)
+
+
+        private void DiscountEntry_TextChanged(object sender, TextChangedEventArgs e)
         {
-            Icon.Source = "ascending.png";
-        }
-        else if (vm.SortState == HomeVM.SortDirectionState.Descending)
-        {
-            Icon.Source = "descending.png";
-        }
-        else { Icon.Source = ""; }
-    }
+            if (BindingContext is not HomeVM vm)
+                return;
 
-    public void RefreshListView()
-    {
-        this.listView.ItemGenerator = new Animation.ItemGeneratorExt(this.listView);
-        searchFilterValue.Text = "0"; // Search filter starts with 0 items selected
-        selectedValue.Text = "0"; // No items selected initially
-        this.listView.SelectionChanged += ListView_SelectionChanged;
-    }
-
-    #endregion
-
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        if (BindingContext is HomeVM vm)
-        {
-            vm.LoadDB();
-        }
-    }
-
-    private void DiscountEntry_TextChanged(object sender, TextChangedEventArgs e)
-    {
-
-        if (sender is Entry entry && BindingContext is HomeVM vm)
-        {
-            if (double.TryParse(e.NewTextValue, out double discountValue))
-            {
-                vm.UpdateDiscount(discountValue);
-            }
+            if (double.TryParse(e.NewTextValue, out var v))
+                vm.UpdateDiscount(v);
             else if (string.IsNullOrEmpty(e.NewTextValue))
-            {
                 vm.UpdateDiscount(0);
-            }
         }
 
-
-    }
-
-    private void QuantityEntry_TextChanged(object sender, TextChangedEventArgs e)
-    {
-
-        if (sender is Entry entry && entry.BindingContext is Product product && BindingContext is HomeVM vm)
+        private void QuantityEntry_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (int.TryParse(e.NewTextValue, out int quantity))
-            {
-                vm.ValidateAndUpdateQuantity(product, quantity.ToString());
-            }
+            if (sender is not Entry entry ||
+                entry.BindingContext is not Product product ||
+                BindingContext is not HomeVM vm)
+                return;
+
+            if (int.TryParse(e.NewTextValue, out var q))
+                vm.ValidateAndUpdateQuantity(product, q.ToString());
             else if (string.IsNullOrEmpty(e.NewTextValue))
-            {
                 vm.ValidateAndUpdateQuantity(product, "1");
-            }
         }
     }
-
-
-
 }

@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Views;
 using NeuroPOS.Data;
 using NeuroPOS.MVVM.Model;
 using NeuroPOS.MVVM.Popups;
+using NeuroPOS.MVVM.View;
 using PropertyChanged;
 using Syncfusion.Maui.DataSource;
 using System;
@@ -358,19 +359,20 @@ namespace NeuroPOS.MVVM.ViewModel
         private void UpdateProductDisplayStock(int productId)
         {
             var originalProduct = Products.FirstOrDefault(p => p.Id == productId);
-            if (originalProduct != null)
-            {
-                if (!_originalStocks.ContainsKey(productId))
-                {
-                    _originalStocks[productId] = originalProduct.Stock;
-                }
-                var cartItem = CurrentOrderItems.FirstOrDefault(x => x.Id == productId);
-                var cartQuantity = cartItem?.Stock ?? 0;
-                var originalStock = _originalStocks[productId];
-                var availableStock = Math.Max(0, originalStock - cartQuantity);
-                originalProduct.Stock = availableStock;
-            }
+            if (originalProduct == null) return;
+
+            if (!_originalStocks.ContainsKey(productId))
+                _originalStocks[productId] = originalProduct.Stock;
+
+            var cartItem = CurrentOrderItems.FirstOrDefault(x => x.Id == productId);
+            var cartQuantity = cartItem?.Stock ?? 0;
+            var originalStock = _originalStocks[productId];
+            originalProduct.Stock = Math.Max(0, originalStock - cartQuantity);
+
+            // NEW: tell the view to refresh just this row
+            (PageReference as HomePage)?.RefreshRow(originalProduct);
         }
+
         public int GetOriginalStock(int productId)
         {
             if (_originalStocks.ContainsKey(productId))
