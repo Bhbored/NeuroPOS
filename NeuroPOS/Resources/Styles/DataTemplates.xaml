@@ -1,0 +1,688 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:Pages="clr-namespace:NeuroPOS.MVVM.View">
+    <!--  Converters  -->
+    <Converters:StockConverter x:Key="StockConverter" />
+    <Converters:CategoryTemplateSelector x:Key="CategoryTemplateSelector" />
+    <Converters:LineDTSelector x:Key="LineDTSelector" />
+    <Converters:BuyingComponentVis x:Key="Visibility" />
+
+    <!--  Transaction Line Templates  -->
+    <!--  Selling Lines Template  -->
+    <DataTemplate x:Key="Selling Lines" x:DataType="Model:TransactionLine">
+        <Border
+            Margin="0,4,0,4"
+            Padding="16"
+            BackgroundColor="White"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="0">
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.05"
+                    Radius="8"
+                    Offset="0,2" />
+            </Border.Shadow>
+
+            <Grid
+                ColumnDefinitions="Auto,*,Auto,Auto"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto">
+                <!--  Product Image  -->
+                <Border
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    Grid.Column="0"
+                    BackgroundColor="{StaticResource NPLightBg}"
+                    HeightRequest="50"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0"
+                    VerticalOptions="Center"
+                    WidthRequest="50">
+                    <Image Aspect="AspectFill" Source="{Binding ImageUrl}" />
+                </Border>
+
+                <!--  Product Name  -->
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}" />
+
+                <!--  Category  -->
+                <Border
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Padding="8,4"
+                    BackgroundColor="{StaticResource NPAccentYellow}"
+                    StrokeShape="RoundRectangle 6"
+                    StrokeThickness="0">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="10"
+                        HorizontalTextAlignment="Center"
+                        Text="{Binding CategoryName}"
+                        TextColor="White" />
+                </Border>
+
+                <!--  Quantity  -->
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="3"
+                    FontFamily="PoppinsRegular"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    Text="{Binding Stock, StringFormat='Qty: {0}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <!--  Price Info  -->
+                <HorizontalStackLayout
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="3"
+                    Spacing="12">
+                    <Label
+                        FontFamily="PoppinsRegular"
+                        FontSize="12"
+                        Text="{Binding Price, StringFormat='Price: {0:C}'}"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="{Binding TotalPrice, StringFormat='Total: {0:C}'}"
+                        TextColor="{StaticResource NPStockGreen}" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!--  Buying Lines Template  -->
+    <DataTemplate x:Key="Buying Lines" x:DataType="Model:TransactionLine">
+        <Border
+            Margin="0,4,0,4"
+            Padding="16"
+            BackgroundColor="White"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="0">
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.05"
+                    Radius="8"
+                    Offset="0,2" />
+            </Border.Shadow>
+
+            <Grid
+                ColumnDefinitions="Auto,*,Auto,Auto"
+                ColumnSpacing="12"
+                RowDefinitions="Auto,Auto">
+                <!--  Product Image  -->
+                <Border
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    Grid.Column="0"
+                    BackgroundColor="{StaticResource NPLightBg}"
+                    HeightRequest="50"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0"
+                    VerticalOptions="Center"
+                    WidthRequest="50">
+                    <Image Aspect="AspectFill" Source="{Binding ImageUrl}" />
+                </Border>
+
+                <!--  Product Name  -->
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}" />
+
+                <!--  Category  -->
+                <Border
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Padding="8,4"
+                    BackgroundColor="{StaticResource NPAccentYellow}"
+                    StrokeShape="RoundRectangle 6"
+                    StrokeThickness="0">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="10"
+                        HorizontalTextAlignment="Center"
+                        Text="{Binding CategoryName}"
+                        TextColor="White" />
+                </Border>
+
+                <!--  Quantity  -->
+                <Label
+                    Grid.Row="0"
+                    Grid.Column="3"
+                    FontFamily="PoppinsRegular"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    Text="{Binding Stock, StringFormat='Qty: {0}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <!--  Price Info  -->
+                <HorizontalStackLayout
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="3"
+                    Spacing="12">
+                    <Label
+                        FontFamily="PoppinsRegular"
+                        FontSize="12"
+                        Text="{Binding Cost, StringFormat='Price: {0:C}'}"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="{Binding TotalCost, StringFormat='Total: {0:C}'}"
+                        TextColor="{StaticResource NPStockGreen}" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!--  normal Template for ListView  -->
+    <DataTemplate x:Key="MainTemplate">
+        <Border
+            Margin="8"
+            Stroke="{StaticResource NPDivider}"
+            StyleClass="CardStyle">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.3"
+                    Radius="12"
+                    Offset="5,5" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="4">
+                <Border
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Fill"
+                    Stroke="{StaticResource Gray100}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="2">
+                    <Image
+                        Aspect="AspectFit"
+                        HeightRequest="160"
+                        Source="{Binding ImageUrl}"
+                        WidthRequest="140" />
+                </Border>
+
+
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="TitleText"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="SubtitleText"
+                    Text="{Binding Price, StringFormat='${0:F2}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="NormalText"
+                    Text="{Binding Stock, Converter={StaticResource StockConverter}}"
+                    TextColor="{StaticResource NPStockGreen}" />
+            </VerticalStackLayout>
+        </Border>
+    </DataTemplate>
+    <!--  LowStcok Template  -->
+    <DataTemplate x:Key="LowstockTemplate">
+        <Border
+            Margin="8"
+            BackgroundColor="#FBEAEA"
+            Stroke="{StaticResource NPDivider}"
+            StyleClass="CardStyle">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="16" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.3"
+                    Radius="12"
+                    Offset="5,5" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="4">
+                <Border
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Fill"
+                    Stroke="{StaticResource Gray100}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="2">
+                    <Image
+                        Aspect="AspectFit"
+                        HeightRequest="160"
+                        Source="{Binding ImageUrl}"
+                        WidthRequest="140" />
+                </Border>
+
+
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="TitleText"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="SubtitleText"
+                    Text="{Binding Price, StringFormat='${0:F2}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Label
+                    Margin="16,0,0,0"
+                    StyleClass="NormalText"
+                    Text="{Binding Stock, Converter={StaticResource StockConverter}}"
+                    TextColor="{StaticResource NPStockRed}" />
+            </VerticalStackLayout>
+        </Border>
+    </DataTemplate>
+
+    <!--  Active Category Template  -->
+    <DataTemplate x:Key="ActiveCategoryTemplate">
+        <Border
+            Margin="4"
+            Padding="12,8"
+            BackgroundColor="{StaticResource NPPrimaryBlue}"
+            Stroke="{StaticResource NPPrimaryBlue}"
+            StrokeShape="RoundRectangle 8"
+            StrokeThickness="2">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.SwitchCategoryState}" CommandParameter="{Binding Name}" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="8">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="{Binding Name}"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Border>
+    </DataTemplate>
+    <!--  Inactive Category Template  -->
+    <DataTemplate x:Key="InactiveCategoryTemplate">
+        <Border
+            Margin="4"
+            Padding="12,8"
+            BackgroundColor="{StaticResource NPCardBg}"
+            Stroke="{StaticResource NPDivider}"
+            StrokeShape="RoundRectangle 8"
+            StrokeThickness="1">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type Pages:HomePage}}, Path=BindingContext.SwitchCategoryState}" CommandParameter="{Binding Name}" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="8">
+                <Label
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    Text="{Binding Name}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Border>
+    </DataTemplate>
+
+    <!--  Empty Product Editor View Template  -->
+    <DataTemplate x:Key="EmptyProductEditorTemplate">
+        <VerticalStackLayout
+            HorizontalOptions="Center"
+            Spacing="20"
+            VerticalOptions="Center">
+            <Border
+                BackgroundColor="{StaticResource NPLightBg}"
+                HeightRequest="80"
+                HorizontalOptions="Center"
+                StrokeShape="Ellipse"
+                WidthRequest="80">
+                <Label
+                    FontSize="32"
+                    HorizontalOptions="Center"
+                    Text="📝"
+                    VerticalOptions="Center" />
+            </Border>
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="16"
+                    HorizontalTextAlignment="Center"
+                    Text="Select a product to edit"
+                    TextColor="{StaticResource NPTextMain}" />
+                <Label
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"
+                    Text="Click the edit button on any product to modify its details"
+                    TextColor="{StaticResource NPTextSecondary}" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </DataTemplate>
+
+    <!--  Product Edit Form Template  -->
+    <DataTemplate x:Key="ProductEditFormTemplate">
+        <ScrollView>
+            <VerticalStackLayout Spacing="16">
+                <!--  Product Name  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="PRODUCT NAME"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Placeholder="Enter product name"
+                            Text="{Binding EditName}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Price  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="PRICE"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0.00"
+                            Text="{Binding EditPrice}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Cost  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="COST"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0.00"
+                            Text="{Binding EditCost}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Stock  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="STOCK QUANTITY"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0"
+                            Text="{Binding EditStock}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Category  -->
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="CATEGORY"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Placeholder="Enter category"
+                            Text="{Binding EditCategory}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Action Buttons  -->
+                <HorizontalStackLayout Margin="0,20,0,0" Spacing="8">
+                    <Button
+                        Command="{Binding SaveProductCommand}"
+                        FontSize="12"
+                        HeightRequest="40"
+                        HorizontalOptions="Fill"
+                        StyleClass="PrimaryButton"
+                        Text="Save Changes" />
+                    <Button
+                        BackgroundColor="{StaticResource NPTextSecondary}"
+                        Command="{Binding CancelEditCommand}"
+                        CornerRadius="8"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HeightRequest="40"
+                        HorizontalOptions="Fill"
+                        Text="Cancel"
+                        TextColor="White" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </DataTemplate>
+
+    <!--  Transaction Data Templates  -->
+    <!--  Default Transaction Template (Sell and Pending)  -->
+    <DataTemplate x:Key="DefaultTransactionTemplate" x:DataType="Model:Transaction">
+        <Border
+            Padding="32,20"
+            Stroke="{StaticResource NPDivider}"
+            StrokeShape="Rectangle"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="150,100,150,150,80,150" ColumnSpacing="16">
+                <!--  Date  -->
+                <Label
+                    Grid.Column="0"
+                    StyleClass="TableCell"
+                    Text="{Binding HumanDate}"
+                    VerticalOptions="Center" />
+                <!--  Type  -->
+                <Border
+                    Grid.Column="1"
+                    Padding="16,8"
+                    Background="{Binding TransactionType, Converter={x:StaticResource TransactionType}}"
+                    StrokeShape="RoundRectangle 5"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        StyleClass="TableCell"
+                        Text="{Binding TransactionType}"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <!--  Item Count  -->
+                <Label
+                    Grid.Column="2"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding CalculatedItemCount}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+                <!--  Total Amount  -->
+                <Label
+                    Grid.Column="3"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding TotalAmount, StringFormat='${0:N2}'}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+                <!--  Status  -->
+                <Border
+                    Grid.Column="5"
+                    Padding="16,8"
+                    BackgroundColor="{Binding IsPaid, Converter={StaticResource StatusToColorConverter}}"
+                    StrokeShape="RoundRectangle 5"
+                    VerticalOptions="Center">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        Text="{Binding Status}"
+                        TextColor="White" />
+                </Border>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!--  Buy Transaction Template (Light Red Border)  -->
+    <DataTemplate x:Key="BuyTransactionTemplate" x:DataType="Model:Transaction">
+        <Border
+            Padding="32,20"
+            BackgroundColor="#FFF5F5"
+            Stroke="{StaticResource NPStockRed}"
+            StrokeShape="Rectangle"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="150,100,150,150,80,150" ColumnSpacing="16">
+                <!--  Date  -->
+                <Label
+                    Grid.Column="0"
+                    StyleClass="TableCell"
+                    Text="{Binding HumanDate}"
+                    VerticalOptions="Center" />
+                <!--  Type  -->
+                <Border
+                    Grid.Column="1"
+                    Padding="16,8"
+                    Background="{Binding TransactionType, Converter={x:StaticResource TransactionType}}"
+                    StrokeShape="RoundRectangle 5"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        StyleClass="TableCell"
+                        Text="{Binding TransactionType}"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <!--  Item Count  -->
+                <Label
+                    Grid.Column="2"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding CalculatedItemCount}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+                <!--  Total Amount  -->
+                <Label
+                    Grid.Column="3"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding TotalAmount, StringFormat='${0:N2}'}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+                <!--  Status  -->
+                <Border
+                    Grid.Column="5"
+                    Padding="16,8"
+                    BackgroundColor="{Binding IsPaid, Converter={StaticResource StatusToColorConverter}}"
+                    StrokeShape="RoundRectangle 5"
+                    VerticalOptions="Center">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        Text="{Binding Status}"
+                        TextColor="White" />
+                </Border>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!--  Buy Completed Transaction Template (Light Green Border)  -->
+    <DataTemplate x:Key="BuyCompletedTransactionTemplate" x:DataType="Model:Transaction">
+        <Border
+            Padding="32,20"
+            BackgroundColor="#F0FFF4"
+            Stroke="{StaticResource NPStockGreen}"
+            StrokeShape="Rectangle"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="150,100,150,150,80,150" ColumnSpacing="16">
+                <!--  Date  -->
+                <Label
+                    Grid.Column="0"
+                    StyleClass="TableCell"
+                    Text="{Binding HumanDate}"
+                    VerticalOptions="Center" />
+                <!--  Type  -->
+                <Border
+                    Grid.Column="1"
+                    Padding="16,8"
+                    Background="{Binding TransactionType, Converter={x:StaticResource TransactionType}}"
+                    StrokeShape="RoundRectangle 5"
+                    VerticalOptions="Center">
+                    <Label
+                        HorizontalTextAlignment="Center"
+                        StyleClass="TableCell"
+                        Text="{Binding TransactionType}"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <!--  Item Count  -->
+                <Label
+                    Grid.Column="2"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding CalculatedItemCount}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+                <!--  Total Amount  -->
+                <Label
+                    Grid.Column="3"
+                    FontFamily="PoppinsRegular"
+                    FontSize="14"
+                    HorizontalTextAlignment="End"
+                    Text="{Binding TotalAmount, StringFormat='${0:N2}'}"
+                    TextColor="{StaticResource NPTextMain}"
+                    VerticalOptions="Center" />
+                <!--  Status  -->
+                <Border
+                    Grid.Column="5"
+                    Padding="16,8"
+                    BackgroundColor="{Binding IsPaid, Converter={StaticResource StatusToColorConverter}}"
+                    StrokeShape="RoundRectangle 5"
+                    VerticalOptions="Center">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        Text="{Binding Status}"
+                        TextColor="White" />
+                </Border>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

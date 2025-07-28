@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Color Palette for NeuroPOS Theme  -->
+    <Color x:Key="NPPrimaryBlue">#2D7FF9</Color>
+    <Color x:Key="NPAccentYellow">#F9A825</Color>
+    <Color x:Key="NPLightBg">#F6F8FB</Color>
+    <Color x:Key="NPCardBg">#FFFFFF</Color>
+    <Color x:Key="NPDivider">#E5E7EB</Color>
+    <Color x:Key="NPTextMain">#212121</Color>
+    <Color x:Key="NPTextSecondary">#6E6E6E</Color>
+    <Color x:Key="NPTextMuted">#B0B0B0</Color>
+    <Color x:Key="NPStockGreen">#1DB954</Color>
+    <Color x:Key="NPStockRed">#E53935</Color>
+    <SolidColorBrush x:Key="NPPrimaryBlueBrush" Color="{StaticResource NPPrimaryBlue}" />
+    <SolidColorBrush x:Key="NPAccentYellowBrush" Color="{StaticResource NPAccentYellow}" />
+    <SolidColorBrush x:Key="NPLightBgBrush" Color="{StaticResource NPLightBg}" />
+    <SolidColorBrush x:Key="NPCardBgBrush" Color="{StaticResource NPCardBg}" />
+    <SolidColorBrush x:Key="NPDividerBrush" Color="{StaticResource NPDivider}" />
+    <SolidColorBrush x:Key="NPTextMainBrush" Color="{StaticResource NPTextMain}" />
+    <SolidColorBrush x:Key="NPTextSecondaryBrush" Color="{StaticResource NPTextSecondary}" />
+    <SolidColorBrush x:Key="NPTextMutedBrush" Color="{StaticResource NPTextMuted}" />
+    <SolidColorBrush x:Key="NPStockGreenBrush" Color="{StaticResource NPStockGreen}" />
+    <SolidColorBrush x:Key="NPStockRedBrush" Color="{StaticResource NPStockRed}" />
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="MarginT15"
+        TargetType="View">
+        <Setter Property="Margin" Value="0,15,0,0" />
+    </Style>
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="Padding25"
+        TargetType="Layout">
+        <Setter Property="Padding" Value="25" />
+    </Style>
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="CardStyle"
+        TargetType="Border">
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Stroke" Value="{StaticResource Gray200}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource White}" />
+        <Setter Property="Margin" Value="0,10,0,10" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!--  Modern Card Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ModernCard"
+        TargetType="Border">
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{StaticResource NPCardBg}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ModernCardShadow"
+        TargetType="Border">
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{StaticResource NPCardBg}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Shadow">
+            <Shadow
+                Brush="Black"
+                Opacity="0.08"
+                Radius="20"
+                Offset="0,6" />
+        </Setter>
+    </Style>
+
+    <!--  Modern Button Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="PrimaryButton"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource NPPrimaryBlue}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="48" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="SecondaryButton"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource NPPrimaryBlue}" />
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="BorderColor" Value="{StaticResource NPPrimaryBlue}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="AccentButton"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource NPAccentYellow}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="HeightRequest" Value="48" />
+    </Style>
+
+    <!--  Modern Input Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ModernEntry"
+        TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource NPLightBg}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="HeightRequest" Value="48" />
+    </Style>
+
+    <!--  Status Badge Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="StatusBadge"
+        TargetType="Border">
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="TitleText"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="TextColor" Value="{StaticResource Black}" />
+    </Style>
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="SubtitleText"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="PoppinsRegular" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{StaticResource Gray600}" />
+    </Style>
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="NormalText"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="PoppinsRegular" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource Gray900}" />
+    </Style>
+
+    <!--  Header Text Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="LargeTitle"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="TextColor" Value="{StaticResource NPTextMain}" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ColumnHeader"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource NPTextSecondary}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="TableCell"
+        TargetType="Label">
+        <Setter Property="FontFamily" Value="PoppinsRegular" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource NPTextMain}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="OrderSummaryBg"
+        TargetType="Grid">
+        <Setter Property="BackgroundColor" Value="{StaticResource Gray100}" />
+        <Setter Property="Padding" Value="20,16" />
+    </Style>
+
+    <!--  Inventory Table Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="TableRow"
+        TargetType="Grid">
+        <Setter Property="Padding" Value="20,16" />
+        <Setter Property="BackgroundColor" Value="White" />
+    </Style>
+
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="TableRowAlternate"
+        TargetType="Grid">
+        <Setter Property="Padding" Value="20,16" />
+        <Setter Property="BackgroundColor" Value="{StaticResource NPLightBg}" />
+    </Style>
+
+    <!--  Action Button Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ActionButton"
+        TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="WidthRequest" Value="32" />
+    </Style>
+
+    <!--  Category Badge Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="CategoryBadge"
+        TargetType="Border">
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="BackgroundColor" Value="{StaticResource NPAccentYellow}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <!--  Progress Bar Styles  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="StockProgressBar"
+        TargetType="ProgressBar">
+        <Setter Property="HeightRequest" Value="4" />
+        <Setter Property="ProgressColor" Value="{StaticResource NPStockGreen}" />
+    </Style>
+
+    <!--  Modern Picker Style  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="ModernPicker"
+        TargetType="Picker">
+        <Setter Property="FontFamily" Value="PoppinsBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource NPTextMain}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <!--  Filter Dropdown Container Style  -->
+    <Style
+        ApplyToDerivedTypes="True"
+        Class="FilterDropdownContainer"
+        TargetType="Border">
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="Stroke" Value="{StaticResource NPDivider}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="MinimumWidthRequest" Value="180" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="Shadow">
+            <Shadow
+                Brush="Black"
+                Opacity="0.05"
+                Radius="8"
+                Offset="0,2" />
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

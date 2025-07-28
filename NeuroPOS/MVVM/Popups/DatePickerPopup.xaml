@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.DatePickerPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:calendar="clr-namespace:Syncfusion.Maui.Calendar;assembly=Syncfusion.Maui.Calendar"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True">
+
+    <Border
+        Padding="32"
+        HeightRequest="650"
+        StyleClass="ModernCardShadow"
+        WidthRequest="600">
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" RowSpacing="24">
+
+            <!--  Header Section  -->
+            <VerticalStackLayout Grid.Row="0" Spacing="8">
+                <HorizontalStackLayout Spacing="12">
+                    <Border
+                        BackgroundColor="{StaticResource NPPrimaryBlue}"
+                        HeightRequest="48"
+                        StrokeShape="Ellipse"
+                        WidthRequest="48">
+                        <Label
+                            FontSize="24"
+                            HorizontalOptions="Center"
+                            Text="📅"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                        <Label
+                            FontSize="24"
+                            StyleClass="LargeTitle"
+                            Text="Date Range Filter"
+                            TextColor="{StaticResource NPTextMain}" />
+                        <Label
+                            StyleClass="SubtitleText"
+                            Text="Select start and end dates to filter transactions"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!--  Divider  -->
+            <BoxView
+                Grid.Row="1"
+                BackgroundColor="{StaticResource NPDivider}"
+                HeightRequest="1" />
+
+            <!--  Calendar Section  -->
+            <Border
+                Grid.Row="2"
+                Padding="16"
+                BackgroundColor="{StaticResource NPLightBg}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <calendar:SfCalendar
+                    x:Name="calendar"
+                    Background="{StaticResource NPLightBg}"
+                    CanToggleDaySelection="true"
+                    CornerRadius="12"
+                    EnableSwipeSelection="True"
+                    NavigateToAdjacentMonth="true"
+                    NavigationDirection="Horizontal"
+                    RangeSelectionDirection="Both"
+                    SelectionChangedCommand="{Binding SelectionChangedCommand}"
+                    SelectionMode="Range">
+                    <calendar:SfCalendar.MonthView>
+                        <calendar:CalendarMonthView FirstDayOfWeek="Monday" NumberOfVisibleWeeks="6" />
+                    </calendar:SfCalendar.MonthView>
+                </calendar:SfCalendar>
+            </Border>
+
+            <!--  Selected Date Range Display  -->
+            <Border
+                Grid.Row="3"
+                Padding="20"
+                BackgroundColor="{StaticResource NPCardBg}"
+                Stroke="{StaticResource NPDivider}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1">
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="20">
+
+                    <!--  Start Date  -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label
+                            StyleClass="ColumnHeader"
+                            Text="START DATE"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Border
+                            Padding="12,8"
+                            BackgroundColor="{StaticResource NPLightBg}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0">
+                            <Label
+                                x:Name="StartDateLabel"
+                                FontFamily="PoppinsBold"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                StyleClass="TableCell"
+                                Text="{Binding StartDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                TextColor="{StaticResource NPPrimaryBlue}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Arrow Icon  -->
+                    <Label
+                        Grid.Column="1"
+                        FontSize="20"
+                        HorizontalOptions="Center"
+                        Text="→"
+                        TextColor="{StaticResource NPAccentYellow}"
+                        VerticalOptions="Center" />
+
+                    <!--  End Date  -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                        <Label
+                            StyleClass="ColumnHeader"
+                            Text="END DATE"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Border
+                            Padding="12,8"
+                            BackgroundColor="{StaticResource NPLightBg}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0">
+                            <Label
+                                x:Name="EndDateLabel"
+                                FontFamily="PoppinsBold"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                StyleClass="TableCell"
+                                Text="{Binding EndDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                TextColor="{StaticResource NPPrimaryBlue}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!--  Filter Summary  -->
+            <Border
+                Grid.Row="4"
+                Padding="16,12"
+                BackgroundColor="{StaticResource NPAccentYellow}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="0">
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                    <Label
+                        FontSize="16"
+                        Text="🔍"
+                        VerticalOptions="Center" />
+                    <Label
+                        x:Name="FilterSummaryLabel"
+                        FontFamily="PoppinsBold"
+                        FontSize="14"
+                        Text="{Binding FilterSummary}"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout
+                Grid.Row="5"
+                HorizontalOptions="Center"
+                Spacing="16">
+                <Button
+                    x:Name="CancelButton"
+                    Padding="32,0"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource NPDivider}"
+                    BorderWidth="2"
+                    Clicked="OnCancelClicked"
+                    CornerRadius="12"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    HeightRequest="48"
+                    MinimumWidthRequest="120"
+                    Text="Cancel"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Button
+                    x:Name="ApplyFilterButton"
+                    Padding="32,0"
+                    Clicked="OnApplyFilterClicked"
+                    FontSize="14"
+                    MinimumWidthRequest="140"
+                    StyleClass="PrimaryButton"
+                    Text="Apply Filter" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

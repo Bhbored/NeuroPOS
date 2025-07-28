@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.ViewContactDetailsPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    HeightRequest="600"
+    WidthRequest="800">
+
+    <toolkit:Popup.Resources>
+        <Converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+        <Converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+    </toolkit:Popup.Resources>
+
+    <Border
+        Padding="32"
+        BackgroundColor="White"
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.2"
+                Radius="20"
+                Offset="0,10" />
+        </Border.Shadow>
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="24">
+
+            <!--  Header Section  -->
+            <VerticalStackLayout Grid.Row="0" Spacing="8">
+                <HorizontalStackLayout Spacing="12">
+                    <Border
+                        BackgroundColor="{StaticResource NPPrimaryBlue}"
+                        HeightRequest="48"
+                        StrokeShape="Ellipse"
+                        WidthRequest="48">
+                        <Label
+                            FontSize="24"
+                            HorizontalOptions="Center"
+                            Text="👤"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                        <Label
+                            FontSize="24"
+                            StyleClass="LargeTitle"
+                            Text="Contact Details"
+                            TextColor="{StaticResource NPTextMain}" />
+                        <Label
+                            StyleClass="SubtitleText"
+                            Text="View complete contact information"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!--  Divider  -->
+            <BoxView
+                Grid.Row="1"
+                BackgroundColor="{StaticResource NPDivider}"
+                HeightRequest="1" />
+
+            <!--  Contact Details Section  -->
+            <ScrollView Grid.Row="2">
+                <VerticalStackLayout Spacing="20">
+
+                    <!--  Basic Information Card  -->
+                    <Border
+                        Padding="24"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <VerticalStackLayout Spacing="16">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="18"
+                                Text="Basic Information"
+                                TextColor="{StaticResource NPTextMain}" />
+
+                            <Grid
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="16"
+                                RowDefinitions="Auto,Auto,Auto,Auto"
+                                RowSpacing="12">
+                                <!--  Name  -->
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Name:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.Name}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+
+                                <!--  Email  -->
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Email:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.Email, TargetNullValue='Not provided'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+
+                                <!--  Phone Number  -->
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Phone:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.PhoneNumber, TargetNullValue='Not provided'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+
+                                <!--  Address  -->
+                                <Label
+                                    Grid.Row="3"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Address:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.Address, TargetNullValue='Not provided'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Financial Information Card  -->
+                    <Border
+                        Padding="24"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <VerticalStackLayout Spacing="16">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="18"
+                                Text="Financial Summary"
+                                TextColor="{StaticResource NPTextMain}" />
+
+                            <Grid
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="16"
+                                RowDefinitions="Auto,Auto,Auto,Auto"
+                                RowSpacing="12">
+                                <!--  Date Added  -->
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Date Added:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.FormattedDate}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+
+                                <!--  Amount Sold  -->
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Total Sold:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.AmountSold, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPStockGreen}"
+                                    VerticalOptions="Center" />
+
+                                <!--  Credit Amount  -->
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Credit Amount:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.CreditAmount, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPStockRed}"
+                                    VerticalOptions="Center" />
+
+                                <!--  Paid Amount  -->
+                                <Label
+                                    Grid.Row="3"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Paid Amount:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.PaidAMount, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPPrimaryBlue}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Transaction History Card  -->
+                    <Border
+                        Padding="24"
+                        BackgroundColor="{StaticResource NPCardBg}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <VerticalStackLayout Spacing="16">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="18"
+                                Text="Transaction History"
+                                TextColor="{StaticResource NPTextMain}" />
+
+                            <Grid
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="16"
+                                RowDefinitions="Auto"
+                                RowSpacing="12">
+                                <!--  Transaction Count  -->
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Total Transactions:"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    Text="{Binding SelectedContactForDetails.Transactions.Count, TargetNullValue='0'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!--  Transaction List  -->
+                            <CollectionView IsVisible="{Binding SelectedContactForDetails.Transactions.Count, Converter={StaticResource IntToBoolConverter}}" ItemsSource="{Binding SelectedContactForDetails.Transactions}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="Model:Transaction">
+                                        <Border
+                                            Margin="0,4"
+                                            Padding="16,12"
+                                            BackgroundColor="{StaticResource NPLightBg}"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="0">
+                                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                                    <Label
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="14"
+                                                        Text="{Binding Id, StringFormat='Transaction #{0}'}"
+                                                        TextColor="{StaticResource NPTextMain}" />
+                                                    <Label
+                                                        FontSize="12"
+                                                        Text="{Binding FormattedDate}"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+                                                </VerticalStackLayout>
+                                                <VerticalStackLayout
+                                                    Grid.Column="1"
+                                                    HorizontalOptions="End"
+                                                    Spacing="2"
+                                                    VerticalOptions="Center">
+                                                    <Label
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="14"
+                                                        Text="{Binding TotalAmount, StringFormat='{0:C}'}"
+                                                        TextColor="{StaticResource NPTextMain}" />
+                                                    <Label
+                                                        FontSize="10"
+                                                        Text="{Binding ItemCount, StringFormat='{0} items'}"
+                                                        TextColor="{StaticResource NPTextSecondary}" />
+                                                </VerticalStackLayout>
+                                                <Border
+                                                    Grid.Column="2"
+                                                    Padding="8,4"
+                                                    BackgroundColor="{Binding IsPaid, Converter={StaticResource StatusToColorConverter}}"
+                                                    StrokeShape="RoundRectangle 8"
+                                                    StrokeThickness="0">
+                                                    <Label
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="12"
+                                                        HorizontalTextAlignment="Center"
+                                                        Text="{Binding Status}"
+                                                        TextColor="White" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                                <CollectionView.EmptyView>
+                                    <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                                        <Label
+                                            FontSize="16"
+                                            HorizontalTextAlignment="Center"
+                                            Text="📋" />
+                                        <Label
+                                            FontFamily="PoppinsRegular"
+                                            FontSize="14"
+                                            HorizontalTextAlignment="Center"
+                                            Text="No transactions found"
+                                            TextColor="{StaticResource NPTextSecondary}" />
+                                    </VerticalStackLayout>
+                                </CollectionView.EmptyView>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout
+                Grid.Row="3"
+                HorizontalOptions="Center"
+                Spacing="16">
+                <Button
+                    x:Name="CloseButton"
+                    Padding="32,0"
+                    Clicked="OnCloseClicked"
+                    FontSize="14"
+                    MinimumWidthRequest="120"
+                    StyleClass="PrimaryButton"
+                    Text="Close" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

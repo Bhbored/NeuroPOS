@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeuroPOS.MVVM.View.TransactionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Expander;assembly=Syncfusion.Maui.Expander"
+    x:DataType="VM:TransactionVM"
+    BackgroundColor="{StaticResource NPLightBg}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Converters:TransactionTypeToColorConverter x:Key="TransactionTypeColor"/>
+            <Converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <RefreshView
+        Command="{Binding RefreshCommand}"
+        IsRefreshing="{Binding IsRefreshing}"
+        RefreshColor="{StaticResource NPPrimaryBlue}">
+        <ScrollView>
+            <VerticalStackLayout Padding="24,32,24,24"
+                    Spacing="32">
+                <!--  Header Section  -->
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="32"
+                        Text="Transactions"
+                        TextColor="{StaticResource NPTextMain}"/>
+                    <Label
+                        FontFamily="PoppinsRegular"
+                        FontSize="16"
+                        Text="View and manage all transactions"
+                        TextColor="{StaticResource NPTextSecondary}"/>
+                </VerticalStackLayout>
+
+                <!--  Modern Filter/Search Section  -->
+                <Border
+                    Padding="0"
+                    BackgroundColor="{StaticResource NPCardBg}"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="Black"
+                            Opacity="0.08"
+                            Radius="20"
+                            Offset="0,4"/>
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Padding="28,24"
+                            Spacing="16">
+                        <HorizontalStackLayout Spacing="20">
+                            <!--  Date Range Button  -->
+                            <Button
+                                Padding="24,0"
+                                BackgroundColor="{StaticResource NPPrimaryBlue}"
+                                Clicked="ShowDatePicker"
+                                CornerRadius="12"
+                                FontFamily="PoppinsBold"
+                                FontSize="14"
+                                HeightRequest="48"
+                                Text="📅 Date Range"
+                                TextColor="White"/>
+
+                            <!--  Status Filter Picker  -->
+                            <Border MinimumWidthRequest="140"
+                                    StyleClass="FilterDropdownContainer">
+                                <Picker
+                                    x:Name="StatusFilterPicker"
+                                    Title="Status Filter"
+                                    HorizontalOptions="Fill"
+                                    ItemsSource="{Binding StatusFilterOptions}"
+                                    SelectedItem="{Binding SelectedStatusFilter, Mode=TwoWay}"
+                                    StyleClass="ModernPicker"/>
+                            </Border>
+
+                            <!--  Type Filter Picker  -->
+                            <Border MinimumWidthRequest="140"
+                                    StyleClass="FilterDropdownContainer">
+                                <Picker
+                                    x:Name="TypeFilterPicker"
+                                    Title="Type Filter"
+                                    HorizontalOptions="Fill"
+                                    ItemsSource="{Binding TypeFilterOptions}"
+                                    SelectedItem="{Binding SelectedTypeFilter, Mode=TwoWay}"
+                                    StyleClass="ModernPicker"/>
+                            </Border>
+
+                            <!--  Sort Filter Picker  -->
+                            <Border MinimumWidthRequest="140"
+                                    StyleClass="FilterDropdownContainer">
+                                <Picker
+                                    x:Name="SortFilterPicker"
+                                    Title="Sort By"
+                                    HorizontalOptions="Fill"
+                                    ItemsSource="{Binding SortFilterOptions}"
+                                    SelectedItem="{Binding SelectedSortFilter, Mode=TwoWay}"
+                                    StyleClass="ModernPicker"/>
+                            </Border>
+
+
+
+                            <!--  Collapse All Button (Initially Hidden)  -->
+                            <Button
+                                Padding="20,0"
+                                BackgroundColor="{StaticResource NPStockRed}"
+                                Command="{Binding CollapseAllCommand}"
+                                CornerRadius="12"
+                                FontFamily="PoppinsBold"
+                                FontSize="14"
+                                HeightRequest="48"
+                                IsVisible="{Binding AnyExpanded}"
+                                Text="📉 Collapse All"
+                                TextColor="White"/>
+
+                            <!--  Clear All Filters Button (Only visible when any filter is active)  -->
+                            <Button
+                                Padding="20,0"
+                                BackgroundColor="{StaticResource NPAccentYellow}"
+                                Command="{Binding ClearAllFiltersCommand}"
+                                CornerRadius="12"
+                                FontFamily="PoppinsBold"
+                                FontSize="14"
+                                HeightRequest="48"
+                                IsVisible="{Binding HasAnyActiveFilter}"
+                                Text="🗑️ Clear Filters"
+                                TextColor="White"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Date Filter Summary (Only visible when filter is active)  -->
+                <Border
+                    Padding="20,12"
+                    BackgroundColor="{StaticResource NPAccentYellow}"
+                    IsVisible="{Binding IsDateFilterActive}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0">
+                    <HorizontalStackLayout HorizontalOptions="Center"
+                            Spacing="12">
+                        <Label
+                            FontSize="16"
+                            Text="🔍"
+                            VerticalOptions="Center"/>
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            Text="{Binding DateFilterSummary}"
+                            TextColor="White"
+                            VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!--  Table Column Headers  -->
+                <Grid
+                    Margin="32,8,32,0"
+                    ColumnDefinitions="1.2*,1*,0.8*,0.6*,0.8*,1.2*,1*,1*"
+                    RowDefinitions="Auto">
+
+                    <Label
+                        Grid.Column="0"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="TRANSACTION ID"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="1"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="DATE"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="2"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="TIME"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="3"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalTextAlignment="Center"
+                        Text="ITEMS"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="4"
+                        Margin="0,0,30,0"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalTextAlignment="Center"
+                        Text="TYPE"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="5"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="TOTAL AMOUNT"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="6"
+                        Margin="0,0,60,0"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalTextAlignment="Center"
+                        Text="STATUS"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="7"
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        HorizontalTextAlignment="Center"
+                        Text="ACTIONS"
+                        TextColor="{StaticResource NPTextSecondary}"
+                        VerticalOptions="Center"/>
+                </Grid>
+
+                <!--  Optimized Transactions List  -->
+                <Border
+                    Padding="0"
+                    BackgroundColor="{StaticResource NPCardBg}"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="Black"
+                            Opacity="0.08"
+                            Radius="20"
+                            Offset="0,6"/>
+                    </Border.Shadow>
+                    <CollectionView
+                        ItemsSource="{Binding Transactions}"
+                        RemainingItemsThreshold="0"
+                        RemainingItemsThresholdReachedCommand="{x:Null}"
+                        SelectionMode="None"
+                        VerticalScrollBarVisibility="Never">
+                        <!--  EMPTY VIEW  -->
+                        <CollectionView.EmptyView>
+                            <Grid
+                                Padding="40"
+                                RowDefinitions="Auto,Auto,Auto"
+                                RowSpacing="20">
+                                <!--  Icon  -->
+                                <Border
+                                    Grid.Row="0"
+                                    BackgroundColor="{StaticResource NPLightBg}"
+                                    HeightRequest="120"
+                                    HorizontalOptions="Center"
+                                    StrokeShape="RoundRectangle 60"
+                                    StrokeThickness="0"
+                                    WidthRequest="120">
+                                    <Border.Shadow>
+                                        <Shadow
+                                            Brush="Black"
+                                            Opacity="0.1"
+                                            Radius="20"
+                                            Offset="0,4"/>
+                                    </Border.Shadow>
+                                    <Image
+                                        HorizontalOptions="Center"
+                                        IsAnimationPlaying="True"
+                                        Source="notransaction.gif"
+                                        VerticalOptions="Center"/>
+                                </Border>
+
+                                <!--  Title  -->
+                                <VerticalStackLayout Grid.Row="1"
+                                        Spacing="8">
+                                    <Label
+                                        FontFamily="PoppinsBold"
+                                        FontSize="24"
+                                        HorizontalOptions="Center"
+                                        Text="No Transactions Found"
+                                        TextColor="{StaticResource NPTextMain}"
+                                        VerticalOptions="Center"/>
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="Model:Transaction">
+                                <Border
+                                    Margin="0"
+                                    Padding="12,8"
+                                    BackgroundColor="White"
+                                    StrokeShape="RoundRectangle 5"
+                                    StrokeThickness="1">
+                                    <Border.Shadow>
+                                        <Shadow
+                                            Brush="Black"
+                                            Opacity="0.05"
+                                            Radius="4"
+                                            Offset="0,1"/>
+                                    </Border.Shadow>
+                                    <!--  Compact horizontal layout  -->
+                                    <!--  Match Grid layout with headers  -->
+                                    <Grid
+                                        ColumnDefinitions="1.2*,1*,0.8*,0.6*,0.8*,1.2*,1*,1*"
+                                        RowDefinitions="Auto"
+                                        VerticalOptions="Center">
+
+                                        <!--  Transaction ID  -->
+                                        <Label
+                                            Grid.Column="0"
+                                            Margin="10,0,0,0"
+                                            FontFamily="PoppinsBold"
+                                            FontSize="14"
+                                            HorizontalOptions="Start"
+                                            Text="{Binding Id, StringFormat='#{0}'}"
+                                            TextColor="{StaticResource NPPrimaryBlue}"
+                                            VerticalOptions="Center"/>
+
+                                        <!--  Date  -->
+                                        <Label
+                                            Grid.Column="1"
+                                            FontFamily="PoppinsRegular"
+                                            FontSize="12"
+                                            HorizontalOptions="Start"
+                                            Text="{Binding FormattedDate}"
+                                            TextColor="{StaticResource NPTextMain}"
+                                            VerticalOptions="Center"/>
+
+                                        <!--  Time  -->
+                                        <Label
+                                            Grid.Column="2"
+                                            FontFamily="PoppinsRegular"
+                                            FontSize="12"
+                                            HorizontalOptions="Start"
+                                            Text="{Binding FormattedTime}"
+                                            TextColor="{StaticResource NPTextMain}"
+                                            VerticalOptions="Center"/>
+
+                                        <!--  Items  -->
+                                        <Label
+                                            Grid.Column="3"
+                                            FontFamily="PoppinsRegular"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding ItemCount}"
+                                            TextColor="{StaticResource NPTextMain}"
+                                            VerticalOptions="Center"/>
+
+                                        <!--  Type  -->
+                                        <Border
+                                            Grid.Column="4"
+                                            Padding="6,2"
+                                            BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeColor}}"
+                                            HorizontalOptions="Center"
+                                            StrokeShape="RoundRectangle 4"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center">
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="10"
+                                                HorizontalTextAlignment="Center"
+                                                Text="{Binding TransactionType}"
+                                                TextColor="White"/>
+                                        </Border>
+
+                                        <!--  Total Amount  -->
+                                        <Label
+                                            Grid.Column="5"
+                                            FontFamily="PoppinsBold"
+                                            FontSize="12"
+                                            HorizontalOptions="Start"
+                                            Text="{Binding TotalAmount, StringFormat='{0:C}'}"
+                                            TextColor="{StaticResource NPTextMain}"
+                                            VerticalOptions="Center"/>
+
+                                        <!--  Status  -->
+                                        <Border
+                                            Grid.Column="6"
+                                            Margin="0,0,60,0"
+                                            Padding="6,2"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                            HorizontalOptions="Center"
+                                            StrokeShape="RoundRectangle 4"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center">
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="10"
+                                                HorizontalTextAlignment="Center"
+                                                Text="{Binding Status}"
+                                                TextColor="White"/>
+                                        </Border>
+
+                                        <!--  Action Button  -->
+                                        <Button
+                                            Grid.Column="7"
+                                            Padding="8,4"
+                                            BackgroundColor="{StaticResource NPPrimaryBlue}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type VM:TransactionVM}}, Path=ShowTransactionDetailsCommand}"
+                                            CommandParameter="{Binding .}"
+                                            CornerRadius="6"
+                                            FontFamily="PoppinsBold"
+                                            FontSize="10"
+                                            HorizontalOptions="Center"
+                                            Text="View"
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
+
+                <!--  Simple Transaction Count  -->
+                <VerticalStackLayout HorizontalOptions="Center"
+                        Spacing="8">
+                    <Label
+                        FontFamily="PoppinsRegular"
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="{Binding TransactionCount}"
+                        TextColor="{StaticResource NPTextSecondary}"/>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

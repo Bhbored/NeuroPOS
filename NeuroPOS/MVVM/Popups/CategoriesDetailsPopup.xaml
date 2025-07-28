@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.CategoriesDetailsPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    HeightRequest="600"
+    WidthRequest="800">
+
+    <toolkit:Popup.Resources>
+        <Converters:IntToInverseBoolConverter x:Key="InverseBoolConverter" />
+    </toolkit:Popup.Resources>
+
+    <Border
+        Padding="24"
+        BackgroundColor="White"
+        StrokeShape="RoundRectangle 16"
+        StrokeThickness="0">
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+            <!--  Header  -->
+            <Grid
+                Grid.Row="0"
+                Margin="0,0,0,20"
+                ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="24"
+                        Text="Categories Details"
+                        TextColor="{StaticResource NPTextMain}" />
+                    <Label
+                        FontSize="14"
+                        Text="Manage your product categories"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                </VerticalStackLayout>
+
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="Transparent"
+                    Command="{Binding CloseCategoriesDetailsCommand}"
+                    FontSize="20"
+                    HeightRequest="40"
+                    Text="✕"
+                    TextColor="{StaticResource NPTextSecondary}"
+                    WidthRequest="40" />
+            </Grid>
+
+            <!--  Divider  -->
+            <BoxView
+                Grid.Row="1"
+                Margin="0,0,0,20"
+                BackgroundColor="{StaticResource NPDivider}"
+                HeightRequest="1" />
+
+            <!--  Categories List  -->
+            <ScrollView Grid.Row="2">
+                <VerticalStackLayout Spacing="12">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="16"
+                        Text="Available Categories"
+                        TextColor="{StaticResource NPTextMain}" />
+
+                    <CollectionView ItemsSource="{Binding Categories}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Margin="0,0,0,12"
+                                    Padding="20"
+                                    BackgroundColor="White"
+                                    Stroke="{StaticResource NPDivider}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1">
+                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                            <!--  Normal View  -->
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="16"
+                                                IsVisible="{Binding IsBeingEdited, Converter={StaticResource InverseBoolConverter}}"
+                                                Text="{Binding Name}"
+                                                TextColor="{StaticResource NPTextMain}" />
+                                            <Label
+                                                FontSize="13"
+                                                IsVisible="{Binding IsBeingEdited, Converter={StaticResource InverseBoolConverter}}"
+                                                Text="{Binding Description}"
+                                                TextColor="{StaticResource NPTextSecondary}" />
+
+                                            <!--  Edit View  -->
+                                            <Border IsVisible="{Binding IsBeingEdited}" StyleClass="ModernEntry">
+                                                <Entry
+                                                    BackgroundColor="Transparent"
+                                                    FontSize="14"
+                                                    Placeholder="Category name"
+                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type toolkit:Popup}}, Path=BindingContext.EditCategoryName}" />
+                                            </Border>
+                                            <Border IsVisible="{Binding IsBeingEdited}" StyleClass="ModernEntry">
+                                                <Entry
+                                                    BackgroundColor="Transparent"
+                                                    FontSize="14"
+                                                    Placeholder="Category description"
+                                                    Text="{Binding Source={RelativeSource AncestorType={x:Type toolkit:Popup}}, Path=BindingContext.EditCategoryDescription}" />
+                                            </Border>
+                                        </VerticalStackLayout>
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="0,0,12,0"
+                                            Padding="8,4"
+                                            BackgroundColor="{StaticResource NPAccentYellow}"
+                                            StrokeShape="RoundRectangle 6"
+                                            VerticalOptions="Center">
+                                            <Label
+                                                FontFamily="PoppinsBold"
+                                                FontSize="11"
+                                                HorizontalOptions="Center"
+                                                Text="{Binding ProductCount, StringFormat='{0} products'}"
+                                                TextColor="White" />
+                                        </Border>
+
+                                        <Button
+                                            Grid.Column="2"
+                                            Margin="0,0,8,0"
+                                            BackgroundColor="Transparent"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type toolkit:Popup}}, Path=BindingContext.EditCategoryCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="18"
+                                            HeightRequest="36"
+                                            HorizontalOptions="Center"
+                                            Text="✏️"
+                                            WidthRequest="40" />
+
+                                        <Button
+                                            Grid.Column="3"
+                                            BackgroundColor="Transparent"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type toolkit:Popup}}, Path=BindingContext.DeleteCategoryCommand}"
+                                            CommandParameter="{Binding .}"
+                                            FontSize="18"
+                                            HeightRequest="36"
+                                            Text="🗑️"
+                                            WidthRequest="40" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout
+                                HorizontalOptions="Center"
+                                Spacing="8"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="16"
+                                    HorizontalOptions="Center"
+                                    Text="No categories found"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                                <Label
+                                    FontSize="12"
+                                    HorizontalOptions="Center"
+                                    Text="Categories will appear here when added"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
+                    <HorizontalStackLayout>
+                        <Label
+                            FontSize="12"
+                            HorizontalTextAlignment="Center"
+                            Text="Total Categories:     "
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Label
+                            Margin="10,0,0,0"
+                            FontSize="12"
+                            HorizontalTextAlignment="Center"
+                            Text="{Binding Categories.Count}"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                    </HorizontalStackLayout>
+
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!--  Bottom Action Buttons  -->
+
+            <HorizontalStackLayout Grid.Row="3" Spacing="12">
+                <Button
+                    BackgroundColor="{StaticResource NPTextSecondary}"
+                    Command="{Binding CloseCategoriesDetailsCommand}"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    HeightRequest="44"
+                    HorizontalOptions="Fill"
+                    Text="Close"
+                    TextColor="White" />
+                <Button
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    Command="{Binding SaveCategoryChangesCommand}"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    HeightRequest="44"
+                    HorizontalOptions="Fill"
+                    Text="Save Changes"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

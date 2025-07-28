@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.TransactionDetailsPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="Model:Transaction"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    HeightRequest="600"
+    WidthRequest="800">
+    <toolkit:Popup.Resources>
+        <ResourceDictionary>
+            <Converters:TransactionTypeToColorConverter x:Key="TransactionTypeColor" />
+        </ResourceDictionary>
+    </toolkit:Popup.Resources>
+
+    <Border
+        BackgroundColor="{StaticResource NPCardBg}"
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.2"
+                Radius="20"
+                Offset="0,8" />
+        </Border.Shadow>
+
+        <Grid Padding="24" RowDefinitions="Auto,*,Auto">
+            <!--  Header  -->
+            <VerticalStackLayout Grid.Row="0" Spacing="8">
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="24"
+                        Text="Transaction Details"
+                        TextColor="{StaticResource NPTextMain}" />
+                    <Button
+                        Margin="450,0,0,0"
+                        BackgroundColor="Transparent"
+                        Clicked="OnCloseClicked"
+                        FontFamily="PoppinsBold"
+                        FontSize="20"
+                        Text="✕"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                </HorizontalStackLayout>
+
+                <Label
+                    FontFamily="PoppinsRegular"
+                    FontSize="16"
+                    Text="{Binding Id, StringFormat='Transaction #{0}'}"
+                    TextColor="{StaticResource NPTextSecondary}" />
+            </VerticalStackLayout>
+
+            <!--  Content  -->
+            <ScrollView Grid.Row="1" Padding="0,16">
+
+                <VerticalStackLayout Spacing="20">
+                    <!--  Transaction Summary  -->
+                    <Border
+                        Padding="20"
+                        BackgroundColor="{StaticResource NPLightBg}"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0">
+                        <VerticalStackLayout Spacing="20">
+                            <!--  Date Row  -->
+                            <Grid ColumnDefinitions="*,*">
+                                <Label
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Date"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    HorizontalOptions="End"
+                                    Text="{Binding Date, StringFormat='{0:dd/MM/yyyy}'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!--  Type Row  -->
+                            <Grid ColumnDefinitions="*,*">
+                                <Label
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Type"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    Padding="8,4"
+                                    BackgroundColor="{Binding TransactionType, Converter={StaticResource TransactionTypeColor}}"
+                                    HorizontalOptions="End"
+                                    StrokeShape="RoundRectangle 6"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        x:Name="Type"
+                                        FontFamily="PoppinsBold"
+                                        FontSize="12"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding TransactionType}"
+                                        TextColor="White" />
+                                </Border>
+                            </Grid>
+
+                            <!--  Subtotal Row  -->
+                            <Grid ColumnDefinitions="*,*" IsVisible="{Binding ., Converter={StaticResource Visibility}, ConverterParameter=Type}">
+                                <Label
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Subtotal"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    HorizontalOptions="End"
+                                    Text="{Binding SubTotalAMount, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!--  Tax Row  -->
+                            <Grid ColumnDefinitions="*,*" IsVisible="{Binding ., Converter={StaticResource Visibility}, ConverterParameter=Type}">
+                                <Label
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Tax"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    HorizontalOptions="End"
+                                    Text="{Binding Tax, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!--  Discount Row  -->
+                            <Grid ColumnDefinitions="*,*" IsVisible="{Binding ., Converter={StaticResource Visibility}, ConverterParameter=Type}">
+                                <Label
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="14"
+                                    Text="Discount"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsRegular"
+                                    FontSize="14"
+                                    HorizontalOptions="End"
+                                    Text="{Binding Discount, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!--  Total Amount Row  -->
+                            <Grid ColumnDefinitions="*,*">
+                                <Label
+                                    Grid.Column="0"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="18"
+                                    Text="Total Amount"
+                                    TextColor="{StaticResource NPTextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="18"
+                                    HorizontalOptions="End"
+                                    Text="{Binding TotalAmount, StringFormat='{0:C}'}"
+                                    TextColor="{StaticResource NPTextMain}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Transaction Items  -->
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="18"
+                            Text="Transaction Items"
+                            TextColor="{StaticResource NPTextMain}" />
+
+                        <CollectionView
+                            x:Name="TransactionLinesCollection"
+                            ItemTemplate="{StaticResource LineDTSelector}"
+                            ItemsSource="{Binding Lines}"
+                            SelectionMode="None" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!--  Footer  -->
+            <Button
+                Grid.Row="2"
+                BackgroundColor="{StaticResource NPPrimaryBlue}"
+                Clicked="OnCloseClicked"
+                CornerRadius="12"
+                FontFamily="PoppinsBold"
+                FontSize="16"
+                Text="Close"
+                TextColor="White"
+                VerticalOptions="Center" />
+
+        </Grid>
+    </Border>
+</toolkit:Popup>

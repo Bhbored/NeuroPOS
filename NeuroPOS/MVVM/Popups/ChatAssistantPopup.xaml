@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.ChatAssistantPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+    xmlns:vm="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    x:DataType="vm:ChatAssistantVM"
+    BackgroundColor="Transparent"
+    HeightRequest="600"
+    WidthRequest="500">
+
+    <!--  MAIN CARD  -->
+    <Border
+        Margin="20"
+        HorizontalOptions="Fill"
+        StyleClass="ModernCardShadow"
+        VerticalOptions="Fill">
+        <Grid Padding="0" RowDefinitions="Auto,*,Auto">
+            <!--  HEADER SECTION  -->
+            <Border
+                BackgroundColor="{StaticResource NPPrimaryBlue}"
+                StrokeShape="RoundRectangle 20,20,0,0"
+                StrokeThickness="0">
+                <Grid Padding="24,20" ColumnDefinitions="Auto,*,Auto">
+
+                    <!--  AI Icon and Title  -->
+                    <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                        <Border
+                            Padding="8"
+                            BackgroundColor="White"
+                            StrokeShape="RoundRectangle 20"
+                            StrokeThickness="0">
+                            <Image
+                                HeightRequest="24"
+                                Source="robot.png"
+                                WidthRequest="24" />
+                        </Border>
+                        <VerticalStackLayout Spacing="2">
+                            <Label
+                                FontSize="18"
+                                StyleClass="TitleText"
+                                Text="AI Assistant"
+                                TextColor="White" />
+                            <Label
+                                FontSize="12"
+                                StyleClass="SubtitleText"
+                                Text="Powered by NeuroPOS"
+                                TextColor="#B3FFFFFF" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+
+                    <!--  Close Button  -->
+                    <Button
+                        Grid.Column="2"
+                        Padding="0"
+                        BackgroundColor="Transparent"
+                        Command="{Binding CloseCommand}"
+                        FontSize="20"
+                        HeightRequest="32"
+                        HorizontalOptions="End"
+                        Text="✕"
+                        TextColor="White"
+                        WidthRequest="32" />
+                </Grid>
+            </Border>
+
+            <!--  CHAT MESSAGES SECTION  -->
+            <ScrollView
+                x:Name="ChatScroll"
+                Grid.Row="1"
+                Padding="20"
+                BackgroundColor="{StaticResource NPLightBg}">
+                <VerticalStackLayout x:Name="MessagesStack" Spacing="16">
+
+                    <!--  Welcome Message  -->
+                    <Border
+                        Padding="16,12"
+                        BackgroundColor="White"
+                        HorizontalOptions="Start"
+                        MaximumWidthRequest="280"
+                        StrokeShape="RoundRectangle 16,16,16,4"
+                        StrokeThickness="0">
+                        <VerticalStackLayout Spacing="8">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="14"
+                                Text="👋 Hello! I'm your AI assistant"
+                                TextColor="{StaticResource NPTextMain}" />
+                            <Label
+                                FontFamily="PoppinsRegular"
+                                FontSize="13"
+                                Text="I can help you with inventory management, sales analysis, and POS operations. How can I assist you today?"
+                                TextColor="{StaticResource NPTextSecondary}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!--  INPUT SECTION  -->
+            <Border
+                Grid.Row="2"
+                Padding="20,16"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 0,0,20,20"
+                StrokeThickness="0">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
+                    <!--  Input Entry  -->
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            x:Name="InputEntry"
+                            BackgroundColor="Transparent"
+                            FontFamily="PoppinsRegular"
+                            FontSize="14"
+                            Placeholder="Ask me anything about your POS..."
+                            PlaceholderColor="{StaticResource NPTextMuted}"
+                            ReturnCommand="{Binding SendCommand}"
+                            ReturnType="Send"
+                            Text="{Binding CurrentInput, Mode=TwoWay}"
+                            TextColor="{StaticResource NPTextMain}"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <!--  Send Button  -->
+                    <Button
+                        Grid.Column="1"
+                        Command="{Binding SendCommand}"
+                        FontSize="14"
+                        HeightRequest="48"
+                        StyleClass="PrimaryButton"
+                        Text="Send"
+                        WidthRequest="80" />
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Border>
+</toolkit:Popup>

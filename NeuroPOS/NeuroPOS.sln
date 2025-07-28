@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuroPOS", "NeuroPOS.csproj", "{578423AF-0B0D-77BE-B597-9EEE73ABAA2C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{578423AF-0B0D-77BE-B597-9EEE73ABAA2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{578423AF-0B0D-77BE-B597-9EEE73ABAA2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{578423AF-0B0D-77BE-B597-9EEE73ABAA2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{578423AF-0B0D-77BE-B597-9EEE73ABAA2C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CC9C27E7-F99B-4996-AEB3-483F22B0893F}
+	EndGlobalSection
+EndGlobal

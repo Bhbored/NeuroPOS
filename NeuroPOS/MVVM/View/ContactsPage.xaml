@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeuroPOS.MVVM.View.ContactsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Converters="clr-namespace:NeuroPOS.Converters"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:data="clr-namespace:Syncfusion.Maui.DataSource;assembly=Syncfusion.Maui.DataSource"
+    xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Name="ContactsPageView"
+    x:DataType="VM:ContactVM"
+    BackgroundColor="{StaticResource NPLightBg}">
+
+    <ContentPage.Resources>
+        <Converters:IntToBoolConverter x:Key="IntToBoolConverter" />
+        <Converters:IntToInverseBoolConverter x:Key="IntToInverseBoolConverter" />
+    </ContentPage.Resources>
+
+    <Grid ColumnDefinitions=".75*,.25*">
+        <!--  Left Column: Contact Management  -->
+        <Grid
+            Grid.Column="0"
+            Padding="32,32,16,32"
+            RowDefinitions="Auto,Auto,Auto,*">
+
+            <!--  Header Section  -->
+            <VerticalStackLayout
+                Grid.Row="0"
+                Margin="0,0,0,32"
+                Spacing="8">
+                <Label
+                    FontFamily="PoppinsBold"
+                    FontSize="28"
+                    Text="Contacts"
+                    TextColor="{StaticResource NPTextMain}" />
+                <Label
+                    FontSize="16"
+                    Text="Manage your contacts and customer information."
+                    TextColor="{StaticResource NPTextSecondary}" />
+            </VerticalStackLayout>
+
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout
+                Grid.Row="1"
+                Margin="0,0,0,24"
+                Spacing="12">
+                <Button
+                    Padding="16,12"
+                    BackgroundColor="{StaticResource NPPrimaryBlue}"
+                    Command="{Binding AddNewContactCommand}"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    Text="+ Add Contact"
+                    TextColor="White" />
+
+                <!--  Conditional Selection Buttons  -->
+                <Button
+                    x:Name="UnselectAllButton"
+                    Padding="16,12"
+                    BackgroundColor="{StaticResource NPTextSecondary}"
+                    Command="{Binding ClearAllSelectionsCommand}"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    IsVisible="{Binding HasSelectedItems}"
+                    Text="Unselect All"
+                    TextColor="White" />
+                <Button
+                    x:Name="DeleteSelectedButton"
+                    Padding="16,12"
+                    BackgroundColor="#FF6B6B"
+                    Command="{Binding DeleteSelectedContactsCommand}"
+                    CornerRadius="8"
+                    FontFamily="PoppinsBold"
+                    FontSize="14"
+                    IsVisible="{Binding HasSelectedItems}"
+                    Text="Delete Selected"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+
+            <!--  Search and Filter Bar  -->
+            <Grid
+                Grid.Row="2"
+                Margin="0,0,0,24"
+                ColumnDefinitions="*,Auto"
+                ColumnSpacing="12">
+                <Border
+                    Grid.Column="0"
+                    Padding="12,8"
+                    BackgroundColor="White"
+                    Stroke="{StaticResource NPDivider}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <editors:SfAutocomplete
+                        x:Name="autocomplete"
+                        DisplayMemberPath="Name"
+                        EnableAutoSize="True"
+                        HighlightedTextColor="{StaticResource NPPrimaryBlue}"
+                        HighlightedTextFontAttributes="Bold"
+                        HorizontalOptions="Fill"
+                        ItemsSource="{Binding Contacts}"
+                        MaxDropDownHeight="250"
+                        Placeholder="Search contacts by name"
+                        SelectedValue="{Binding AutocompleteSelectedContacts, Mode=TwoWay}"
+                        SelectionChanged="Autocomplete_SelectionChanged"
+                        SelectionMode="Multiple"
+                        ShowBorder="False"
+                        Stroke="Transparent"
+                        TextHighlightMode="FirstOccurrence"
+                        TextMemberPath="Name"
+                        TokensWrapMode="Wrap"
+                        VerticalOptions="Center" />
+                </Border>
+
+
+
+                <Border
+                    Grid.Column="1"
+                    Padding="12"
+                    BackgroundColor="White"
+                    Stroke="{StaticResource NPDivider}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <HorizontalStackLayout Spacing="8">
+                        <Image
+                            x:Name="SortIcon"
+                            Aspect="AspectFit"
+                            HeightRequest="16"
+                            Source="ascending.png"
+                            VerticalOptions="Center"
+                            WidthRequest="16" />
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            Text="{Binding SortLabel}"
+                            TextColor="{StaticResource NPTextMain}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleSortCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <!--  Contact List  -->
+            <Border
+                Grid.Row="3"
+                BackgroundColor="White"
+                Stroke="{StaticResource NPDivider}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1"
+                VerticalOptions="Fill">
+                <Grid RowDefinitions="Auto,*">
+                    <!--  Table Header  -->
+                    <Grid
+                        Grid.Row="0"
+                        Padding="20,16"
+                        BackgroundColor="{StaticResource NPLightBg}"
+                        ColumnDefinitions="Auto,Auto,*,*,*,*,*,Auto">
+                        <CheckBox
+                            x:Name="SelectAllCheckBox"
+                            Grid.Column="0"
+                            IsChecked="{Binding SelectAllContacts}" />
+                        <Label
+                            Grid.Column="1"
+                            Margin="8,0,0,0"
+                            StyleClass="ColumnHeader"
+                            Text="SELECT ALL"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="2"
+                            StyleClass="ColumnHeader"
+                            Text="CONTACT"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="2"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            StyleClass="ColumnHeader"
+                            Text="AMOUNT SOLD"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="3"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            StyleClass="ColumnHeader"
+                            Text="CREDIT AMOUNT"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="4"
+                            Grid.ColumnSpan="2"
+                            Margin="10,0,0,0"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            StyleClass="ColumnHeader"
+                            Text="DATE ADDED"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="5"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            StyleClass="ColumnHeader"
+                            Text="Phone Number"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="6"
+                            Grid.ColumnSpan="2"
+                            HorizontalOptions="Center"
+                            StyleClass="ColumnHeader"
+                            Text=""
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <!--  Contact Items with RefreshView  -->
+                    <RefreshView
+                        Grid.Row="1"
+                        Command="{Binding RefreshContactsCommand}"
+                        IsRefreshing="{Binding IsRefreshing}"
+                        RefreshColor="{StaticResource NPPrimaryBlue}">
+                        <syncfusion:SfListView
+                            x:Name="listView"
+                            AutoFitMode="Height"
+                            ItemsSource="{Binding DataSource.DisplayItems}"
+                            Orientation="Vertical"
+                            SelectedItems="{Binding SelectedItems}"
+                            SelectionMode="Multiple">
+                            <syncfusion:SfListView.ItemTemplate>
+                                <DataTemplate x:DataType="Model:Contact">
+                                    <Grid
+                                        Padding="20,16"
+                                        ColumnDefinitions="Auto,Auto,*,*,*,*,*,Auto"
+                                        RowDefinitions="Auto">
+
+                                        <!--  Contact Info  -->
+                                        <HorizontalStackLayout
+                                            Grid.Column="2"
+                                            Spacing="12"
+                                            VerticalOptions="Center">
+                                            <Border
+                                                BackgroundColor="{StaticResource NPLightBg}"
+                                                HeightRequest="40"
+                                                StrokeShape="RoundRectangle 6"
+                                                WidthRequest="40">
+                                                <Label
+                                                    FontSize="16"
+                                                    HorizontalOptions="Center"
+                                                    Text="👤"
+                                                    VerticalOptions="Center" />
+                                            </Border>
+                                            <VerticalStackLayout Spacing="2">
+                                                <Label
+                                                    FontFamily="PoppinsBold"
+                                                    FontSize="14"
+                                                    Text="{Binding Name}"
+                                                    TextColor="{StaticResource NPTextMain}" />
+                                                <Label
+                                                    FontSize="12"
+                                                    Text="{Binding Email}"
+                                                    TextColor="{StaticResource NPTextSecondary}" />
+                                            </VerticalStackLayout>
+                                        </HorizontalStackLayout>
+
+                                        <!--  Amount Sold  -->
+                                        <Label
+                                            Grid.Column="3"
+                                            FontFamily="PoppinsBold"
+                                            FontSize="14"
+                                            HorizontalTextAlignment="End"
+                                            Text="{Binding AmountSold, StringFormat='${0:N0}'}"
+                                            TextColor="{StaticResource NPStockGreen}"
+                                            VerticalOptions="Center" />
+
+                                        <!--  Credit Amount  -->
+                                        <Label
+                                            Grid.Column="4"
+                                            FontFamily="PoppinsBold"
+                                            FontSize="14"
+                                            HorizontalTextAlignment="End"
+                                            Text="{Binding CreditAmount, StringFormat='${0:N0}'}"
+                                            TextColor="{StaticResource NPStockRed}"
+                                            VerticalOptions="Center" />
+
+                                        <!--  Date Added  -->
+                                        <Label
+                                            Grid.Column="5"
+                                            FontSize="12"
+                                            HorizontalTextAlignment="End"
+                                            Text="{Binding FormattedDate}"
+                                            TextColor="{StaticResource NPTextSecondary}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            Grid.Column="6"
+                                            FontSize="10"
+                                            HorizontalTextAlignment="End"
+                                            Text="{Binding PhoneNumber}"
+                                            VerticalOptions="Center" />
+
+                                        <!--  Actions  -->
+                                        <HorizontalStackLayout
+                                            Grid.Column="7"
+                                            Spacing="2"
+                                            VerticalOptions="Center">
+                                            <Button
+                                                Padding="0"
+                                                BackgroundColor="Transparent"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewContactDetailsCommand}"
+                                                CommandParameter="{Binding .}"
+                                                FontSize="16"
+                                                HeightRequest="32"
+                                                Text="👁️"
+                                                WidthRequest="32" />
+                                            <Button
+                                                Padding="0"
+                                                BackgroundColor="Transparent"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditContactCommand}"
+                                                CommandParameter="{Binding .}"
+                                                FontSize="16"
+                                                HeightRequest="32"
+                                                Text="✏️"
+                                                WidthRequest="32" />
+                                            <Button
+                                                Padding="0"
+                                                BackgroundColor="Transparent"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeleteContactCommand}"
+                                                CommandParameter="{Binding .}"
+                                                FontSize="16"
+                                                HeightRequest="32"
+                                                Text="🗑️"
+                                                WidthRequest="32" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </syncfusion:SfListView.ItemTemplate>
+                            <syncfusion:SfListView.EmptyView>
+                                <VerticalStackLayout
+                                    Padding="40"
+                                    HorizontalOptions="Center"
+                                    Spacing="16"
+                                    VerticalOptions="Center">
+                                    <Image
+                                        Aspect="AspectFit"
+                                        HeightRequest="120"
+                                        IsAnimationPlaying="True"
+                                        Source="emptyinventory.gif" />
+                                    <Label
+                                        FontFamily="PoppinsBold"
+                                        FontSize="18"
+                                        HorizontalTextAlignment="Center"
+                                        Text="No contacts found"
+                                        TextColor="{StaticResource NPTextMain}" />
+                                    <Label
+                                        FontSize="14"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Start by adding your first contact"
+                                        TextColor="{StaticResource NPTextSecondary}" />
+                                </VerticalStackLayout>
+                            </syncfusion:SfListView.EmptyView>
+                        </syncfusion:SfListView>
+                    </RefreshView>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!--  Right Column: Contact Editor  -->
+        <Border
+            Grid.Column="1"
+            Margin="16,32,32,32"
+            BackgroundColor="White"
+            Stroke="{StaticResource NPDivider}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1">
+            <Grid Padding="24" RowDefinitions="Auto,Auto,*">
+                <!--  Header  -->
+                <VerticalStackLayout
+                    Grid.Row="0"
+                    Margin="0,0,0,20"
+                    Spacing="4">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="18"
+                        Text="Contact Editor"
+                        TextColor="{StaticResource NPTextMain}" />
+                    <Label
+                        FontSize="14"
+                        Text="Edit contact details"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                </VerticalStackLayout>
+
+                <!--  Divider  -->
+                <BoxView
+                    Grid.Row="1"
+                    Margin="0,0,0,20"
+                    BackgroundColor="{StaticResource NPDivider}"
+                    HeightRequest="1" />
+
+                <!--  Content - Using Grid with visibility bindings to prevent overlapping  -->
+                <Grid Grid.Row="2">
+                    <!--  Empty State Template - Only visible when NOT in edit mode  -->
+                    <VerticalStackLayout
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding IsEditMode, Converter={StaticResource IntToInverseBoolConverter}}"
+                        Spacing="20"
+                        VerticalOptions="Center">
+                        <Border
+                            BackgroundColor="{StaticResource NPLightBg}"
+                            HeightRequest="120"
+                            HorizontalOptions="Center"
+                            StrokeShape="Ellipse"
+                            WidthRequest="120">
+                            <Image
+                                Aspect="AspectFill"
+                                HorizontalOptions="Center"
+                                IsAnimationPlaying="True"
+                                Source="selectcontact.gif"
+                                VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="16"
+                                HorizontalTextAlignment="Center"
+                                Text="Select a contact to edit"
+                                TextColor="{StaticResource NPTextMain}" />
+                            <Label
+                                FontSize="12"
+                                HorizontalTextAlignment="Center"
+                                LineBreakMode="WordWrap"
+                                Text="Click the edit button on any contact to modify their details"
+                                TextColor="{StaticResource NPTextSecondary}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!--  Edit Form Template - Only visible when IN edit mode  -->
+                    <ScrollView IsVisible="{Binding IsEditMode}">
+                        <VerticalStackLayout Spacing="16">
+                            <!--  Contact Name  -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="CONTACT NAME"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                                <Border StyleClass="ModernEntry">
+                                    <Entry
+                                        BackgroundColor="Transparent"
+                                        FontSize="14"
+                                        Placeholder="Enter contact name"
+                                        Text="{Binding EditName}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Email  -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="EMAIL"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                                <Border StyleClass="ModernEntry">
+                                    <Entry
+                                        BackgroundColor="Transparent"
+                                        FontSize="14"
+                                        Keyboard="Email"
+                                        Placeholder="Enter email address"
+                                        Text="{Binding EditEmail}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Phone Number  -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="PHONE NUMBER"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                                <Border StyleClass="ModernEntry">
+                                    <Entry
+                                        BackgroundColor="Transparent"
+                                        FontSize="14"
+                                        Keyboard="Telephone"
+                                        Placeholder="Enter phone number"
+                                        Text="{Binding EditPhoneNumber}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Address  -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="ADDRESS"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                                <Border StyleClass="ModernEntry">
+                                    <Entry
+                                        BackgroundColor="Transparent"
+                                        FontSize="14"
+                                        Placeholder="Enter address"
+                                        Text="{Binding EditAddress}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Date Added  -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="DATE ADDED"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+                                <Border StyleClass="ModernEntry">
+                                    <DatePicker
+                                        x:Name="DateAddedPicker"
+                                        BackgroundColor="Transparent"
+                                        Date="{Binding EditDateAdded}"
+                                        FontSize="14" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Pending Transactions  -->
+                            <VerticalStackLayout Spacing="8">
+                                <Label
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    Text="PENDING TRANSACTIONS"
+                                    TextColor="{StaticResource NPTextSecondary}" />
+
+                                <!--  Pending Transactions List  -->
+                                <CollectionView IsVisible="{Binding HasPendingTransactions}" ItemsSource="{Binding PendingTransactions}">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="Model:Transaction">
+                                            <Border
+                                                Margin="0,4"
+                                                BackgroundColor="{StaticResource NPLightBg}"
+                                                Stroke="{StaticResource NPDivider}"
+                                                StrokeShape="RoundRectangle 8"
+                                                StrokeThickness="1">
+                                                <Grid
+                                                    Padding="12"
+                                                    ColumnDefinitions="*,Auto"
+                                                    RowDefinitions="Auto,Auto">
+
+                                                    <!--  Transaction Details  -->
+                                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                                        <Label
+                                                            FontFamily="PoppinsBold"
+                                                            FontSize="14"
+                                                            Text="{Binding TotalAmount, StringFormat='${0:N0}'}"
+                                                            TextColor="{StaticResource NPStockRed}" />
+                                                        <Label
+                                                            FontSize="12"
+                                                            Text="{Binding Date, StringFormat='Date: {0:dd/MM/yyyy}'}"
+                                                            TextColor="{StaticResource NPTextSecondary}" />
+                                                        <Label
+                                                            FontSize="12"
+                                                            Text="{Binding ItemCount, StringFormat='Items: {0}'}"
+                                                            TextColor="{StaticResource NPTextSecondary}" />
+                                                    </VerticalStackLayout>
+
+                                                    <!--  Mark as Paid Button  -->
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        BackgroundColor="{StaticResource NPStockGreen}"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.MarkTransactionAsPaidCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        CornerRadius="6"
+                                                        FontFamily="PoppinsBold"
+                                                        FontSize="11"
+                                                        HeightRequest="32"
+                                                        Text="Mark Paid"
+                                                        TextColor="White"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="80" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+
+                                <!--  No Pending Transactions Message  -->
+                                <Border
+                                    BackgroundColor="{StaticResource NPLightBg}"
+                                    IsVisible="{Binding HasPendingTransactions, Converter={StaticResource IntToInverseBoolConverter}}"
+                                    Stroke="{StaticResource NPDivider}"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="1">
+                                    <Label
+                                        Padding="16"
+                                        FontSize="12"
+                                        HorizontalTextAlignment="Center"
+                                        Text="No pending transactions"
+                                        TextColor="{StaticResource NPTextSecondary}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Action Buttons  -->
+                            <HorizontalStackLayout Margin="0,20,0,0" Spacing="8">
+                                <Button
+                                    Command="{Binding SaveContactCommand}"
+                                    FontSize="12"
+                                    HeightRequest="40"
+                                    HorizontalOptions="Fill"
+                                    StyleClass="PrimaryButton"
+                                    Text="Save Changes" />
+                                <Button
+                                    BackgroundColor="{StaticResource NPTextSecondary}"
+                                    Command="{Binding CancelEditCommand}"
+                                    CornerRadius="8"
+                                    FontFamily="PoppinsBold"
+                                    FontSize="12"
+                                    HeightRequest="40"
+                                    HorizontalOptions="Fill"
+                                    Text="Cancel"
+                                    TextColor="White" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

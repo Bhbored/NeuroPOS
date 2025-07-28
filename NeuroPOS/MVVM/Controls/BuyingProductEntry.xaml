@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NeuroPOS.MVVM.Controls.BuyingProductEntry"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Model="clr-namespace:NeuroPOS.MVVM.Model"
+    xmlns:editors="clr-namespace:Syncfusion.Maui.Inputs;assembly=Syncfusion.Maui.Inputs">
+
+    <Border
+        Padding="16"
+        BackgroundColor="{StaticResource NPLightBg}"
+        Stroke="{StaticResource NPDivider}"
+        StrokeShape="RoundRectangle 10"
+        StrokeThickness="1">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+
+            <!--  Product Selection  -->
+            <VerticalStackLayout Grid.Row="0" Spacing="6">
+                <HorizontalStackLayout Spacing="4">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="SELECT PRODUCT"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="*"
+                        TextColor="#FF6B6B" />
+                </HorizontalStackLayout>
+                <Border StyleClass="ModernEntry">
+                    <editors:SfAutocomplete
+                        x:Name="ProductAutocomplete"
+                        BackgroundColor="Transparent"
+                        DisplayMemberPath="Name"
+                        FontSize="14"
+                        HorizontalOptions="Fill"
+                        Placeholder="Search products by name..."
+                        SelectionChanged="OnProductSelectionChanged"
+                        SelectionMode="Single"
+                        Stroke="Transparent"
+                        TextMemberPath="Name" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!--  Quantity and Cost Info  -->
+            <Grid
+                Grid.Row="1"
+                ColumnDefinitions="*,*,*"
+                ColumnSpacing="12">
+
+                <!--  Quantity  -->
+                <VerticalStackLayout Grid.Column="0" Spacing="6">
+                    <HorizontalStackLayout Spacing="4">
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="12"
+                            Text="QUANTITY"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="12"
+                            Text="*"
+                            TextColor="#FF6B6B" />
+                    </HorizontalStackLayout>
+                    <Border StyleClass="ModernEntry">
+                        <Entry
+                            x:Name="QuantityEntry"
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            Keyboard="Numeric"
+                            Placeholder="0"
+                            Text="1"
+                            TextChanged="OnQuantityChanged" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Unit Cost  -->
+                <VerticalStackLayout Grid.Column="1" Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="UNIT COST"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border StyleClass="ModernEntry">
+                        <Label
+                            x:Name="UnitCostLabel"
+                            Margin="12,8"
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            Text="$0.00"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Total Cost  -->
+                <VerticalStackLayout Grid.Column="2" Spacing="6">
+                    <Label
+                        FontFamily="PoppinsBold"
+                        FontSize="12"
+                        Text="TOTAL"
+                        TextColor="{StaticResource NPTextSecondary}" />
+                    <Border
+                        BackgroundColor="{StaticResource NPAccentYellow}"
+                        Stroke="{StaticResource NPAccentYellow}"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="1">
+                        <Label
+                            x:Name="TotalCostLabel"
+                            Margin="12,8"
+                            FontFamily="PoppinsBold"
+                            FontSize="14"
+                            Text="$0.00"
+                            TextColor="White" />
+                    </Border>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  Remove Button (only visible for entries after the first one)  -->
+            <Button
+                x:Name="RemoveButton"
+                Grid.Row="2"
+                Padding="8,4"
+                BackgroundColor="#FF6B6B"
+                Clicked="OnRemoveClicked"
+                CornerRadius="6"
+                FontFamily="PoppinsBold"
+                FontSize="12"
+                HorizontalOptions="End"
+                IsVisible="False"
+                Text="✕ Remove"
+                TextColor="White" />
+
+        </Grid>
+    </Border>
+</ContentView>

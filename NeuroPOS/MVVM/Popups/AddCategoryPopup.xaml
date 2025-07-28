@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.AddCategoryPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="VM:InventoryVM"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True">
+
+    <Border
+        Padding="32"
+        BackgroundColor="White"
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0"
+        WidthRequest="500">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.3"
+                Radius="25"
+                Offset="0,10" />
+        </Border.Shadow>
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <!--  Header Section  -->
+            <VerticalStackLayout
+                Grid.Row="0"
+                Margin="0,0,0,24"
+                Spacing="8">
+                <HorizontalStackLayout Spacing="12">
+                    <Border
+                        BackgroundColor="{StaticResource NPAccentYellow}"
+                        HeightRequest="48"
+                        StrokeShape="Ellipse"
+                        WidthRequest="48">
+                        <Label
+                            FontSize="24"
+                            HorizontalOptions="Center"
+                            Text="📁"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="22"
+                            Text="Add New Category"
+                            TextColor="{StaticResource NPTextMain}" />
+                        <Label
+                            FontSize="14"
+                            Text="Create a new product category"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!--  Divider  -->
+            <BoxView
+                Grid.Row="1"
+                Margin="0,0,0,24"
+                BackgroundColor="{StaticResource NPDivider}"
+                HeightRequest="1" />
+
+            <!--  Form Content  -->
+            <ScrollView Grid.Row="2" MaximumHeightRequest="400">
+                <VerticalStackLayout Spacing="20">
+
+                    <!--  Category ID (Auto-generated display)  -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="12"
+                            Text="CATEGORY ID"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Border
+                            BackgroundColor="{StaticResource NPLightBg}"
+                            Stroke="{StaticResource NPDivider}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1">
+                            <Label
+                                Margin="16,12"
+                                FontFamily="PoppinsBold"
+                                FontSize="14"
+                                Text="{Binding NewCategoryId, StringFormat='#{0:000}'}"
+                                TextColor="{StaticResource NPTextSecondary}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Category Name (Required)  -->
+                    <VerticalStackLayout Spacing="8">
+                        <HorizontalStackLayout Spacing="4">
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="12"
+                                Text="CATEGORY NAME"
+                                TextColor="{StaticResource NPTextSecondary}" />
+                            <Label
+                                FontFamily="PoppinsBold"
+                                FontSize="12"
+                                Text="*"
+                                TextColor="#FF6B6B" />
+                        </HorizontalStackLayout>
+                        <Border
+                            BackgroundColor="White"
+                            Stroke="{StaticResource NPDivider}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1">
+                            <Entry
+                                x:Name="CategoryNameEntry"
+                                Margin="16,12"
+                                BackgroundColor="Transparent"
+                                FontSize="16"
+                                Placeholder="Enter category name (e.g., Electronics, Clothing)"
+                                Text="{Binding NewCategoryName, Mode=TwoWay}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Description Field  -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            FontFamily="PoppinsBold"
+                            FontSize="12"
+                            Text="DESCRIPTION (Optional)"
+                            TextColor="{StaticResource NPTextSecondary}" />
+                        <Border
+                            BackgroundColor="White"
+                            Stroke="{StaticResource NPDivider}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1">
+                            <Editor
+                                x:Name="DescriptionEditor"
+                                Margin="16,12"
+                                BackgroundColor="Transparent"
+                                FontSize="16"
+                                HeightRequest="80"
+                                Placeholder="Enter category description..."
+                                Text="{Binding NewCategoryDescription, Mode=TwoWay}" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout
+                Grid.Row="3"
+                Margin="0,24,0,0"
+                HorizontalOptions="End"
+                Spacing="12">
+                <Button
+                    x:Name="CancelButton"
+                    Padding="20,12"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource NPDivider}"
+                    BorderWidth="1"
+                    Clicked="OnCancelClicked"
+                    CornerRadius="10"
+                    FontFamily="PoppinsBold"
+                    FontSize="16"
+                    Text="Cancel"
+                    TextColor="{StaticResource NPTextMain}" />
+                <Button
+                    x:Name="AddButton"
+                    Padding="20,12"
+                    BackgroundColor="{StaticResource NPAccentYellow}"
+                    Clicked="OnAddCategoryClicked"
+                    CornerRadius="10"
+                    FontFamily="PoppinsBold"
+                    FontSize="16"
+                    Text="✓ Add Category"
+                    TextColor="White" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

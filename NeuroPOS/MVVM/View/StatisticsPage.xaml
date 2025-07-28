@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NeuroPOS.MVVM.View.StatisticsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:VM="clr-namespace:NeuroPOS.MVVM.ViewModel"
+    xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
+    x:DataType="VM:StatisticsVM"
+    BackgroundColor="{StaticResource NPLightBg}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <!--  DATE labels: 27/07, 30/07 …  -->
+            <chart:ChartAxisLabelStyle
+                x:Key="DateLabelStyle"
+                FontSize="11"
+                LabelFormat="dd/MM"
+                TextColor="#999" />
+            <!--  ✅ format here  -->
+
+            <!--  NUMBER labels: 1 000, 1 500 …  -->
+            <chart:ChartAxisLabelStyle
+                x:Key="NumberLabelStyle"
+                FontSize="11"
+                LabelFormat="#,##0"
+                TextColor="#999" />
+
+            <!--  blue‑to‑cyan fill  -->
+            <LinearGradientBrush x:Key="AreaFillGradient" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#4E91FC" />
+                <GradientStop Offset="1" Color="#20D5FF" />
+            </LinearGradientBrush>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!--  Header Section  -->
+            <VerticalStackLayout Spacing="8">
+                <Label
+                    HorizontalOptions="Start"
+                    StyleClass="TitleText"
+                    Text="Dashboard" />
+            </VerticalStackLayout>
+
+            <!--  Top Row - Two Cards  -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+
+                <!--  Sales Over Time Card  -->
+                <Border
+                    Margin="0,12"
+                    Padding="20"
+                    BackgroundColor="#FFFFFF"
+                    StrokeShape="RoundRectangle 12">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="#000"
+                            Opacity="0.07"
+                            Radius="12"
+                            Offset="0,4" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="5">
+                        <!--  headline  -->
+                        <Label StyleClass="SubtitleText" Text="Sales Over Time" />
+                        <Label StyleClass="TitleText" Text="{Binding Register.TotalSales, StringFormat='{0:C}'}" />
+                        <HorizontalStackLayout Spacing="4">
+                            <Label
+                                FontSize="12"
+                                StyleClass="SubtitleText"
+                                Text="{Binding SalesSummary}" />
+                            <Label
+                                FontSize="12"
+                                StyleClass="SubtitleText"
+                                Text="{Binding SalesPctText}"
+                                TextColor="{Binding SalesPctColor}" />
+                        </HorizontalStackLayout>
+                        <chart:SfCartesianChart BackgroundColor="Transparent" HeightRequest="260">
+
+                            <!--  Trackball  -->
+                            <chart:SfCartesianChart.TrackballBehavior>
+                                <chart:ChartTrackballBehavior
+                                    ActivationMode="LongPress"
+                                    ShowLabel="True"
+                                    ShowLine="False"
+                                    ShowMarkers="True" />
+                            </chart:SfCartesianChart.TrackballBehavior>
+
+                            <!--  X‑axis: last‑30‑day window, tick every 5 days  -->
+                            <chart:SfCartesianChart.XAxes>
+                                <chart:DateTimeAxis
+                                    EdgeLabelsVisibilityMode="AlwaysVisible"
+                                    Interval="5"
+                                    IntervalType="Days"
+                                    LabelStyle="{StaticResource DateLabelStyle}"
+                                    Maximum="{Binding MaxDate}"
+                                    Minimum="{Binding MinDate}"
+                                    ShowMajorGridLines="False">
+                                    <chart:DateTimeAxis.AxisLineStyle>
+                                        <chart:ChartLineStyle Stroke="#E0E0E0" StrokeWidth="1" />
+                                    </chart:DateTimeAxis.AxisLineStyle>
+                                </chart:DateTimeAxis>
+                            </chart:SfCartesianChart.XAxes>
+
+                            <!--  Y‑axis: 0 → rounded peak, 5 grid lines  -->
+                            <chart:SfCartesianChart.YAxes>
+                                <chart:NumericalAxis
+                                    Interval="{Binding YInterval}"
+                                    LabelStyle="{StaticResource NumberLabelStyle}"
+                                    Maximum="{Binding MaxSales}"
+                                    Minimum="0"
+                                    ShowMajorGridLines="False">
+                                    <chart:NumericalAxis.AxisLineStyle>
+                                        <chart:ChartLineStyle Stroke="#E0E0E0" StrokeWidth="1" />
+                                    </chart:NumericalAxis.AxisLineStyle>
+                                </chart:NumericalAxis>
+                            </chart:SfCartesianChart.YAxes>
+
+                            <!--  Gradient resource  -->
+                            <chart:SfCartesianChart.Resources>
+                                <LinearGradientBrush x:Key="AreaFillGradient" StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Offset="0" Color="#4E91FC" />
+                                    <GradientStop Offset="1" Color="#20D5FF" />
+                                </LinearGradientBrush>
+                            </chart:SfCartesianChart.Resources>
+
+                            <!--  Always‑visible filled area  -->
+                            <chart:SplineAreaSeries
+                                EnableAnimation="True"
+                                Fill="{StaticResource AreaFillGradient}"
+                                ItemsSource="{Binding SalesData}"
+                                ShowDataLabels="False"
+                                Stroke="#20B2FF"
+                                StrokeWidth="3"
+                                XBindingPath="Date"
+                                YBindingPath="Total" />
+                        </chart:SfCartesianChart>
+
+                    </VerticalStackLayout>
+                </Border>
+                <!--  Inventory Value Card  -->
+                <Border
+                    Grid.Column="1"
+                    Margin="0,10,0,10"
+                    Padding="20"
+                    BackgroundColor="White"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="Black"
+                            Opacity="0.1"
+                            Radius="10"
+                            Offset="0,4" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="5">
+                        <Label StyleClass="SubtitleText" Text="Inventory Value" />
+                        <Label StyleClass="TitleText" Text="{Binding TodaySnapshot.TotalValue, StringFormat='{0:C}'}" />
+                        <HorizontalStackLayout Spacing="4">
+                            <Label
+                                FontSize="12"
+                                StyleClass="SubtitleText"
+                                Text="Current" />
+                            <Label
+                                FontSize="12"
+                                StyleClass="SubtitleText"
+                                Text="{Binding InvPctText}"
+                                TextColor="{Binding InvPctColor}" />
+                        </HorizontalStackLayout>
+                        <!--  ───────── INVENTORY VALUE – 4‑week column chart ─────────  -->
+                        <chart:SfCartesianChart BackgroundColor="Transparent" HeightRequest="200">
+
+                            <!--  X axis : Week labels  -->
+                            <chart:SfCartesianChart.XAxes>
+                                <chart:CategoryAxis LabelPlacement="BetweenTicks" ShowMajorGridLines="False">
+                                    <chart:CategoryAxis.LabelStyle>
+                                        <chart:ChartAxisLabelStyle FontSize="11" TextColor="#999" />
+                                    </chart:CategoryAxis.LabelStyle>
+
+                                    <chart:CategoryAxis.AxisLineStyle>
+                                        <chart:ChartLineStyle Stroke="#E0E0E0" StrokeWidth="1" />
+                                    </chart:CategoryAxis.AxisLineStyle>
+                                </chart:CategoryAxis>
+                            </chart:SfCartesianChart.XAxes>
+
+                            <!--  Y axis : nice numeric format  -->
+                            <chart:SfCartesianChart.YAxes>
+                                <chart:NumericalAxis Minimum="0" ShowMajorGridLines="False">
+                                    <chart:NumericalAxis.LabelStyle>
+                                        <chart:ChartAxisLabelStyle
+                                            FontSize="11"
+                                            LabelFormat="#,##0"
+                                            TextColor="#999" />
+                                    </chart:NumericalAxis.LabelStyle>
+
+                                    <chart:NumericalAxis.AxisLineStyle>
+                                        <chart:ChartLineStyle Stroke="#E0E0E0" StrokeWidth="1" />
+                                    </chart:NumericalAxis.AxisLineStyle>
+                                </chart:NumericalAxis>
+                            </chart:SfCartesianChart.YAxes>
+
+                            <!--  Pale‑blue rounded columns  -->
+                            <chart:ColumnSeries
+                                Width="0.6"
+                                CornerRadius="4"
+                                EnableAnimation="True"
+                                Fill="Cyan"
+                                ItemsSource="{Binding InventoryBars}"
+                                ShowDataLabels="False"
+                                XBindingPath="Week"
+                                YBindingPath="Value" />
+                        </chart:SfCartesianChart>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+            <!--  Cash Flow Card  -->
+            <Border
+                Margin="0,10,0,10"
+                Padding="20"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="Black"
+                        Opacity="0.1"
+                        Radius="10"
+                        Offset="0,4" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="5">
+                    <Label StyleClass="SubtitleText" Text="Cash Flow" />
+                    <Label StyleClass="TitleText" Text="{Binding Register.NetProfit, StringFormat='{0:C}'}" />
+
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label
+                            FontSize="12"
+                            StyleClass="SubtitleText"
+                            Text="Last 12 Months" />
+                        <Label
+                            FontSize="12"
+                            StyleClass="SubtitleText"
+                            Text="{Binding CashFlowPctText}"
+                            TextColor="{Binding CashFlowPctColor}" />
+                    </HorizontalStackLayout>
+                    <!--  Cash‑Flow (last 6 months)  -->
+                    <chart:SfCartesianChart
+                        BackgroundColor="Transparent"
+                        HeightRequest="240"
+                        IsTransposed="True">
+                        <chart:SfCartesianChart.XAxes>
+                            <chart:CategoryAxis LabelPlacement="BetweenTicks" ShowMajorGridLines="False">
+                                <chart:CategoryAxis.LabelStyle>
+                                    <chart:ChartAxisLabelStyle FontSize="11" TextColor="#999" />
+                                </chart:CategoryAxis.LabelStyle>
+                                <chart:CategoryAxis.AxisLineStyle>
+                                    <chart:ChartLineStyle Stroke="#E0E0E0" StrokeWidth="1" />
+                                </chart:CategoryAxis.AxisLineStyle>
+                            </chart:CategoryAxis>
+                        </chart:SfCartesianChart.XAxes>
+
+                        <!--  Numeric axis (money) – becomes horizontal after transposition  -->
+                        <chart:SfCartesianChart.YAxes>
+                            <chart:NumericalAxis Minimum="0" ShowMajorGridLines="False">
+                                <chart:NumericalAxis.LabelStyle>
+                                    <chart:ChartAxisLabelStyle
+                                        FontSize="11"
+                                        LabelFormat="#,##0"
+                                        TextColor="#999" />
+                                </chart:NumericalAxis.LabelStyle>
+                                <chart:NumericalAxis.AxisLineStyle>
+                                    <chart:ChartLineStyle Stroke="#E0E0E0" StrokeWidth="1" />
+                                </chart:NumericalAxis.AxisLineStyle>
+                            </chart:NumericalAxis>
+                        </chart:SfCartesianChart.YAxes>
+
+                        <!--  Use ColumnSeries; IsTransposed makes them horizontal  -->
+                        <chart:ColumnSeries
+                            Width="0.7"
+                            CornerRadius="8"
+                            EnableAnimation="True"
+                            Fill="#139CFF"
+                            ItemsSource="{Binding CashFlowMonthlyBars}"
+                            XBindingPath="Month"
+                            YBindingPath="Value" />
+                    </chart:SfCartesianChart>
+
+
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
