@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using NeuroPOS.MVVM.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace NeuroPOS.Services
 {
@@ -31,7 +32,7 @@ namespace NeuroPOS.Services
         }
 
         /* ───────────  CORE RULES ─────────── */
-        #region CorePrompt
+
         #region CorePrompt
         private const string CorePrompt = @"
 You are “POS AI”, embedded in a .NET MAUI point‑of‑sale application.
@@ -60,7 +61,7 @@ CURRENT CAPABILITIES (high‑level)
 Respond in JSON **only** when a command maps to one of those actions; otherwise
 answer conversationally in plain English.";
         #endregion
-        #endregion
+
 
         /* ───────────  JSON SCHEMA (current Home page actions) ─────────── */
 
@@ -72,13 +73,23 @@ JSON schema
              ""discount_only"" | ""check_stock"" | ""inventory_value"" |
              ""transactions_today"" | ""transactions_sell_today"" |
              ""transactions_buy_today"" | ""items_sold_today"" |
-             ""sales_stats"" | ""cash_flow_today"",
+             ""sales_stats"" | ""cash_flow_today""| 
+              ""add_category"" | ""edit_category_name"" | ""edit_category_desc"" |
+               ""add_product"" | ""edit_product_price"" | ""edit_product_cost"" |
+               ""edit_product_category"" | ""delete_product"" | ""buy_products"",
   ""items"":   [ { ""name"": ""string"", ""quantity"": int } ],   // for sell / check_stock
   ""discount_amount"": number,                                  // flat $, e.g. 5
   ""payment"": ""cash"" | ""on_tab"" | null,
   ""contact"": ""string or null"",
   ""period"":  ""today"" | ""yesterday"" | ""last_week"" |
               ""last_month"" | ""last_30_days""    // only for sales_stats
+    -  ""category_name"": ""string or null"",      // product ops
++  ""category_name"": ""string or null"",      // optional on add_product
+    ""description"":   ""string or null"",
+    ""product_name"":  ""string or null"",      // product ops
+    ""price"":         number | null,
+    ""cost"":          number | null,
+    ""quantity"":      int    | null          // buy_products
 • Omit discount_amount when it is not relevant (or set it to 0, not null).
 }
 
@@ -124,27 +135,50 @@ You can currently perform these actions:
 • cash_flow_today           – “Cash flow today”";
         #endregion
 
+        #region InventoryPrompt
+        private const string InventoryPrompt = @"
+[INVENTORY]
+• add_category – “Add category Drinks desc: Beverages”
+• edit_category_name – “Rename category Drinks to Bevs”
+• edit_category_desc – “Set Drinks description: Cold beverages”
+• add_product – “Add product Snickers price 3 cost 1 [category Drinks]”
+                (if category is omitted or unknown, one will be assigned automatically)
+                (tell user image must be added manually)
+• edit_product_price – “Set Pepsi price 1.4”
+• edit_product_cost – “Set Pepsi cost 0.7”
+• edit_product_category – “Move Pepsi to Snacks”
+• delete_product – “Delete product Pepsi”
+• buy_products – “Buy 30 Pepsi and 50 Cola”   (creates a buy transaction)";
+        #endregion
+
         /* ───────────  HELP RULE ─────────── */
         #region HelpPrompt
         private const string HelpPrompt = @"
+• Manage categories – “Add category Snacks”
+• Manage products – “Add product Cola price 1.1 …”
+• Record purchases – “Buy 30 Pepsi”
 If the user asks “What can you do?” list the actions above with one‑line
 examples and answer in plain text (no JSON).";
         #endregion
 
 
-
+        private static readonly InventoryVM inventoryVM = new InventoryVM();
         public async Task<string> GetRawAssistantReplyAsync(
             string userMessage,
             IEnumerable<string> productNames,
             IEnumerable<string> contactNames)
         {
 
+            var categoryNames = inventoryVM.Categories.Select(c => c.Name);
+
             string sys = CorePrompt +
              SchemaPrompt +
              HomePrompt +
              TransactionsPrompt +
+             InventoryPrompt +          // ← add here
              HelpPrompt +
              "\n\nCurrent products:\n" + string.Join(", ", productNames) +
+             "\nCurrent categories:\n" + string.Join(", ", categoryNames) +
              "\nCurrent contacts:\n" + string.Join(", ", contactNames);
 
 

@@ -478,42 +478,7 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Methods
-        private async Task LoadDB()
-        {
-            var DBOrders = App.OrderRepo.GetItemsWithChildren() ?? new List<Order>();
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                Orders.Clear();
-                FilteredOrders.Clear();
-                DisplayedOrders.Clear();
-            });
-            foreach (var item in DBOrders)
-            {
-                Orders.Add(item);
-            }
-            FilteredOrders = new ObservableCollection<Order>(Orders);
-            DisplayedOrders = new ObservableCollection<Order>();
-            var DBProducts = App.ProductRepo.GetItems() ?? new List<Product>();
-            var DBContacts = App.ContactRepo.GetItemsWithChildren() ?? new List<Contact>();
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                Products.Clear();
-            });
-            foreach (var item in DBProducts)
-            {
-                Products.Add(item);
-            }
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                Contacts.Clear();
-            });
-            foreach (var item in DBContacts)
-            {
-                Contacts.Add(item);
-            }
-            ApplyFilters();
-            UpdatePagination();
-        }
+      
         private void ShowOrderDetails(Order order)
         {
             if (order == null) return;
@@ -906,6 +871,43 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Tasks
+
+        private async Task LoadDB()
+        {
+            var DBOrders = App.OrderRepo.GetItemsWithChildren() ?? new List<Order>();
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Orders.Clear();
+                FilteredOrders.Clear();
+                DisplayedOrders.Clear();
+            });
+            foreach (var item in DBOrders)
+            {
+                Orders.Add(item);
+            }
+            FilteredOrders = new ObservableCollection<Order>(Orders);
+            DisplayedOrders = new ObservableCollection<Order>();
+            var DBProducts = App.ProductRepo.GetItems() ?? new List<Product>();
+            var DBContacts = App.ContactRepo.GetItemsWithChildren() ?? new List<Contact>();
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Products.Clear();
+            });
+            foreach (var item in DBProducts)
+            {
+                Products.Add(item);
+            }
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                Contacts.Clear();
+            });
+            foreach (var item in DBContacts)
+            {
+                Contacts.Add(item);
+            }
+            ApplyFilters();
+            UpdatePagination();
+        }
         private async Task ShowPaginationInfo()
         {
             var startItem = (CurrentPage - 1) * PageSize + 1;

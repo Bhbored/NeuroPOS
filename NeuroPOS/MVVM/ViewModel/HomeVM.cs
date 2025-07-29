@@ -29,9 +29,10 @@ namespace NeuroPOS.MVVM.ViewModel
     public class HomeVM : INotifyPropertyChanged
     {
 
-        public HomeVM(AssistantClient assistant)
+        public HomeVM(AssistantClient assistant, InventoryVM inventory)
         {
             _assistant = assistant;
+            _inventory = inventory;
         }
         #region Enums
         public enum SortDirectionState
@@ -844,13 +845,14 @@ namespace NeuroPOS.MVVM.ViewModel
 
         #region ai logic
         private string _assistantInput;
+        
         public string AssistantInput
         {
             get => _assistantInput;
             set => SetProperty(ref _assistantInput, value);
         }
         public AssistantClient _assistant;
-
+        public InventoryVM _inventory;
         private readonly Dictionary<string, string> _alias =
             new(StringComparer.OrdinalIgnoreCase)
             {
@@ -1075,6 +1077,39 @@ namespace NeuroPOS.MVVM.ViewModel
 
                 case "sell":
                     return await HandleSellIntentAsync(intent);
+                // ─── CATEGORY OPS ────────────────────────────────────────────
+                case "add_category":
+                    return _inventory.CreateCategory(intent.CategoryName, intent.Description);
+
+                case "edit_category_name":        // CategoryName = old name, Description = new name
+                    return _inventory.RenameCategory(intent.CategoryName, intent.Description);
+
+                case "edit_category_desc":
+                    return _inventory.UpdateCategoryDescription(intent.CategoryName, intent.Description);
+
+                // ─── PRODUCT OPS ─────────────────────────────────────────────
+                case "add_product":
+                    return _inventory.QuickAddProduct(
+                               intent.ProductName,
+                               intent.Price ?? 0,
+                               intent.Cost ?? 0,
+                               intent.CategoryName);
+
+                case "edit_product_price":
+                    return _inventory.UpdateProductPrice(intent.ProductName, intent.Price);
+
+                case "edit_product_cost":
+                    return _inventory.UpdateProductCost(intent.ProductName, intent.Cost);
+
+                case "edit_product_category":
+                    return _inventory.UpdateProductCategory(intent.ProductName, intent.CategoryName);
+
+                case "delete_product":
+                    return _inventory.DeleteProduct(intent.ProductName);
+
+                // ─── BUY TRANSACTION ─────────────────────────────────────────
+                case "buy_products":
+                    return _inventory.RecordBuyTransaction(intent.Items);   // items = name + qty
 
                 default:
                     return "Sorry, I didn’t understand that action.";

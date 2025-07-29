@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.ApplicationModel;
+using NeuroPOS.DTO;
 using NeuroPOS.MVVM.Model;
 using NeuroPOS.MVVM.Popups;
-using NeuroPOS.MVVM.ViewModel;
 using NeuroPOS.MVVM.View;
+using NeuroPOS.MVVM.ViewModel;
 using PropertyChanged;
 using Syncfusion.Maui.DataSource;
 using System;
@@ -15,7 +17,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Maui.ApplicationModel;
 using ListSortDirection = Syncfusion.Maui.DataSource.ListSortDirection;
 namespace NeuroPOS.MVVM.ViewModel
 {
@@ -819,6 +820,229 @@ namespace NeuroPOS.MVVM.ViewModel
                 _isLoading = false;
             }
         }
+        #endregion
+
+        #region Ai integration
+
+        public string CreateCategory(string name, string desc = "")
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return "Category name missing.";
+
+            if (Categories.Any(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                return $"Category “{name}” already exists.";
+
+            var cat = new Category
+            {
+                Id = NewCategoryId,
+                Name = name.Trim(),
+                Description = desc?.Trim() ?? string.Empty,
+                State = "Inactive Categorie"
+            };
+            Categories.Add(cat);
+            App.CategoryRepo.InsertItem(cat);
+            _ = RefreshDBAsync();
+            return $"✅ Category “{name}” added.";
+        }
+
+        public string RenameCategory(string oldName, string newName)
+        {
+            if (string.IsNullOrWhiteSpace(oldName) || string.IsNullOrWhiteSpace(newName))
+                return "Both old and new category names are required.";
+
+            var cat = Categories.FirstOrDefault(c =>
+                      c.Name.Equals(oldName, StringComparison.OrdinalIgnoreCase));
+            if (cat == null) return $"Category “{oldName}” not found.";
+
+            if (Categories.Any(c => c.Name.Equals(newName, StringComparison.OrdinalIgnoreCase)))
+                return $"Category “{newName}” already exists.";
+
+            cat.Name = newName.Trim();
+            App.CategoryRepo.UpdateItem(cat);
+
+            // update products that used old category
+            foreach (var p in Products.Where(p => p.CategoryName == oldName))
+            {
+                p.CategoryName = newName;
+                App.ProductRepo.UpdateItem(p);
+            }
+            _ = RefreshDBAsync();
+            return $"✅ Renamed “{oldName}” to “{newName}”.";
+        }
+
+        public string UpdateCategoryDescription(string name, string desc)
+        {
+            var cat = Categories.FirstOrDefault(c =>
+                      c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (cat == null) return $"Category “{name}” not found.";
+
+            cat.Description = desc?.Trim() ?? string.Empty;
+            App.CategoryRepo.UpdateItem(cat);
+            return $"✅ Description updated for “{name}”.";
+        }
+
+        public string QuickAddProduct(string name, double price, double cost, string catName)
+        {
+            if (Products.Any(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                return $"Product “{name}” already exists.";
+
+            // ── choose a valid category ──────────────────────────────
+            string finalCatName;
+
+            if (!string.IsNullOrWhiteSpace(catName) &&
+                Categories.Any(c => c.Name.Equals(catName, StringComparison.OrdinalIgnoreCase)))
+            {
+                finalCatName = catName.Trim();               // user‑supplied and exists
+            }
+            else
+            {
+                // fallback: pick a random existing category
+                if (!Categories.Any())
+                    return "No categories exist. Please create a category first.";
+
+                var rnd = new Random();
+                finalCatName = Categories[rnd.Next(Categories.Count)].Name;
+            }
+            // ─────────────────────────────────────────────────────────
+
+            var prod = new Product
+            {
+                Id = NewProductId,
+                Name = name.Trim(),
+                Price = price,
+                Cost = cost,
+                Stock = 0,
+                CategoryName = finalCatName,
+                ImageUrl = "emptyproduct.png",
+                DateAdded = DateTime.Now
+            };
+
+            Products.Add(prod);
+            App.ProductRepo.InsertItem(prod);
+            _ = RefreshDBAsync();
+
+            string catMsg = finalCatName.Equals(catName, StringComparison.OrdinalIgnoreCase)
+                            ? $"in category “{finalCatName}”."
+                            : $"and was assigned to random category “{finalCatName}”.";
+
+            return $"✅ Product “{name}” added {catMsg} Please set an image manually.";
+
+        }
+
+
+        public string UpdateProductPrice(string name, double? newPrice)
+        {
+            var prod = Products.FirstOrDefault(p =>
+                       p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (prod == null) return $"Product “{name}” not found.";
+            if (!newPrice.HasValue) return "Price missing.";
+
+            prod.Price = newPrice.Value;
+            App.ProductRepo.UpdateItem(prod);
+            _ = RefreshDBAsync();
+            return $"✅ Price of “{name}” set to {newPrice.Value:C}.";
+        }
+
+        public string UpdateProductCost(string name, double? newCost)
+        {
+            var prod = Products.FirstOrDefault(p =>
+                       p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (prod == null) return $"Product “{name}” not found.";
+            if (!newCost.HasValue) return "Cost missing.";
+
+            prod.Cost = newCost.Value;
+            App.ProductRepo.UpdateItem(prod);
+            _ = RefreshDBAsync();
+            return $"✅ Cost of “{name}” set to {newCost.Value:C}.";
+        }
+
+        public string UpdateProductCategory(string prodName, string catName)
+        {
+            if (string.IsNullOrWhiteSpace(catName))
+                return "Category name missing.";
+
+            var prod = Products.FirstOrDefault(p =>
+                       p.Name.Equals(prodName, StringComparison.OrdinalIgnoreCase));
+            if (prod == null) return $"Product “{prodName}” not found.";
+
+            if (!Categories.Any(c => c.Name.Equals(catName, StringComparison.OrdinalIgnoreCase)))
+                return $"Category “{catName}” not found.";
+
+            prod.CategoryName = catName;
+            App.ProductRepo.UpdateItem(prod);
+            _ = RefreshDBAsync();
+            return $"✅ Moved “{prodName}” to “{catName}”.";
+        }
+
+
+        public string DeleteProduct(string name)
+        {
+            var prod = Products.FirstOrDefault(p =>
+                       p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (prod == null) return $"Product “{name}” not found.";
+
+            Products.Remove(prod);
+            App.ProductRepo.DeleteItem(prod);
+            _ = RefreshDBAsync();
+            return $"🗑️ Product “{name}” deleted.";
+        }
+
+        public string RecordBuyTransaction(List<ItemIntent> items)
+        {
+            if (items == null || items.Count == 0)
+                return "No items specified.";
+
+            // 1️⃣ validate products
+            foreach (var itm in items)
+                if (!Products.Any(p => p.Name.Equals(itm.Name, StringComparison.OrdinalIgnoreCase)))
+                    return $"Product “{itm.Name}” not found.";
+
+            // 2️⃣ build transaction
+            var txn = new Transaction
+            {
+                Id = BuyingTransaction.Count > 0
+                       ? BuyingTransaction.Max(t => t.Id) + 1
+                       : 1,
+                Date = DateTime.Now,
+                TransactionType = "buy",
+                IsPaid = true,
+                Lines = new List<TransactionLine>(),
+                ItemCount = items.Sum(i => i.Quantity)
+            };
+
+            double total = 0;
+            foreach (var itm in items)
+            {
+                var p = Products.First(pr =>
+                         pr.Name.Equals(itm.Name, StringComparison.OrdinalIgnoreCase));
+
+                txn.Lines.Add(new TransactionLine
+                {
+                    Name = p.Name,
+                    Cost = p.Cost,
+                    Price = p.Price,
+                    Stock = itm.Quantity,
+                    CategoryName = p.CategoryName,
+                    ImageUrl = p.ImageUrl,
+                    Product = p,
+                    ProductId = p.Id
+                });
+
+                total += p.Cost * itm.Quantity;
+                p.Stock += itm.Quantity;
+                App.ProductRepo.UpdateItem(p);
+            }
+            txn.TotalAmount = total;
+
+            App.TransactionRepo.InsertItemWithChildren(txn);
+            BuyingTransaction.Add(txn);
+
+            _ = RefreshDBAsync();
+
+            return $"✅ Buy transaction recorded (${total:F2}).";
+        }
+
+
         #endregion
     }
 }

@@ -105,69 +105,7 @@ public partial class TransactionVM : ObservableObject
     #endregion
 
     #region Methods
-    public async Task LoadData()
-    {
-        if (IsLoading) return;
-        try
-        {
-            IsLoading = true;
-            if (App.TransactionRepo == null)
-            {
-                return;
-            }
-            var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
-            if (DBTransactions == null || !DBTransactions.Any())
-            {
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    AllTransactions.Clear();
-                    Transactions.Clear();
-                    TransactionCount = "No transactions found";
-                    IsInitialized = true;
-                });
-                return;
-            }
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                try
-                {
-                    AllTransactions.Clear();
-                    Transactions.Clear();
-                    foreach (var item in DBTransactions)
-                    {
-                        if (item == null) continue;
-                        if (item.Lines == null) item.Lines = new List<TransactionLine>();
-                        AllTransactions.Add(item);
-                        Transactions.Add(item);
-                    }
-                    IsDateFilterActive = false;
-                    FilterStartDate = null;
-                    FilterEndDate = null;
-                    DateFilterSummary = string.Empty;
-                    IsStatusFilterActive = false;
-                    SelectedStatusFilter = "All Status";
-                    IsTypeFilterActive = false;
-                    SelectedTypeFilter = "All Types";
-                    IsSortFilterActive = false;
-                    SelectedSortFilter = "Newest First";
-                    ApplyAllFilters();
-                    IsInitialized = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"LoadData UI error: {ex.Message}");
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"LoadData error: {ex}");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
+   
     private void OnToggleExpand(object parameter)
     {
         if (parameter is Transaction transaction)
@@ -372,6 +310,72 @@ public partial class TransactionVM : ObservableObject
     public ICommand RefreshCommand => new Command(async () => await RefreshAsync());
     public ICommand ClearAllFiltersCommand => new Command(ClearAllFilters);
     public ICommand ShowTransactionDetailsCommand => new Command<Transaction>(OnShowTransactionDetails);
+    #endregion
+
+    #region Tasks
+    public async Task LoadData()
+    {
+        if (IsLoading) return;
+        try
+        {
+            IsLoading = true;
+            if (App.TransactionRepo == null)
+            {
+                return;
+            }
+            var DBTransactions = App.TransactionRepo.GetItemsWithChildren();
+            if (DBTransactions == null || !DBTransactions.Any())
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    AllTransactions.Clear();
+                    Transactions.Clear();
+                    TransactionCount = "No transactions found";
+                    IsInitialized = true;
+                });
+                return;
+            }
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                try
+                {
+                    AllTransactions.Clear();
+                    Transactions.Clear();
+                    foreach (var item in DBTransactions)
+                    {
+                        if (item == null) continue;
+                        if (item.Lines == null) item.Lines = new List<TransactionLine>();
+                        AllTransactions.Add(item);
+                        Transactions.Add(item);
+                    }
+                    IsDateFilterActive = false;
+                    FilterStartDate = null;
+                    FilterEndDate = null;
+                    DateFilterSummary = string.Empty;
+                    IsStatusFilterActive = false;
+                    SelectedStatusFilter = "All Status";
+                    IsTypeFilterActive = false;
+                    SelectedTypeFilter = "All Types";
+                    IsSortFilterActive = false;
+                    SelectedSortFilter = "Newest First";
+                    ApplyAllFilters();
+                    IsInitialized = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"LoadData UI error: {ex.Message}");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"LoadData error: {ex}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
     #endregion
     private async void OnShowTransactionDetails(Transaction transaction)
     {
