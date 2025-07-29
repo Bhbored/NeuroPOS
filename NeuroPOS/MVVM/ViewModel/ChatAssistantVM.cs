@@ -38,8 +38,10 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             var prompt = CurrentInput?.Trim();
             if (string.IsNullOrWhiteSpace(prompt)) return;
+
             _addBubble(prompt, true);
             CurrentInput = string.Empty;
+
             var typingBubble = _addBubble("…", false);
 
             try
@@ -53,40 +55,38 @@ namespace NeuroPOS.MVVM.ViewModel
                 try
                 {
                     intent = JsonSerializer.Deserialize<AssistantIntent>(
-                 raw,
-                 new JsonSerializerOptions
-                 {
-                     PropertyNameCaseInsensitive = true
-                 });
+                                 raw,
+                                 new JsonSerializerOptions
+                                 {
+                                     PropertyNameCaseInsensitive = true
+                                 });
+                }
+                catch
+                {
+                    /* not JSON – leave intent = null */
+                }
 
-                }
-                catch { /* not JSON, treat as chat */ }
-                if (intent == null)
+                if (intent == null || intent.Action == "error")
                 {
-                    ((Label)typingBubble.Content).Text = raw;
+                    ((Label)typingBubble.Content).Text =
+                        intent?.Action == "error"
+                        ? "❌ I couldn’t match any products or contacts."
+                        : raw;
                     return;
                 }
-                if (intent.Action == "error")
-                {
-                    ((Label)typingBubble.Content).Text = "❌ I couldn’t match any products or contacts.";
-                    return;
-                }
-                if (intent != null && intent.Action != "error")
-                {
-                    await _host.ExecuteIntentAsync(intent);
-                    ((Label)typingBubble.Content).Text = "✅ Done";
-                }
-                else
-                {
-                    ((Label)typingBubble.Content).Text = raw;
-                }
+
+                // 4️⃣ execute automation and get reply text
+                var reply = await _host.ExecuteIntentAsync(intent);
+
+                ((Label)typingBubble.Content).Text =
+                    string.IsNullOrWhiteSpace(reply) ? "✅ Done" : reply;
             }
             catch (Exception ex)
             {
                 ((Label)typingBubble.Content).Text = $"❌ {ex.Message}";
-
             }
         }
+
 
         public ICommand CloseCommand => new Command(_closePopup);
     }

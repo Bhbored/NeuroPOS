@@ -860,6 +860,85 @@ namespace NeuroPOS.MVVM.ViewModel
                 ["chips"] = "Chips"
             };
         public ICommand SendAssistantCommand => new AsyncRelayCommand(SendAssistantAsync);
+        private int CountTransactionsToday(string type = null)
+        {
+            var today = DateTime.Today;
+            return App.TransactionRepo.GetItems()
+                .Count(t => t.Date.Date == today &&
+                       (type == null || t.TransactionType == type));
+        }
+
+        private string ItemsSoldToday()
+        {
+            var today = DateTime.Today;
+
+            var sold = App.TransactionRepo.GetItemsWithChildren()
+                .Where(t => t.TransactionType == "sell" && t.Date.Date == today)
+                .SelectMany(t => t.Lines ?? Enumerable.Empty<TransactionLine>())
+                .GroupBy(l => l.Name)
+                .Select(g => $"{g.Key} × {g.Sum(l => l.Stock)}");
+
+            return !sold.Any()
+                ? "No items sold today."
+                : string.Join(", ", sold);
+        }
+
+        private string SalesStats(string period)
+        {
+            DateTime today = DateTime.Today;
+            DateTime start, end = today;
+
+            switch (period)
+            {
+                case "today":
+                    start = today;
+                    break;
+
+                case "yesterday":
+                    start = today.AddDays(-1);
+                    end = start;
+                    break;
+
+                case "last_week":
+                    start = today.AddDays(-7);
+                    break;
+
+                case "last_month":
+                    start = today.AddMonths(-1);
+                    break;
+
+                default:
+                    start = today.AddDays(-30);
+                    break;
+            }
+
+            double total = App.TransactionRepo.GetItems()
+                          .Where(t => t.TransactionType == "sell" &&
+                                      t.Date.Date >= start && t.Date.Date <= end)
+                          .Sum(t => t.TotalAmount);
+
+            string label = period switch
+            {
+                "today" => "today",
+                "yesterday" => "yesterday",
+                "last_week" => "in the last 7 days",
+                "last_month" => "in the last 30 days",
+                _ => "in the last 30 days"
+            };
+
+            return $"📊 Sales {label}: {total:C}";
+        }
+
+
+        private double CashFlowToday()
+        {
+            var today = DateTime.Today;
+            return App.CashFlowSnapshotRepo.GetItems()
+                   .Where(s => s.Date.Date == today)
+                   .OrderByDescending(s => s.Date)
+                   .FirstOrDefault()?.TotalValue ?? 0;
+        }
+
         private async Task SendAssistantAsync()
         {
             try
@@ -880,10 +959,10 @@ namespace NeuroPOS.MVVM.ViewModel
                 }
                 if (intent.Items?.Any() == true)
                 {
-                    var catalog = Products.Select(p => p.Name);          // loaded from SQLite
+                    var catalog = Products.Select(p => p.Name);
                     foreach (var itm in intent.Items)
                         itm.Name = EntityResolver.ResolveProduct(itm.Name, catalog)
-                                   ?? itm.Name;                          // fall back to original
+                                   ?? itm.Name;
                 }
 
                 if (!string.IsNullOrWhiteSpace(intent.Contact))
@@ -933,32 +1012,51 @@ namespace NeuroPOS.MVVM.ViewModel
             }
             return text.Trim();
         }
-        public async Task ExecuteIntentAsync(AssistantIntent intent)
+        public async Task<string?> ExecuteIntentAsync(AssistantIntent intent)
         {
-            if (intent == null) return;                     // safety guard
+            if (intent == null) return null;
 
             switch (intent.Action?.ToLowerInvariant())
             {
+                case "transactions_today":
+                    return $"🧾 Total transactions today: {CountTransactionsToday()}";
+
+                case "transactions_sell_today":
+                    return $"📈 Sell transactions today: {CountTransactionsToday("sell")}";
+
+                case "transactions_buy_today":
+                    return $"📉 Buy transactions today: {CountTransactionsToday("buy")}";
+
+                case "items_sold_today":
+                    return ItemsSoldToday();
+
+                case "sales_stats":
+                    var period = intent.Period?.ToLowerInvariant() ?? "last_30_days";
+                    return SalesStats(period);
+
+                case "cash_flow_today":
+                    return $"💰 Cash flow today: {CashFlowToday():C}";
                 case "clear":
                     ClearAllSelections();
-                    return;
+                    return "🗑️  Cart cleared.";
 
                 case "show_cart":
-                    var cartText = CurrentOrderItems.Any()
+                    return CurrentOrderItems.Any()
                         ? string.Join(", ",
-                              CurrentOrderItems.Select(i => $"{i.Name}×{i.Stock}"))
+                              CurrentOrderItems.Select(i => $"{i.Name} × {i.Stock}"))
                         : "Cart is empty.";
-                    await Snackbar.Make(cartText, duration: TimeSpan.FromSeconds(3)).Show();
-                    return;
 
                 case "discount_only":
                     if (intent.DiscountAmount > 0)
-                        UpdateDiscount(intent.DiscountAmount);
-                    return;
+                    {
+                        UpdateDiscount((double)intent.DiscountAmount);
+                        return $"💸 Discount of {intent.DiscountAmount:C} applied.";
+                    }
+                    return "No discount applied.";
 
                 case "check_stock":
                     if (intent.Items?.Any() != true)
-                        return;
+                        return "No items specified.";
 
                     var report = string.Join(", ",
                         intent.Items.Select(i =>
@@ -969,61 +1067,61 @@ namespace NeuroPOS.MVVM.ViewModel
                                  ? $"{i.Name}: not found"
                                  : $"{prod.Name}: {GetAvailableStock(prod.Id)} left";
                         }));
-                    await Snackbar.Make(report, duration: TimeSpan.FromSeconds(3)).Show();
-                    return;
+                    return report;
 
                 case "inventory_value":
                     var value = Products.Sum(p => GetOriginalStock(p.Id) * p.Price);
-                    await Snackbar.Make($"Inventory value: {value:C}", duration: TimeSpan.FromSeconds(3)).Show();
-                    return;
+                    return $"📦 Inventory value: {value:C}";
 
                 case "sell":
-                    await HandleSellIntentAsync(intent);
-                    return;
+                    return await HandleSellIntentAsync(intent);
+
+                default:
+                    return "Sorry, I didn’t understand that action.";
             }
         }
 
-        private async Task HandleSellIntentAsync(AssistantIntent intent)
+
+        private async Task<string> HandleSellIntentAsync(AssistantIntent intent)
         {
-            if (intent.Items?.Any() != true) return;
+            if (intent.Items?.Any() != true)
+                return "No items specified.";
 
             foreach (var itm in intent.Items)
             {
                 var lookupName = _alias.TryGetValue(itm.Name, out var mapped)
-                                    ? mapped
-                                    : itm.Name;
+                                    ? mapped : itm.Name;
 
                 var prod = Products.FirstOrDefault(p =>
                              p.Name.Equals(lookupName, StringComparison.OrdinalIgnoreCase));
-
-                if (prod == null)
-                {
-                    Debug.WriteLine($"⚠️ Product not found: {lookupName}");
-                    continue;
-                }
+                if (prod == null) continue;
 
                 for (int i = 0; i < itm.Quantity; i++)
                     AddToCurrentOrder(prod);
             }
 
             if (intent.DiscountAmount > 0)
-                UpdateDiscount(intent.DiscountAmount);
+                UpdateDiscount((double)intent.DiscountAmount);
 
             switch (intent.Payment?.ToLowerInvariant())
             {
                 case "cash":
                     CashPaymentCommand.Execute(true);
-                    break;
+                    return "✅ Items added and paid in cash.";
 
                 case "on_tab":
                     var contact = Contacts.FirstOrDefault(c =>
                         c.Name.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase));
 
                     if (contact != null)
-                        OnTabPaymentSilentCommand.Execute(contact);   // pop‑up suppressed
-                    else
-                        await Snackbar.Make("Contact not found.", duration:TimeSpan.FromSeconds(3)).Show();
-                    break;
+                    {
+                        OnTabPaymentSilentCommand.Execute(contact);
+                        return $"✅ Items added on {contact.Name}’s tab.";
+                    }
+                    return "Contact not found.";
+
+                default:
+                    return "✅ Items added to cart.";
             }
         }
 

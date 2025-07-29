@@ -93,7 +93,7 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Methods
-        private void ComputeStats()
+        public void ComputeStats()
         {
             var today = DateTime.Today;
             var windowStart = today.AddDays(-30);

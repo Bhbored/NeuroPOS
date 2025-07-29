@@ -17,13 +17,9 @@ public partial class TransactionPage : ContentPage
         }
 
         BindingContext = vm;
-
-        // Wire up Picker event handlers
         StatusFilterPicker.SelectedIndexChanged += OnStatusFilterChanged;
         TypeFilterPicker.SelectedIndexChanged += OnTypeFilterChanged;
         SortFilterPicker.SelectedIndexChanged += OnSortFilterChanged;
-
-        // Use proper async initialization
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             await LoadDataAsync(vm);

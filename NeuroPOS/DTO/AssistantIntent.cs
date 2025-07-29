@@ -17,6 +17,9 @@ namespace NeuroPOS.DTO
         public string Contact { get; set; }
 
         [JsonPropertyName("discount_amount")]
-        public double DiscountAmount { get; set; }
+        public double? DiscountAmount { get; set; }   
+
+        [JsonPropertyName("period")] 
+        public string Period { get; set; }
     }
 }

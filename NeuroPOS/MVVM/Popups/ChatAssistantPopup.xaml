@@ -12,9 +12,9 @@
 
     <!--  MAIN CARD  -->
     <Border
-        Margin="20"
+        Margin="0"
         HorizontalOptions="Fill"
-        StyleClass="ModernCardShadow"
+        StrokeThickness="0"
         VerticalOptions="Fill">
         <Grid Padding="0" RowDefinitions="Auto,*,Auto">
             <!--  HEADER SECTION  -->
