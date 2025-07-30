@@ -735,7 +735,7 @@
                                             BackgroundColor="Transparent"
                                             FontSize="14"
                                             Placeholder="Enter customer name"
-                                            Text="{Binding EditCustomerName}" />
+                                            Text="{Binding EditCustomerName, Mode=TwoWay}" />
                                     </Border>
                                 </VerticalStackLayout>
 
@@ -749,7 +749,7 @@
                                     <Border StyleClass="ModernEntry">
                                         <DatePicker
                                             BackgroundColor="Transparent"
-                                            Date="{Binding EditDate}"
+                                            Date="{Binding EditDate, Mode=TwoWay}"
                                             FontSize="14" />
                                     </Border>
                                 </VerticalStackLayout>
@@ -767,7 +767,7 @@
                                             FontSize="14"
                                             Keyboard="Numeric"
                                             Placeholder="Enter tax rate"
-                                            Text="{Binding EditTaxRate}" />
+                                            Text="{Binding EditTaxRate, Mode=TwoWay}" />
                                     </Border>
                                 </VerticalStackLayout>
 
@@ -784,7 +784,7 @@
                                             FontSize="14"
                                             Keyboard="Numeric"
                                             Placeholder="Enter discount amount"
-                                            Text="{Binding EditDiscount}" />
+                                            Text="{Binding EditDiscount, Mode=TwoWay}" />
                                     </Border>
                                 </VerticalStackLayout>
 
@@ -918,7 +918,7 @@
                                                                     FontFamily="PoppinsBold"
                                                                     FontSize="10"
                                                                     HorizontalOptions="Center"
-                                                                    Text="{Binding Stock}"
+                                                                    Text="{Binding Stock, Mode=TwoWay}"
                                                                     TextColor="{StaticResource NPTextMain}"
                                                                     VerticalOptions="Center" />
                                                             </Border>
@@ -966,7 +966,7 @@
                                         Text="Save Changes" />
                                     <Button
                                         BackgroundColor="{StaticResource NPTextSecondary}"
-                                        Command="{Binding CancelEditCommand}"
+                                        Command="{Binding CloseEditCommand}"
                                         CornerRadius="8"
                                         FontFamily="PoppinsBold"
                                         FontSize="12"

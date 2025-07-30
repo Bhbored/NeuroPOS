@@ -39,7 +39,6 @@ namespace NeuroPOS.MVVM.Model
         (Lines == null || Lines.Count == 0)
         ? 0 : Lines.Sum(p => p.Price * p.Stock);
 
-        // Computed property for item count to ensure consistency
         [Ignore]
         public int ComputedItemCount => Lines?.Count ?? 0;
 

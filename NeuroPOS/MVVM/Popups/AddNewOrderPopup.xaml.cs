@@ -27,7 +27,6 @@ namespace NeuroPOS.MVVM.Popups
 
         private async void OnAddClicked(object sender, EventArgs e)
         {
-            // Basic validation
             if (string.IsNullOrWhiteSpace(CustomerNameEntry.Text))
             {
                 await Snackbar.Make("Some Entries Still Empty", duration: TimeSpan.FromSeconds(2)).Show();

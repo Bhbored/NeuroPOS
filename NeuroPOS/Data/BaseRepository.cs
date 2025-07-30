@@ -161,14 +161,23 @@ namespace NeuroPOS.Data
         {
             try
             {
-                _connection.UpdateWithChildren(item);
-                Debug.WriteLine($"[UPDATE] {typeof(T).Name} WITH children (recursive={recursive})");
+                _connection.UpdateWithChildren(item);   // parent row
+
+                if (recursive && item is Order ord && ord.Lines is not null)
+                {
+                    foreach (var ln in ord.Lines)
+                        _connection.Update(ln);         // child rows
+                }
+
+                Debug.WriteLine($"[UPDATE] {typeof(T).Name} WITH children (manual recursive={recursive})");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ERROR][UPDATE-WITH-CHILDREN] {ex}");
             }
         }
+
+
 
         public void ReplaceChildren<TChild>(
             T parent,

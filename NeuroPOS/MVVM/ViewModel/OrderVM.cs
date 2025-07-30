@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -24,6 +25,8 @@ namespace NeuroPOS.MVVM.ViewModel
     public class OrderVM : INotifyPropertyChanged
     {
         #region Private Fields
+        private int _lastSavedOrderId = -1;
+        private bool _linesWereDeleted = false;
         private ObservableCollection<Order> _orders = new ObservableCollection<Order>();
         private ObservableCollection<Order> _filteredOrders = new ObservableCollection<Order>();
         private ObservableCollection<Order> _displayedOrders = new ObservableCollection<Order>();
@@ -432,6 +435,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 }
             }
         }
+        public int SelectedQuantity { get; set; } = 1;
         public Product SelectedProduct
         {
             get => _selectedProduct;
@@ -457,8 +461,8 @@ namespace NeuroPOS.MVVM.ViewModel
         public ICommand AddNewOrderCommand => new Command(async () => await AddNewOrder());
         public ICommand EditOrderCommand => new Command<Order>(async order => await EditOrder(order));
         public ICommand DeleteOrderCommand => new Command<Order>(async order => await DeleteOrder(order));
-        public ICommand SaveOrderCommand => new Command(async () => await SaveOrder());
-        public ICommand CancelEditCommand => new Command(() => CancelEdit());
+        public ICommand SaveOrderCommand => new AsyncRelayCommand(SaveOrder);
+        public ICommand CloseEditCommand => new AsyncRelayCommand(CloseEditAndRefresh);
         public ICommand RefreshOrdersCommand => new Command(async () => await RefreshOrders());
         public ICommand NextPageCommand => new Command(() => NextPage(), () => HasNextPage);
         public ICommand PreviousPageCommand => new Command(() => PreviousPage(), () => HasPreviousPage);
@@ -475,10 +479,10 @@ namespace NeuroPOS.MVVM.ViewModel
         public ICommand IncreaseEditLineQuantityCommand => new Command<TransactionLine>(line => IncreaseEditLineQuantity(line));
         public ICommand DecreaseEditLineQuantityCommand => new Command<TransactionLine>(line => DecreaseEditLineQuantity(line));
         public ICommand DeleteEditLineCommand => new Command<TransactionLine>(line => DeleteEditLine(line));
+        public ICommand AddProductToEditCommand => new Command(AddProductToEdit);
         #endregion
 
         #region Methods
-      
         private void ShowOrderDetails(Order order)
         {
             if (order == null) return;
@@ -634,12 +638,14 @@ namespace NeuroPOS.MVVM.ViewModel
         private void LoadOrderDetails(Order order)
         {
             if (order == null) return;
+            _editingOrder = order;
             EditCustomerName = order.CustomerName;
             EditDate = order.Date;
             EditIsConfirmed = order.IsConfirmed;
             EditDiscount = order.Discount;
             EditTaxRate = order.Tax;
-            EditOrderLines = new ObservableCollection<TransactionLine>(order.Lines?.ToList() ?? new List<TransactionLine>());
+            EditOrderLines = new ObservableCollection<TransactionLine>(
+                order.Lines ?? new List<TransactionLine>());
             UpdateEditOrderTotal();
             IsEditMode = 1;
         }
@@ -786,6 +792,7 @@ namespace NeuroPOS.MVVM.ViewModel
             if (line != null && EditOrderLines != null)
             {
                 line.Stock++;
+                line.IsDirty = true;
                 UpdateEditOrderTotal();
             }
         }
@@ -794,6 +801,7 @@ namespace NeuroPOS.MVVM.ViewModel
             if (line != null && EditOrderLines != null && line.Stock > 1)
             {
                 line.Stock--;
+                line.IsDirty = true;
                 UpdateEditOrderTotal();
             }
         }
@@ -804,6 +812,11 @@ namespace NeuroPOS.MVVM.ViewModel
                 EditOrderLines.Remove(line);
                 UpdateEditOrderTotal();
             }
+        }
+        private async Task CloseEditAndRefresh()
+        {
+            CancelEdit();
+            await RefreshOrders();
         }
         private async Task ShowDatePicker()
         {
@@ -860,6 +873,32 @@ namespace NeuroPOS.MVVM.ViewModel
                 return false;
             }
         }
+        private void AddProductToEdit()
+        {
+            if (_editingOrder == null || SelectedProduct == null || SelectedQuantity <= 0)
+                return;
+            EditOrderLines ??= new ObservableCollection<TransactionLine>(
+                _editingOrder.Lines ?? new List<TransactionLine>());
+            var existing = EditOrderLines.FirstOrDefault(
+                l => l.ProductId == SelectedProduct.Id);
+            if (existing != null)
+            {
+                existing.Stock += SelectedQuantity;
+            }
+            else
+            {
+                var newLine = new TransactionLine
+                {
+                    Name = SelectedProduct.Name,
+                    Price = SelectedProduct.Price,
+                    Stock = SelectedQuantity,
+                    CategoryName = SelectedProduct.CategoryName,
+                    ProductId = SelectedProduct.Id
+                };
+                EditOrderLines.Add(newLine);
+            }
+            UpdateEditOrderTotal();
+        }
         #endregion
 
         #region OnPropertyChanged interface
@@ -871,7 +910,6 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Tasks
-
         private async Task LoadDB()
         {
             var DBOrders = App.OrderRepo.GetItemsWithChildren() ?? new List<Order>();
@@ -996,29 +1034,31 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             try
             {
-                if (_editingOrder != null)
-                {
-                    var orderId = _editingOrder.Id;
-                    _editingOrder.CustomerName = EditCustomerName;
-                    _editingOrder.Date = EditDate;
-                    _editingOrder.IsConfirmed = EditIsConfirmed;
-                    _editingOrder.Discount = EditDiscount;
-                    _editingOrder.Tax = EditTaxRate;
-                    _editingOrder.TotalAmount = EditTotalAmount;
-                    _editingOrder.Lines = EditOrderLines?.ToList() ?? new List<TransactionLine>();
-                    App.OrderRepo.UpdateItemWithChildren(_editingOrder);
-                    await RefreshOrders();
-                    CancelEdit();
-                    var snackbar = Snackbar.Make($"Order #{orderId} saved successfully",
-                    duration: TimeSpan.FromSeconds(2));
-                    await snackbar.Show();
-                }
+                if (_editingOrder == null)
+                    return;
+                var orderId = _editingOrder.Id;
+                _editingOrder.CustomerName = EditCustomerName;
+                _editingOrder.Date = EditDate;
+                _editingOrder.IsConfirmed = EditIsConfirmed;
+                _editingOrder.Discount = EditDiscount;
+                _editingOrder.Tax = EditTaxRate;
+                EditOrderLines ??= new ObservableCollection<TransactionLine>(
+                    _editingOrder.Lines ?? new List<TransactionLine>());
+                _editingOrder.Lines = EditOrderLines.ToList();
+                var sub = _editingOrder.Lines.Sum(l => l.Price * l.Stock);
+                _editingOrder.TotalAmount = sub
+                                           - _editingOrder.Discount
+                                           + sub * _editingOrder.Tax / 100.0;
+                App.OrderRepo.UpdateItemWithChildren(_editingOrder, recursive: true);
+                await RefreshOrders();
+                CancelEdit();
+                await Snackbar.Make($"Order #{orderId} saved.",
+                                    duration:TimeSpan.FromSeconds(2)).Show();
             }
             catch (Exception ex)
             {
-                var snackbar = Snackbar.Make($"Error saving order: {ex.Message}",
-                duration: TimeSpan.FromSeconds(3));
-                await snackbar.Show();
+                await Snackbar.Make($"Error saving order: {ex.Message}",
+                                    duration:TimeSpan.FromSeconds(3)).Show();
             }
         }
         public async Task RefreshOrders()
@@ -1029,6 +1069,15 @@ namespace NeuroPOS.MVVM.ViewModel
                 await Task.Delay(500);
                 await LoadDB();
                 ApplyFilters();
+                if (_lastSavedOrderId > 0)
+                {
+                    var reloaded = App.OrderRepo
+                                      .GetItemsWithChildren()
+                                      .First(o => o.Id == _lastSavedOrderId);
+                    Debug.WriteLine($"[DB AFTER REFRESH] Order #{reloaded.Id} → " +
+                                    string.Join(", ",
+                                      reloaded.Lines.Select(l => $"{l.Name}×{l.Stock}")));
+                }
                 IsRefreshing = false;
                 var totalConfirmed = Orders.Count(o => o.IsConfirmed);
                 var totalPending = Orders.Count(o => !o.IsConfirmed);
@@ -1131,6 +1180,5 @@ namespace NeuroPOS.MVVM.ViewModel
             }
         }
         #endregion
-
     }
 }

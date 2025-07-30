@@ -60,5 +60,6 @@ namespace NeuroPOS.MVVM.Model
         [ManyToOne] public Product Product { get; set; }
 
         [ManyToOne] public Order Order { get; set; }
+        public bool IsDirty { get; set; }
     }
 }

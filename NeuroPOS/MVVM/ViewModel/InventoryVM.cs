@@ -929,7 +929,6 @@ namespace NeuroPOS.MVVM.ViewModel
 
         }
 
-
         public string UpdateProductPrice(string name, double? newPrice)
         {
             var prod = Products.FirstOrDefault(p =>

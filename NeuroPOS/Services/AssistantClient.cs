@@ -31,108 +31,94 @@ namespace NeuroPOS.Services
             // _http.DefaultRequestHeaders.Add("OpenAI-Project", "proj_XXXXXXXXXXXX");
         }
 
-        /* ───────────  CORE RULES ─────────── */
 
         #region CorePrompt
-        private const string CorePrompt = @"
-You are “POS AI”, embedded in a .NET MAUI point‑of‑sale application.
+        private const string CorePrompt =
+        @"You are the AI assistant inside a point‑of‑sale (POS) desktop app.
+Speak JSON only when the user intends an action; otherwise reply in plain
+natural language.
 
-GENERAL RULES
-• If the user issues a POS command, reply **only** with minified JSON that fits
-  the schema that follows.
-• If the user asks a general question (e.g., “What can you do?”), answer in
-  friendly plain text—no JSON, no schema references.
+Always:
+• Follow the JSON schema precisely.
+• Never add keys not listed in the schema.
+• Never wrap JSON in markdown fences.
 
-CURRENT CAPABILITIES (high‑level)
-• Cart & Sales
-  – sell items, clear cart, show cart contents
-  – apply flat‑amount discounts
-  – check on‑hand stock for any product
-  – calculate total inventory value
-
-• Daily Transactions
-  – total transactions today, sell‑only, buy‑only
-  – list items sold today with quantities
-  – show today’s cash‑flow balance
-
-• Sales Analytics
-  – sales statistics for: today, yesterday, last week, last month, or last 30 days
-
-Respond in JSON **only** when a command maps to one of those actions; otherwise
-answer conversationally in plain English.";
+When the user asks “what can you do” or similar:
+1. List the main capability areas (Selling, Inventory, Orders, Reports,
+   Categories & Products).
+2. Ask which area they’d like more details about.
+When they name an area, respond with the matching help section in plain text.";
         #endregion
 
-
-        /* ───────────  JSON SCHEMA (current Home page actions) ─────────── */
-
         #region SchemaPrompt
-        private const string SchemaPrompt = @"
-JSON schema
+        private const string SchemaPrompt =
+        @"JSON schema
 {
   ""action"": ""sell"" | ""clear"" | ""show_cart"" |
              ""discount_only"" | ""check_stock"" | ""inventory_value"" |
              ""transactions_today"" | ""transactions_sell_today"" |
              ""transactions_buy_today"" | ""items_sold_today"" |
-             ""sales_stats"" | ""cash_flow_today""| 
-              ""add_category"" | ""edit_category_name"" | ""edit_category_desc"" |
-               ""add_product"" | ""edit_product_price"" | ""edit_product_cost"" |
-               ""edit_product_category"" | ""delete_product"" | ""buy_products"",
-  ""items"":   [ { ""name"": ""string"", ""quantity"": int } ],   // for sell / check_stock
-  ""discount_amount"": number,                                  // flat $, e.g. 5
-  ""payment"": ""cash"" | ""on_tab"" | null,
-  ""contact"": ""string or null"",
-  ""period"":  ""today"" | ""yesterday"" | ""last_week"" |
-              ""last_month"" | ""last_30_days""    // only for sales_stats
-    -  ""category_name"": ""string or null"",      // product ops
-+  ""category_name"": ""string or null"",      // optional on add_product
-    ""description"":   ""string or null"",
-    ""product_name"":  ""string or null"",      // product ops
-    ""price"":         number | null,
-    ""cost"":          number | null,
-    ""quantity"":      int    | null          // buy_products
-• Omit discount_amount when it is not relevant (or set it to 0, not null).
+             ""sales_stats"" | ""cash_flow_today"" |
+             ""add_category"" | ""edit_category_name"" | ""edit_category_desc"" |
+             ""add_product"" | ""edit_product_price"" | ""edit_product_cost"" |
+             ""edit_product_category"" | ""delete_product"" | ""buy_products"" |
+             ""add_order"" | ""query_orders"" | ""confirm_order"" |
+             ""delete_order"" | ""edit_order"",
+
+  ""items"":           [ { ""name"": ""string"", ""quantity"": int } ],
+  ""discount_amount"": number,                          // $ flat; omit or 0 if N/A
+  ""payment"":         ""cash"" | ""on_tab"" | null,
+  ""contact"":         ""string or null"",              // optional for edit_order
+  ""order_id"":        int | null,
+  ""response_mode"":   ""yes_no"" | ""details"",         // for query_orders
+  ""new_items"":       [ { ""name"": ""string"", ""quantity"": int } ],
+  ""new_discount"":    number | null,
+  ""period"":          ""today"" | ""yesterday"" | ""last_week"" |
+                      ""last_month"" | ""last_30_days"",
+
+  // category/product ops
+  ""category_name"": ""string or null"",
+  ""description"":   ""string or null"",
+  ""product_name"":  ""string or null"",
+  ""price"":         number | null,
+  ""cost"":          number | null,
+  ""quantity"":      int    | null        // for buy_products
+
+  /* For edit_order:
+{""action"":""edit_order"",
+ ""order_id"":21,
+ ""new_items"":[{""name"":""Snickers"",""quantity"":5},
+              {""name"":""Cola"",""quantity"":2}]}
+
+     • Omit contact when order_id is present unless the user supplies it
+     • new_items & new_discount are optional but at least one must appear */
 }
 
-If uncertain, return the error stub.";
+If uncertain, return this stub exactly:
+{""error"":""I am not sure how to respond""}";
         #endregion
 
-
-
-
-        /* ───────────  HOME PAGE CAPABILITIES ─────────── */
         #region HomePrompt
-        private const string HomePrompt = @"
-You can currently perform these actions:
-
-• sell – Add products to cart  
-  »Add 2 Pepsi«
-
-• clear – Empty the cart  
-  »Clear the cart«
-
-• show_cart – Summarise current cart  
-  »What’s in my cart?«
-
-• discount_only – Apply a flat $ discount  
-  »Discount $5«
-
-• check_stock – Show available quantity for listed items  
-  »How many Pepsi left?«
-
-• inventory_value – Total inventory value  
-  »Total inventory value«
-";
+        private const string HomePrompt =
+        @"### Selling (Home page) ###
+• sell            → “Sell 2 Pepsi and 1 Chips in cash”
+• discount_only   → “Apply $3 discount to cart”
+• on‑tab selling  → “Sell 5 Cola on tab for loyal Ahmad”
+• clear           → “Clear cart”
+• show_cart       → “What’s in cart?”
+• check_stock     → “How many Pepsi left?”
+Return JSON per schema.";
         #endregion
 
         #region TransactionsPrompt
-        private const string TransactionsPrompt = @"
-[TRANSACTIONS]
-• transactions_today        – “How many transactions today?”
-• transactions_sell_today   – “How many sell transactions today?”
-• transactions_buy_today    – “How many buy transactions today?”
-• items_sold_today          – “Which items did we sell today?”
-• sales_stats          – “Sales today” / “Sales last week”
-• cash_flow_today           – “Cash flow today”";
+        private const string TransactionsPrompt =
+        @"### Transactions & Reports ###
+• transactions_today            → all transactions today
+• transactions_sell_today       → only 'sell' today
+• transactions_buy_today        → only 'buy' today
+• items_sold_today              → list items/qty sold today
+• sales_stats last_week         → aggregated stats
+• cash_flow_today               → net cash in/out today";
         #endregion
 
         #region InventoryPrompt
@@ -151,18 +137,110 @@ You can currently perform these actions:
 • buy_products – “Buy 30 Pepsi and 50 Cola”   (creates a buy transaction)";
         #endregion
 
-        /* ───────────  HELP RULE ─────────── */
+        #region OrderPrompt
+        private const string OrderPrompt =
+        @"### Orders — natural‑language patterns ###
+
+➊ **Linking to an existing contact**  
+   ‑ Prefix the name with *loyal / dear / valued* (any adjective).  
+     “Add order for **loyal Ahmad** …” → links to contact *Ahmad* (sets ContactId).  
+
+➋ **Walk‑in / one‑off customer**  
+   ‑ Omit the adjective.  
+     “Add order for **Ahmad** …” → records *CustomerName = Ahmad*, *ContactId = 0* even if a contact exists.
+
+────────────────────────────────────────────────────────
+**Supported actions & sample phrases**
+
+• **add_order**  
+  ‑ “Add order for John with 12 Pepsi, 13 Chips discount 12”  
+  ‑ “Add order for loyal Ahmad with 12 Pepsi discount 5”
+
+• **query_orders** *(response_mode: yes_no | details)*  
+  ‑ “How many pending orders for Samir?”           → *yes_no*  
+  ‑ “Orders info for Bourhan (details)”            → *details*
+
+• **confirm_order** *(pending → completed)*  
+  ‑ “Confirm order 42”                              (contact optional)
+
+• **delete_order** *(remove pending order)*  
+  ‑ “Delete order 17”
+
+• **edit_order** →
+
+  – “Edit order 17 for Bourhan: Pepsi 10, Cola 12 **discount 5**”  
+    JSON ➜ { ""action"":""edit_order"", ""order_id"":17,
+             ""new_items"":[{""name"":""Pepsi"",""quantity"":10},
+                          {""name"":""Cola"",""quantity"":12}],
+             ""new_discount"":5 }
+
+  – “Edit order 20: Pepsi 12 Cola 14 **discount 3**”  
+    (contact omitted)  
+    JSON ➜ { ""action"":""edit_order"",
+             ""order_id"":20,
+             ""new_items"":[{...}], ""new_discount"":3 }
+
+  – “Edit order 21: Snickers 5 Cola 2”  (**no discount**)  
+    JSON ➜ { ""action"":""edit_order"",
+             ""order_id"":21,
+             ""new_items"":[{""name"":""Snickers"",""quantity"":5},
+                          {""name"":""Cola"",""quantity"":2}] }
+– “Edit order 28: Pepsi 18”                         (**single item, no discount**)
+
+  Works only while the order is *pending*; refuse if confirmed.  
+  **`new_discount` is optional – omit the key entirely when the user did not
+  mention a discount.  At least one of `new_items` or `new_discount`
+  must appear.**
+
+
+• confirm_order → “Confirm order 42”               (contact optional)
+                  “Confirm order 42 for Ahmad”
+
+  When *edit_order*: include **order_id** plus at least *new_items* or
+  *new_discount*. Quantity 0 means “remove that line”.
+
+────────────────────────────────────────────────────────
+**Product names** — always use exact names from list  
+Pepsi · Cola · Chips · …
+
+────────────────────────────────────────────────────────
+Example JSON for *add_order*:
+
+{""action"":""add_order"",
+ ""contact"":""loyal Bourhan"",
+ ""items"":[{""name"":""Pepsi"",""quantity"":3}],
+ ""discount_amount"":0}
+{""action"":""query_orders"",
+ ""contact"":""Bourhan"",
+ ""response_mode"":""details""}
+
+Return **only** valid JSON (no markdown, no commentary).  
+If unsure, output the error stub exactly.";
+        #endregion
+
         #region HelpPrompt
-        private const string HelpPrompt = @"
-• Manage categories – “Add category Snacks”
-• Manage products – “Add product Cola price 1.1 …”
-• Record purchases – “Buy 30 Pepsi”
-If the user asks “What can you do?” list the actions above with one‑line
-examples and answer in plain text (no JSON).";
+        private const string HelpPrompt =
+        @"### What I can help you with ###
+**Areas**
+1. Selling / Cart
+2. Inventory & Categories / Products
+3. Orders (pending / confirmed)
+4. Transactions & Reports
+5. Cash‑flow & Stats
+
+Ask the user: “Which area are you interested in?”
+
+When they name an area:
+• Reply with the matching help section (HomePrompt, OrderPrompt, etc.)
+  using clear natural‑language examples.
+• **Do NOT output raw JSON in the help text** – JSON is only for
+  executing an action once the user issues a concrete command.";
         #endregion
 
 
+
         private static readonly InventoryVM inventoryVM = new InventoryVM();
+        private static readonly OrderVM orderVM = new OrderVM();
         public async Task<string> GetRawAssistantReplyAsync(
             string userMessage,
             IEnumerable<string> productNames,
@@ -170,16 +248,19 @@ examples and answer in plain text (no JSON).";
         {
 
             var categoryNames = inventoryVM.Categories.Select(c => c.Name);
+            var customerName = orderVM.Orders.Select(c => c.CustomerName);
 
             string sys = CorePrompt +
-             SchemaPrompt +
-             HomePrompt +
-             TransactionsPrompt +
-             InventoryPrompt +          // ← add here
-             HelpPrompt +
-             "\n\nCurrent products:\n" + string.Join(", ", productNames) +
-             "\nCurrent categories:\n" + string.Join(", ", categoryNames) +
-             "\nCurrent contacts:\n" + string.Join(", ", contactNames);
+              SchemaPrompt +
+              HomePrompt +
+              InventoryPrompt +
+              TransactionsPrompt +
+              OrderPrompt +
+              HelpPrompt +
+              "\n\nCurrent products:\n" + string.Join(", ", productNames) +
+              "\nCurrent categories:\n" + string.Join(", ", categoryNames) +
+              "\nCurrent contacts:\n" + string.Join(", ", contactNames) +
+              "\nCurrent CustomerNames:\n" + string.Join(", ", customerName);
 
 
             var payload = new

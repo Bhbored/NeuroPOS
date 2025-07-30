@@ -28,11 +28,11 @@ namespace NeuroPOS.MVVM.ViewModel
     [AddINotifyPropertyChangedInterface]
     public class HomeVM : INotifyPropertyChanged
     {
-
-        public HomeVM(AssistantClient assistant, InventoryVM inventory)
+        public HomeVM(AssistantClient assistant, InventoryVM inventory, OrderVM order)
         {
             _assistant = assistant;
             _inventory = inventory;
+            _order = order;
         }
         #region Enums
         public enum SortDirectionState
@@ -564,6 +564,34 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             _taxRate = newTaxRate;
         }
+        public void UpdateCartTotals()
+        {
+            NotifyCalculatedPropertiesChanged();
+        }
+        public void ValidateAndUpdateQuantity(Product product, string newValue)
+        {
+            try
+            {
+                if (int.TryParse(newValue, out int newQuantity))
+                {
+                    if (newQuantity < 1)
+                    {
+                        newQuantity = 1;
+                    }
+                    product.Stock = newQuantity;
+                    UpdateCartTotals();
+                }
+                else
+                {
+                    product.Stock = 1;
+                    UpdateCartTotals();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in quantity validation: {ex.Message}");
+            }
+        }
         #endregion
 
         #region Commands
@@ -623,7 +651,6 @@ namespace NeuroPOS.MVVM.ViewModel
             async silent => await ProcessCashPayment(silent == true));
         public ICommand OnTabPaymentCommand => new AsyncRelayCommand(ProcessOnTabPaymentInteractive);
         public ICommand OnTabPaymentSilentCommand => new AsyncRelayCommand<Contact>(ProcessOnTabPaymentSilent);
-
         #endregion
 
         #region Tasks
@@ -681,7 +708,6 @@ namespace NeuroPOS.MVVM.ViewModel
                                     duration: TimeSpan.FromSeconds(3)).Show();
             }
         }
-
         private Task ProcessOnTabPaymentInteractive() =>
     ProcessOnTabPayment(presetContact: null, silent: false);
         private Task ProcessOnTabPaymentSilent(Contact contact) =>
@@ -813,39 +839,10 @@ namespace NeuroPOS.MVVM.ViewModel
             }
             SortProduct();
         }
-        public void UpdateCartTotals()
-        {
-            NotifyCalculatedPropertiesChanged();
-        }
-        public void ValidateAndUpdateQuantity(Product product, string newValue)
-        {
-            try
-            {
-                if (int.TryParse(newValue, out int newQuantity))
-                {
-                    if (newQuantity < 1)
-                    {
-                        newQuantity = 1;
-                    }
-                    product.Stock = newQuantity;
-                    UpdateCartTotals();
-                }
-                else
-                {
-                    product.Stock = 1;
-                    UpdateCartTotals();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in quantity validation: {ex.Message}");
-            }
-        }
         #endregion
 
         #region ai logic
         private string _assistantInput;
-        
         public string AssistantInput
         {
             get => _assistantInput;
@@ -853,6 +850,7 @@ namespace NeuroPOS.MVVM.ViewModel
         }
         public AssistantClient _assistant;
         public InventoryVM _inventory;
+        public OrderVM _order;
         private readonly Dictionary<string, string> _alias =
             new(StringComparer.OrdinalIgnoreCase)
             {
@@ -862,6 +860,7 @@ namespace NeuroPOS.MVVM.ViewModel
                 ["chips"] = "Chips"
             };
         public ICommand SendAssistantCommand => new AsyncRelayCommand(SendAssistantAsync);
+        #region stats automation
         private int CountTransactionsToday(string type = null)
         {
             var today = DateTime.Today;
@@ -869,56 +868,45 @@ namespace NeuroPOS.MVVM.ViewModel
                 .Count(t => t.Date.Date == today &&
                        (type == null || t.TransactionType == type));
         }
-
         private string ItemsSoldToday()
         {
             var today = DateTime.Today;
-
             var sold = App.TransactionRepo.GetItemsWithChildren()
                 .Where(t => t.TransactionType == "sell" && t.Date.Date == today)
                 .SelectMany(t => t.Lines ?? Enumerable.Empty<TransactionLine>())
                 .GroupBy(l => l.Name)
                 .Select(g => $"{g.Key} × {g.Sum(l => l.Stock)}");
-
             return !sold.Any()
                 ? "No items sold today."
                 : string.Join(", ", sold);
         }
-
         private string SalesStats(string period)
         {
             DateTime today = DateTime.Today;
             DateTime start, end = today;
-
             switch (period)
             {
                 case "today":
                     start = today;
                     break;
-
                 case "yesterday":
                     start = today.AddDays(-1);
                     end = start;
                     break;
-
                 case "last_week":
                     start = today.AddDays(-7);
                     break;
-
                 case "last_month":
                     start = today.AddMonths(-1);
                     break;
-
                 default:
                     start = today.AddDays(-30);
                     break;
             }
-
             double total = App.TransactionRepo.GetItems()
                           .Where(t => t.TransactionType == "sell" &&
                                       t.Date.Date >= start && t.Date.Date <= end)
                           .Sum(t => t.TotalAmount);
-
             string label = period switch
             {
                 "today" => "today",
@@ -927,11 +915,8 @@ namespace NeuroPOS.MVVM.ViewModel
                 "last_month" => "in the last 30 days",
                 _ => "in the last 30 days"
             };
-
             return $"📊 Sales {label}: {total:C}";
         }
-
-
         private double CashFlowToday()
         {
             var today = DateTime.Today;
@@ -940,7 +925,7 @@ namespace NeuroPOS.MVVM.ViewModel
                    .OrderByDescending(s => s.Date)
                    .FirstOrDefault()?.TotalValue ?? 0;
         }
-
+        #endregion
         private async Task SendAssistantAsync()
         {
             try
@@ -966,7 +951,6 @@ namespace NeuroPOS.MVVM.ViewModel
                         itm.Name = EntityResolver.ResolveProduct(itm.Name, catalog)
                                    ?? itm.Name;
                 }
-
                 if (!string.IsNullOrWhiteSpace(intent.Contact))
                 {
                     var names = Contacts.Select(c => c.Name);
@@ -988,6 +972,12 @@ namespace NeuroPOS.MVVM.ViewModel
             if (string.IsNullOrWhiteSpace(text))
                 return text;
             text = text.Trim();
+            if (text.StartsWith("```"))
+            {
+                var open = text.IndexOf('{');
+                var close = text.LastIndexOf('}');
+                if (open >= 0 && close > open) text = text.Substring(open, close - open + 1);
+            }
             var endThink = text.IndexOf("</think>", StringComparison.OrdinalIgnoreCase);
             if (endThink >= 0)
                 text = text[(endThink + "</think>".Length)..].Trim();
@@ -1017,37 +1007,29 @@ namespace NeuroPOS.MVVM.ViewModel
         public async Task<string?> ExecuteIntentAsync(AssistantIntent intent)
         {
             if (intent == null) return null;
-
             switch (intent.Action?.ToLowerInvariant())
             {
                 case "transactions_today":
                     return $"🧾 Total transactions today: {CountTransactionsToday()}";
-
                 case "transactions_sell_today":
                     return $"📈 Sell transactions today: {CountTransactionsToday("sell")}";
-
                 case "transactions_buy_today":
                     return $"📉 Buy transactions today: {CountTransactionsToday("buy")}";
-
                 case "items_sold_today":
                     return ItemsSoldToday();
-
                 case "sales_stats":
                     var period = intent.Period?.ToLowerInvariant() ?? "last_30_days";
                     return SalesStats(period);
-
                 case "cash_flow_today":
                     return $"💰 Cash flow today: {CashFlowToday():C}";
                 case "clear":
                     ClearAllSelections();
                     return "🗑️  Cart cleared.";
-
                 case "show_cart":
                     return CurrentOrderItems.Any()
                         ? string.Join(", ",
                               CurrentOrderItems.Select(i => $"{i.Name} × {i.Stock}"))
                         : "Cart is empty.";
-
                 case "discount_only":
                     if (intent.DiscountAmount > 0)
                     {
@@ -1055,11 +1037,9 @@ namespace NeuroPOS.MVVM.ViewModel
                         return $"💸 Discount of {intent.DiscountAmount:C} applied.";
                     }
                     return "No discount applied.";
-
                 case "check_stock":
                     if (intent.Items?.Any() != true)
                         return "No items specified.";
-
                     var report = string.Join(", ",
                         intent.Items.Select(i =>
                         {
@@ -1070,96 +1050,84 @@ namespace NeuroPOS.MVVM.ViewModel
                                  : $"{prod.Name}: {GetAvailableStock(prod.Id)} left";
                         }));
                     return report;
-
                 case "inventory_value":
                     var value = Products.Sum(p => GetOriginalStock(p.Id) * p.Price);
                     return $"📦 Inventory value: {value:C}";
-
                 case "sell":
                     return await HandleSellIntentAsync(intent);
-                // ─── CATEGORY OPS ────────────────────────────────────────────
                 case "add_category":
                     return _inventory.CreateCategory(intent.CategoryName, intent.Description);
-
-                case "edit_category_name":        // CategoryName = old name, Description = new name
+                case "edit_category_name":
                     return _inventory.RenameCategory(intent.CategoryName, intent.Description);
-
                 case "edit_category_desc":
                     return _inventory.UpdateCategoryDescription(intent.CategoryName, intent.Description);
-
-                // ─── PRODUCT OPS ─────────────────────────────────────────────
                 case "add_product":
                     return _inventory.QuickAddProduct(
                                intent.ProductName,
                                intent.Price ?? 0,
                                intent.Cost ?? 0,
                                intent.CategoryName);
-
                 case "edit_product_price":
                     return _inventory.UpdateProductPrice(intent.ProductName, intent.Price);
-
                 case "edit_product_cost":
                     return _inventory.UpdateProductCost(intent.ProductName, intent.Cost);
-
                 case "edit_product_category":
                     return _inventory.UpdateProductCategory(intent.ProductName, intent.CategoryName);
-
                 case "delete_product":
                     return _inventory.DeleteProduct(intent.ProductName);
-
-                // ─── BUY TRANSACTION ─────────────────────────────────────────
                 case "buy_products":
-                    return _inventory.RecordBuyTransaction(intent.Items);   // items = name + qty
-
+                    return _inventory.RecordBuyTransaction(intent.Items);
+                case "add_order":
+                    return await AiAddOrderAsync(intent);
+                case "query_orders":
+                    return await AiQueryOrdersAsync(intent);
+                case "confirm_order":
+                    return await AiConfirmOrderAsync(intent);
+                case "delete_order":
+                    return await AiDeleteOrderAsync(intent);
+                case "edit_order":
+                    return await AiEditOrderAsync(intent);
+                case "orders_info":
+                    intent.Action = "query_orders";
+                    goto case "query_orders";
                 default:
                     return "Sorry, I didn’t understand that action.";
             }
         }
-
-
         private async Task<string> HandleSellIntentAsync(AssistantIntent intent)
         {
             if (intent.Items?.Any() != true)
                 return "No items specified.";
-
             foreach (var itm in intent.Items)
             {
                 var lookupName = _alias.TryGetValue(itm.Name, out var mapped)
                                     ? mapped : itm.Name;
-
                 var prod = Products.FirstOrDefault(p =>
                              p.Name.Equals(lookupName, StringComparison.OrdinalIgnoreCase));
                 if (prod == null) continue;
-
                 for (int i = 0; i < itm.Quantity; i++)
                     AddToCurrentOrder(prod);
             }
-
             if (intent.DiscountAmount > 0)
                 UpdateDiscount((double)intent.DiscountAmount);
-
             switch (intent.Payment?.ToLowerInvariant())
             {
                 case "cash":
                     CashPaymentCommand.Execute(true);
                     return "✅ Items added and paid in cash.";
-
                 case "on_tab":
                     var contact = Contacts.FirstOrDefault(c =>
                         c.Name.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase));
-
                     if (contact != null)
                     {
                         OnTabPaymentSilentCommand.Execute(contact);
                         return $"✅ Items added on {contact.Name}’s tab.";
                     }
                     return "Contact not found.";
-
                 default:
                     return "✅ Items added to cart.";
             }
         }
-
         protected bool SetProperty<T>(ref T backingField, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(backingField, value))
@@ -1176,7 +1144,172 @@ namespace NeuroPOS.MVVM.ViewModel
             if (intent is not null)
                 await ExecuteIntentAsync(intent);
         }
-
+        #region Orders automation
+        private async Task<string> AiAddOrderAsync(AssistantIntent intent)
+        {
+            if (intent.Items?.Any() != true)
+                return "No items specified.";
+            var rawName = (intent.Contact ?? "Unknown").Trim();
+            var hasAdjective = rawName.StartsWith("loyal ", StringComparison.OrdinalIgnoreCase) ||
+                               rawName.StartsWith("dear ", StringComparison.OrdinalIgnoreCase) ||
+                               rawName.StartsWith("valued ", StringComparison.OrdinalIgnoreCase);
+            var cleanedName = rawName
+                .Replace("loyal ", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("dear ", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("valued ", "", StringComparison.OrdinalIgnoreCase)
+                .Trim();
+            Contact contact = null;
+            if (hasAdjective)
+            {
+                contact = Contacts.FirstOrDefault(c =>
+                    c.Name.Equals(cleanedName, StringComparison.OrdinalIgnoreCase));
+            }
+            var order = new Order
+            {
+                CustomerName = cleanedName,
+                ContactId = contact?.Id ?? 0,
+                Date = DateTime.Now,
+                IsConfirmed = false,
+                Discount = intent.DiscountAmount ?? 0,
+                Tax = 2,
+                Lines = new(),
+            };
+            double subTotal = 0;
+            foreach (var itm in intent.Items)
+            {
+                var prod = Products.FirstOrDefault(p =>
+                    p.Name.Equals(itm.Name, StringComparison.OrdinalIgnoreCase));
+                if (prod is null) continue;
+                order.Lines.Add(new TransactionLine
+                {
+                    Name = prod.Name,
+                    Price = prod.Price,
+                    Stock = itm.Quantity,
+                    CategoryName = prod.CategoryName,
+                    ProductId = prod.Id
+                });
+                subTotal += prod.Price * itm.Quantity;
+            }
+            order.TotalAmount = subTotal - order.Discount + subTotal * 0.02;
+            App.OrderRepo.InsertItemWithChildren(order);
+            await _order.RefreshOrders();
+            return $"🆕 Order #{order.Id} for {order.CustomerName} created.";
+        }
+        private async Task<string> AiQueryOrdersAsync(AssistantIntent intent)
+        {
+            var list = App.OrderRepo.GetItemsWithChildren()
+                       .Where(o => o.CustomerName.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase))
+                       .ToList(); var cust = intent.Contact?.Trim() ?? "";
+            var matches = list.Where(o =>
+                          o.CustomerName.Equals(cust, StringComparison.OrdinalIgnoreCase));
+            if (!matches.Any())
+                matches = list.Where(o =>
+                          o.CustomerName.Contains(cust, StringComparison.OrdinalIgnoreCase));
+            if (!list.Any())
+                return "No orders found.";
+            if (intent.ResponseMode == "yes_no")
+                return list.Any(o => !o.IsConfirmed) ? "Yes." : "No.";
+            return string.Join("\n", list.Select(o =>
+                   $"#{o.Id} {(o.IsConfirmed ? "✔" : "⏳")} {o.TotalAmount:C} "
+                 + string.Join(", ", o.Lines.Select(l => $"{l.Name}×{l.Stock}"))));
+        }
+        private async Task<string> AiConfirmOrderAsync(AssistantIntent intent)
+        {
+            if (intent.OrderId is null)
+                return "order_id missing.";
+            var order = App.OrderRepo.GetItemsWithChildren()
+                       .FirstOrDefault(o => o.Id == intent.OrderId);
+            if (order is null)
+                return "Order not found.";
+            if (!string.IsNullOrWhiteSpace(intent.Contact) &&
+                !order.CustomerName.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase))
+                return "Contact / order mismatch.";
+            if (order.IsConfirmed)
+                return "Order already confirmed.";
+            order.IsConfirmed = true;
+            App.OrderRepo.UpdateItem(order);
+            await _order.RefreshOrders();
+            return $"👍 Order #{order.Id} confirmed.";
+        }
+        private async Task<string> AiDeleteOrderAsync(AssistantIntent intent)
+        {
+            if (intent.OrderId is null) return "order_id missing.";
+            var order = App.OrderRepo.GetItems()
+                        .FirstOrDefault(o => o.Id == intent.OrderId &&
+                              o.CustomerName.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase));
+            if (order is null) return "Order not found.";
+            if (order.IsConfirmed) return "Cannot delete confirmed order.";
+            App.OrderRepo.DeleteItem(order);
+            await _order.RefreshOrders();
+            return $"🗑️ Order #{order.Id} deleted.";
+        }
+        private async Task<string> AiEditOrderAsync(AssistantIntent intent)
+        {
+            if (intent.OrderId is null)
+                return "order_id missing.";
+            var order = App.OrderRepo.GetItemsWithChildren()
+                       .FirstOrDefault(o => o.Id == intent.OrderId);
+            if (order is null)
+                return "Order not found.";
+            if (!string.IsNullOrWhiteSpace(intent.Contact) &&
+                !order.CustomerName.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase))
+                return "Contact / order mismatch.";
+            if (order.IsConfirmed)
+                return "Order already confirmed – cannot edit.";
+            if (!string.IsNullOrWhiteSpace(intent.Contact) &&
+    !order.CustomerName.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase))
+                return "Contact / order mismatch.";
+            var srcItems = intent.New_Items?.Any() == true
+                           ? intent.New_Items
+                           : (intent.Items?.Any() == true ? intent.Items : null);
+            if (srcItems is null && intent.New_Discount is null)
+                return "Nothing to change.";
+            var dbProducts = App.ProductRepo.GetItems()
+                             .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+            foreach (var itm in srcItems ?? Enumerable.Empty<ItemIntent>())
+            {
+                if (!dbProducts.TryGetValue(itm.Name, out var prod))
+                    continue;
+                var existing = order.Lines.FirstOrDefault(l => l.ProductId == prod.Id);
+                if (existing != null)
+                {
+                    if (itm.Quantity == 0)
+                    {
+                        App.OrderRepo.RemoveChildFromParent(
+                            order, existing,
+                            (parent, list) => parent.Lines = list.ToList());
+                    }
+                    else
+                    {
+                        existing.Stock = itm.Quantity;
+                    }
+                }
+                else if (itm.Quantity > 0)
+                {
+                    var newLine = new TransactionLine
+                    {
+                        Name = prod.Name,
+                        Price = prod.Price,
+                        Stock = itm.Quantity,
+                        CategoryName = prod.CategoryName,
+                        ProductId = prod.Id
+                    };
+                    App.OrderRepo.AddNewChildToParent(
+                        order, newLine,
+                        (parent, list) => parent.Lines = list.ToList());
+                }
+            }
+            if (intent.New_Discount is not null)
+                order.Discount = intent.New_Discount.Value;
+            var sub = order.Lines.Sum(l => l.Price * l.Stock);
+            order.TotalAmount = sub
+                               - order.Discount
+                               + sub * order.Tax / 100.0;
+            App.OrderRepo.UpdateItemWithChildren(order, recursive: true);
+            await _order.RefreshOrders();
+            return $"✏️ Order #{order.Id} updated.";
+        }
+        #endregion
         #endregion
     }
 }
