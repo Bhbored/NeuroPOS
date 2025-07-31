@@ -14,15 +14,12 @@ namespace NeuroPOS.Converters
             if (value == null || parameter == null)
                 return 0.0;
 
-            // The value should be the CashRegister object
             var cashRegister = value as dynamic;
             if (cashRegister == null)
                 return 0.0;
 
-            // Parameter should be the property name to use as the current value
             string propertyName = parameter.ToString();
 
-            // Get the current value based on property name
             double currentValue = 0.0;
             double maxValue = 0.0;
 
@@ -46,13 +43,11 @@ namespace NeuroPOS.Converters
                         return 0.0;
                 }
 
-                // Calculate the progress as a percentage
                 if (maxValue == 0)
                     return 0.0;
 
                 double progress = currentValue / maxValue;
 
-                // Ensure progress is between 0 and 1
                 return Math.Max(0, Math.Min(1, progress));
             }
             catch

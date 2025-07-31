@@ -1,6 +1,7 @@
 ﻿using NeuroPOS.Data;
 using NeuroPOS.MVVM.Model;
 using NeuroPOS.MVVM.ViewModel;
+using NeuroPOS.Services;
 using Syncfusion.Licensing;
 using System.Diagnostics;
 using Contact = NeuroPOS.MVVM.Model.Contact;
@@ -9,6 +10,7 @@ namespace NeuroPOS
 {
     public partial class App : Application
     {
+        private readonly AuthService _authService;
         #region injection
         public static BaseRepository<CashRegister>? CashRegisterRepo { get; private set; }
         public static BaseRepository<Category>? CategoryRepo { get; private set; }
@@ -39,7 +41,7 @@ namespace NeuroPOS
             BaseRepository<InventorySnapshot> _snapshot ,BaseRepository<CashFlowSnapshot> _cashFlowsnap , HomeVM _homeVM,
             TransactionVM _transactionVM, InventoryVM _inventoryVM,
             ContactVM _contactVM, OrderVM _orderVM,
-            CashRegisterVM _cashRegisterVM, StatisticsVM _statisticsVM)
+            CashRegisterVM _cashRegisterVM, StatisticsVM _statisticsVM, AuthService authService)
         {
             InitializeComponent();
             SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXlceHRTQ2ZYWUN/XkFWYEk=");
@@ -59,6 +61,7 @@ namespace NeuroPOS
             StatisticsVM = _statisticsVM;
             InventorySnapShotRepo = _snapshot;
             CashFlowSnapshotRepo = _cashFlowsnap;
+            _authService = authService;
             SaveInventorySnapshotIfNeeded();
             SaveCashFlowSnapshotIfNeeded();
             //var populator = new TestDataPopulator();
@@ -70,7 +73,13 @@ namespace NeuroPOS
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var authService = MauiProgram.Host.Services.GetRequiredService<AuthService>();
+
+            var window = new Window(new AppShell(authService));
+
+            Task.Run(async () => await HandleStartAsync(authService));
+
+            return window;
         }
 
         #region Snapshot
@@ -199,6 +208,23 @@ namespace NeuroPOS
             }
         }
         #endregion
+
+        private async Task HandleStartAsync(AuthService authService)
+        {
+            await Task.Delay(100);
+
+            if (authService.IsTokenValid())
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    if (Shell.Current is AppShell appShell)
+                    {
+                        appShell.UpdateFlyoutItems();
+                        await Shell.Current.GoToAsync("//HomePage");
+                    }
+                });
+            }
+        }
 
 
     }

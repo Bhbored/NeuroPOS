@@ -7,14 +7,6 @@
     Shell.FlyoutBackgroundColor="{StaticResource NPDivider}"
     Shell.FlyoutBehavior="Locked"
     Shell.FlyoutWidth="60">
-
-    <!--  App Icon at the top (as a MenuItem)  -->
-    <!--<Shell.FlyoutHeader>
-    <Image
-    HeightRequest="100"
-    Source="icon.jpeg"
-    WidthRequest="100" />
-    </Shell.FlyoutHeader>-->
     <ShellContent
         ContentTemplate="{DataTemplate Pages:HomePage}"
         FlyoutIcon="home.png"
@@ -23,10 +15,6 @@
         ContentTemplate="{DataTemplate Pages:TransactionPage}"
         FlyoutIcon="transaction.png"
         Route="TransactionPage" />
-    <ShellContent
-        ContentTemplate="{DataTemplate Pages:InventoryPage}"
-        FlyoutIcon="inventory.png"
-        Route="InventoryPage" />
     <ShellContent
         ContentTemplate="{DataTemplate Pages:OrdersPage}"
         FlyoutIcon="orders.png"
@@ -43,17 +31,34 @@
         ContentTemplate="{DataTemplate Pages:StatisticsPage}"
         FlyoutIcon="statistics.png"
         Route="StatisticsPage" />
-
+    <ShellContent
+        x:Name="InventoryShellContent"
+        ContentTemplate="{DataTemplate Pages:InventoryPage}"
+        FlyoutIcon="inventory.png"
+        Route="InventoryPage" />
+    <ShellContent
+        ContentTemplate="{DataTemplate Pages:LoginPage}"
+        FlyoutItemIsVisible="False"
+        Route="LoginPage" />
 
     <Shell.FlyoutFooter>
-        <Image
-            Margin="0,0,0,25"
-            Aspect="AspectFit"
-            HeightRequest="20"
-            HorizontalOptions="Center"
-            Source="support.png"
-            WidthRequest="20" />
+        <VerticalStackLayout Padding="10" Spacing="10">
+            <ImageButton
+                Aspect="AspectFit"
+                BackgroundColor="Transparent"
+                Clicked="OnLogoutButtonClicked"
+                HorizontalOptions="Center"
+                Source="logout.png"
+                VerticalOptions="Center"
+                WidthRequest="20" />
+            <Image
+                Margin="0,0,0,25"
+                Aspect="AspectFit"
+                HeightRequest="20"
+                HorizontalOptions="Center"
+                Source="support.png"
+                WidthRequest="20" />
+        </VerticalStackLayout>
     </Shell.FlyoutFooter>
-
 
 </Shell>

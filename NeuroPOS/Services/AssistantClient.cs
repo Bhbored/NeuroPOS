@@ -12,7 +12,6 @@ namespace NeuroPOS.Services
 {
     public sealed class AssistantClient
     {
-        // chat‑capable GPT‑4o‑mini ID visible in your /v1/models list
         private const string ModelId = "gpt-4o-mini-2024-07-18";
 
         private readonly HttpClient _http;

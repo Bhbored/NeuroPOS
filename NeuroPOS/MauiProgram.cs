@@ -8,11 +8,14 @@ using Syncfusion.Maui.Core.Hosting;
 using Contact = NeuroPOS.MVVM.Model.Contact;
 using NeuroPOS.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace NeuroPOS
 {
     public static class MauiProgram
     {
+        
+        public static MauiApp Host;
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -60,7 +63,8 @@ namespace NeuroPOS
             //Auth
             builder.Services.AddSingleton<AuthService>();
 
-            return builder.Build();
+            Host = builder.Build();
+            return Host;
         }
     }
 }

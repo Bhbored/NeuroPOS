@@ -836,17 +836,14 @@ namespace NeuroPOS.MVVM.ViewModel
         {
             var list = App.ProductRepo.GetItems();
 
-            // 1) exact case-insensitive
             var prod = list.FirstOrDefault(p =>
                 p.Name.Equals(rawName, StringComparison.OrdinalIgnoreCase));
             if (prod != null) return prod;
 
-            // 2) contains
             prod = list.FirstOrDefault(p =>
                 p.Name.Contains(rawName, StringComparison.OrdinalIgnoreCase));
             if (prod != null) return prod;
 
-            // 3) very simple Levenshtein <= 2 (typo tolerance)
             int Distance(string a, string b)
             {
                 if (a.Length == 0) return b.Length;
@@ -927,7 +924,6 @@ namespace NeuroPOS.MVVM.ViewModel
             if (Products.Any(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
                 return $"Product “{name}” already exists.";
 
-            // ── choose a valid category ──────────────────────────────
             string finalCatName;
 
             if (!string.IsNullOrWhiteSpace(catName) &&
@@ -944,7 +940,6 @@ namespace NeuroPOS.MVVM.ViewModel
                 var rnd = new Random();
                 finalCatName = Categories[rnd.Next(Categories.Count)].Name;
             }
-            // ─────────────────────────────────────────────────────────
 
             var prod = new Product
             {

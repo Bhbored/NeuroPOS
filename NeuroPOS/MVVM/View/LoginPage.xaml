@@ -3,8 +3,8 @@
     x:Class="NeuroPOS.MVVM.View.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="Login"
-    BackgroundColor="{StaticResource NPLightBg}">
+    BackgroundColor="{StaticResource NPLightBg}"
+    NavigationPage.HasNavigationBar="False">
 
     <ScrollView>
         <Grid Padding="25">
@@ -62,21 +62,32 @@
             <!--  Login Form  -->
             <VerticalStackLayout
                 Grid.Row="1"
-                Spacing="24"
-                VerticalOptions="Center">
+                HorizontalOptions="Center"
+                Spacing="28"
+                VerticalOptions="Center"
+                WidthRequest="320">
 
                 <!--  Username Entry  -->
-                <VerticalStackLayout Spacing="8">
+                <VerticalStackLayout Spacing="10">
                     <Label
+                        Margin="0,0,0,4"
+                        FontSize="13"
                         StyleClass="NormalText"
                         Text="Username"
                         TextColor="{StaticResource NPTextSecondary}" />
 
-                    <Border StyleClass="ModernEntry">
+                    <Border HeightRequest="52" StyleClass="ModernEntry">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12" />
+                            <RoundRectangle CornerRadius="14" />
                         </Border.StrokeShape>
-                        <Grid Padding="16,0">
+                        <Border.Shadow>
+                            <Shadow
+                                Brush="Black"
+                                Opacity="0.04"
+                                Radius="8"
+                                Offset="0,2" />
+                        </Border.Shadow>
+                        <Grid Padding="18,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -84,16 +95,17 @@
 
                             <Label
                                 Grid.Column="0"
-                                Margin="0,0,12,0"
-                                FontSize="16"
+                                Margin="0,0,14,0"
+                                FontSize="18"
                                 Text="👤"
                                 VerticalOptions="Center" />
 
                             <Entry
+                                x:Name="UsernameEntry"
                                 Grid.Column="1"
                                 BackgroundColor="Transparent"
                                 FontFamily="PoppinsRegular"
-                                FontSize="14"
+                                FontSize="15"
                                 Placeholder="Enter your username"
                                 PlaceholderColor="{StaticResource NPTextMuted}"
                                 TextColor="{StaticResource NPTextMain}" />
@@ -102,17 +114,26 @@
                 </VerticalStackLayout>
 
                 <!--  Password Entry  -->
-                <VerticalStackLayout Spacing="8">
+                <VerticalStackLayout Spacing="10">
                     <Label
+                        Margin="0,0,0,4"
+                        FontSize="13"
                         StyleClass="NormalText"
                         Text="Password"
                         TextColor="{StaticResource NPTextSecondary}" />
 
-                    <Border StyleClass="ModernEntry">
+                    <Border HeightRequest="52" StyleClass="ModernEntry">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12" />
+                            <RoundRectangle CornerRadius="14" />
                         </Border.StrokeShape>
-                        <Grid Padding="16,0">
+                        <Border.Shadow>
+                            <Shadow
+                                Brush="Black"
+                                Opacity="0.04"
+                                Radius="8"
+                                Offset="0,2" />
+                        </Border.Shadow>
+                        <Grid Padding="18,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -121,167 +142,51 @@
 
                             <Label
                                 Grid.Column="0"
-                                Margin="0,0,12,0"
-                                FontSize="16"
+                                Margin="0,0,14,0"
+                                FontSize="18"
                                 Text="🔒"
                                 VerticalOptions="Center" />
 
                             <Entry
+                                x:Name="PasswordEntry"
                                 Grid.Column="1"
                                 BackgroundColor="Transparent"
                                 FontFamily="PoppinsRegular"
-                                FontSize="14"
+                                FontSize="15"
                                 IsPassword="True"
                                 Placeholder="Enter your password"
                                 PlaceholderColor="{StaticResource NPTextMuted}"
                                 TextColor="{StaticResource NPTextMain}" />
 
-                            <Button
-                                Grid.Column="2"
-                                BackgroundColor="Transparent"
-                                FontSize="16"
-                                StyleClass="ActionButton"
-                                Text="👁" />
+
                         </Grid>
                     </Border>
                 </VerticalStackLayout>
 
-                <!--  Remember Me & Forgot Password  -->
-                <Grid Margin="0,8,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <HorizontalStackLayout Grid.Column="0" Spacing="8">
-                        <CheckBox Color="{StaticResource NPPrimaryBlue}" />
-                        <Label
-                            StyleClass="NormalText"
-                            Text="Remember me"
-                            VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-
-                    <Button
-                        Grid.Column="1"
-                        BackgroundColor="Transparent"
-                        StyleClass="ActionButton"
-                        Text="Forgot Password?"
-                        TextColor="{StaticResource NPPrimaryBlue}" />
-                </Grid>
+                <!--  Remember Me  -->
+                <HorizontalStackLayout Margin="0,12,0,0" Spacing="10">
+                    <CheckBox
+                        x:Name="RememberMeCheckBox"
+                        Scale="1.1"
+                        Color="{StaticResource NPPrimaryBlue}" />
+                    <Label
+                        FontSize="13"
+                        StyleClass="NormalText"
+                        Text="Remember me"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
 
                 <!--  Login Button  -->
                 <Button
-                    Margin="0,16,0,0"
+                    Margin="0,32,0,0"
+                    Clicked="OnLoginClicked"
+                    FontSize="16"
+                    HeightRequest="52"
                     StyleClass="PrimaryButton"
                     Text="Sign In" />
-
-                <!--  Divider  -->
-                <Grid Margin="0,24,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <BoxView
-                        Grid.Column="0"
-                        HeightRequest="1"
-                        VerticalOptions="Center"
-                        Color="{StaticResource NPDivider}" />
-
-                    <Label
-                        Grid.Column="1"
-                        Margin="16,0"
-                        StyleClass="NormalText"
-                        Text="or"
-                        TextColor="{StaticResource NPTextMuted}" />
-
-                    <BoxView
-                        Grid.Column="2"
-                        HeightRequest="1"
-                        VerticalOptions="Center"
-                        Color="{StaticResource NPDivider}" />
-                </Grid>
-
-                <!--  Alternative Login Options  -->
-                <HorizontalStackLayout
-                    Margin="0,16,0,0"
-                    HorizontalOptions="Center"
-                    Spacing="16">
-
-                    <Border
-                        HeightRequest="48"
-                        HorizontalOptions="Center"
-                        StyleClass="SecondaryButton"
-                        WidthRequest="48">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="8" />
-                        </Border.StrokeShape>
-                        <Label
-                            FontFamily="PoppinsBold"
-                            FontSize="18"
-                            HorizontalOptions="Center"
-                            Text="G"
-                            TextColor="{StaticResource NPPrimaryBlue}"
-                            VerticalOptions="Center" />
-                    </Border>
-
-                    <Border
-                        HeightRequest="48"
-                        HorizontalOptions="Center"
-                        StyleClass="SecondaryButton"
-                        WidthRequest="48">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="8" />
-                        </Border.StrokeShape>
-                        <Label
-                            FontFamily="PoppinsBold"
-                            FontSize="18"
-                            HorizontalOptions="Center"
-                            Text="f"
-                            TextColor="{StaticResource NPPrimaryBlue}"
-                            VerticalOptions="Center" />
-                    </Border>
-
-                    <Border
-                        HeightRequest="48"
-                        HorizontalOptions="Center"
-                        StyleClass="SecondaryButton"
-                        WidthRequest="48">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="8" />
-                        </Border.StrokeShape>
-                        <Label
-                            FontFamily="PoppinsBold"
-                            FontSize="14"
-                            HorizontalOptions="Center"
-                            Text="in"
-                            TextColor="{StaticResource NPPrimaryBlue}"
-                            VerticalOptions="Center" />
-                    </Border>
-                </HorizontalStackLayout>
             </VerticalStackLayout>
 
-            <!--  Footer  -->
-            <VerticalStackLayout
-                Grid.Row="2"
-                Margin="0,40,0,20"
-                HorizontalOptions="Center"
-                Spacing="8">
 
-                <Label
-                    HorizontalOptions="Center"
-                    StyleClass="NormalText"
-                    Text="Don't have an account?"
-                    TextColor="{StaticResource NPTextSecondary}" />
-
-                <Button
-                    BackgroundColor="Transparent"
-                    HorizontalOptions="Center"
-                    StyleClass="ActionButton"
-                    Text="Create Account"
-                    TextColor="{StaticResource NPPrimaryBlue}" />
-            </VerticalStackLayout>
         </Grid>
     </ScrollView>
 </ContentPage>
