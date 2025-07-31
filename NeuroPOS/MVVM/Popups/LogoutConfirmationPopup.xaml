@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="NeuroPOS.MVVM.Popups.LogoutConfirmationPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    BackgroundColor="Transparent"
+    CanBeDismissedByTappingOutsideOfPopup="True"
+    HeightRequest="300"
+    WidthRequest="200">
+
+    <Border Margin="20" StyleClass="ModernCardShadow">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="20" />
+        </Border.StrokeShape>
+
+        <Grid Padding="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!--  Header with Icon  -->
+            <VerticalStackLayout
+                Grid.Row="0"
+                Margin="0,0,0,16"
+                HorizontalOptions="Center"
+                Spacing="12">
+
+                <!--  Warning Icon  -->
+                <Border
+                    HeightRequest="48"
+                    HorizontalOptions="Center"
+                    StyleClass="ModernCard"
+                    WidthRequest="48">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Offset="0.0" Color="{StaticResource NPStockRed}" />
+                            <GradientStop Offset="1.0" Color="#FF6B6B" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Label
+                        FontSize="20"
+                        HorizontalOptions="Center"
+                        Text="⚠️"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <!--  Title  -->
+                <Label
+                    HorizontalOptions="Center"
+                    StyleClass="LargeTitle"
+                    Text="Logout" />
+            </VerticalStackLayout>
+
+            <!--  Message  -->
+            <VerticalStackLayout
+                Grid.Row="1"
+                Spacing="8"
+                VerticalOptions="Center">
+
+                <Label
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    StyleClass="NormalText"
+                    Text="Are you sure you want to logout?"
+                    TextColor="{StaticResource NPTextSecondary}" />
+
+                <Label
+                    FontSize="12"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    StyleClass="NormalText"
+                    Text="You will need to sign in again to access your account."
+                    TextColor="{StaticResource NPTextMuted}" />
+            </VerticalStackLayout>
+
+            <!--  Action Buttons  -->
+            <HorizontalStackLayout
+                Grid.Row="2"
+                Margin="0,16,0,0"
+                Spacing="12">
+
+                <!--  Cancel Button  -->
+                <Button
+                    Clicked="OnCancelClicked"
+                    HeightRequest="44"
+                    HorizontalOptions="FillAndExpand"
+                    StyleClass="SecondaryButton"
+                    Text="Cancel" />
+
+                <!--  Logout Button  -->
+                <Button
+                    BackgroundColor="{StaticResource NPStockRed}"
+                    Clicked="OnLogoutClicked"
+                    HeightRequest="44"
+                    HorizontalOptions="FillAndExpand"
+                    StyleClass="PrimaryButton"
+                    Text="Logout" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</toolkit:Popup>

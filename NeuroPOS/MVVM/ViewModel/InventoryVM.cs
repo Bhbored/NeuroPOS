@@ -823,6 +823,47 @@ namespace NeuroPOS.MVVM.ViewModel
         #endregion
 
         #region Ai integration
+        public readonly Dictionary<string, string> _prodAlias =
+   new(StringComparer.OrdinalIgnoreCase)
+   {
+       ["cola"] = "Cola",
+       ["coke"] = "Cola",
+       ["snickers"] = "Snickers"
+   };
+
+
+        private Product FindProduct(string rawName)
+        {
+            var list = App.ProductRepo.GetItems();
+
+            // 1) exact case-insensitive
+            var prod = list.FirstOrDefault(p =>
+                p.Name.Equals(rawName, StringComparison.OrdinalIgnoreCase));
+            if (prod != null) return prod;
+
+            // 2) contains
+            prod = list.FirstOrDefault(p =>
+                p.Name.Contains(rawName, StringComparison.OrdinalIgnoreCase));
+            if (prod != null) return prod;
+
+            // 3) very simple Levenshtein <= 2 (typo tolerance)
+            int Distance(string a, string b)
+            {
+                if (a.Length == 0) return b.Length;
+                if (b.Length == 0) return a.Length;
+                int[,] d = new int[a.Length + 1, b.Length + 1];
+                for (int i = 0; i <= a.Length; i++) d[i, 0] = i;
+                for (int j = 0; j <= b.Length; j++) d[0, j] = j;
+                for (int i = 1; i <= a.Length; i++)
+                    for (int j = 1; j <= b.Length; j++)
+                        d[i, j] = Math.Min(
+                            Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                            d[i - 1, j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1));
+                return d[a.Length, b.Length];
+            }
+
+            return list.FirstOrDefault(p => Distance(p.Name.ToLower(), rawName.ToLower()) <= 2);
+        }
 
         public string CreateCategory(string name, string desc = "")
         {
@@ -931,8 +972,10 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public string UpdateProductPrice(string name, double? newPrice)
         {
-            var prod = Products.FirstOrDefault(p =>
-                       p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (newPrice is null || newPrice <= 0)
+                return "Invalid price.";
+
+            var prod = FindProduct(name);
             if (prod == null) return $"Product “{name}” not found.";
             if (!newPrice.HasValue) return "Price missing.";
 
@@ -944,8 +987,10 @@ namespace NeuroPOS.MVVM.ViewModel
 
         public string UpdateProductCost(string name, double? newCost)
         {
-            var prod = Products.FirstOrDefault(p =>
-                       p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (newCost is null || newCost <= 0)
+                return "Invalid price.";
+
+            var prod = FindProduct(name);
             if (prod == null) return $"Product “{name}” not found.";
             if (!newCost.HasValue) return "Cost missing.";
 
@@ -991,55 +1036,53 @@ namespace NeuroPOS.MVVM.ViewModel
             if (items == null || items.Count == 0)
                 return "No items specified.";
 
-            // 1️⃣ validate products
-            foreach (var itm in items)
-                if (!Products.Any(p => p.Name.Equals(itm.Name, StringComparison.OrdinalIgnoreCase)))
-                    return $"Product “{itm.Name}” not found.";
+            /* 1️⃣ validate every product name via helper */
+            var missing = items
+                         .Where(i => FindProduct(i.Name) == null)
+                         .Select(i => i.Name)
+                         .ToList();
 
-            // 2️⃣ build transaction
-            var txn = new Transaction
+            if (missing.Any())
+                return $"Product(s) not found: {string.Join(", ", missing)}";
+
+            /* 2️⃣ build the buy transaction */
+            var tx = new Transaction
             {
-                Id = BuyingTransaction.Count > 0
-                       ? BuyingTransaction.Max(t => t.Id) + 1
-                       : 1,
-                Date = DateTime.Now,
                 TransactionType = "buy",
                 IsPaid = true,
-                Lines = new List<TransactionLine>(),
-                ItemCount = items.Sum(i => i.Quantity)
+                Date = DateTime.Now,
+                Lines = new List<TransactionLine>()
             };
 
             double total = 0;
             foreach (var itm in items)
             {
-                var p = Products.First(pr =>
-                         pr.Name.Equals(itm.Name, StringComparison.OrdinalIgnoreCase));
+                var prod = FindProduct(itm.Name);   // ← case-insensitive alias lookup
 
-                txn.Lines.Add(new TransactionLine
+                tx.Lines.Add(new TransactionLine
                 {
-                    Name = p.Name,
-                    Cost = p.Cost,
-                    Price = p.Price,
+                    Name = prod.Name,
+                    Cost = prod.Cost,
+                    Price = prod.Price,
                     Stock = itm.Quantity,
-                    CategoryName = p.CategoryName,
-                    ImageUrl = p.ImageUrl,
-                    Product = p,
-                    ProductId = p.Id
+                    CategoryName = prod.CategoryName,
+                    ImageUrl = prod.ImageUrl,
+                    Product = prod,
+                    ProductId = prod.Id
                 });
 
-                total += p.Cost * itm.Quantity;
-                p.Stock += itm.Quantity;
-                App.ProductRepo.UpdateItem(p);
+                total += prod.Cost * itm.Quantity;
+                prod.Stock += itm.Quantity;
+                App.ProductRepo.UpdateItem(prod);
             }
-            txn.TotalAmount = total;
 
-            App.TransactionRepo.InsertItemWithChildren(txn);
-            BuyingTransaction.Add(txn);
+            tx.TotalAmount = total;
+            App.TransactionRepo.InsertItemWithChildren(tx);
 
             _ = RefreshDBAsync();
-
-            return $"✅ Buy transaction recorded (${total:F2}).";
+            return $"✅ Recorded purchase of {items.Sum(i => i.Quantity)} items (total {total:C}).";
         }
+
 
 
         #endregion

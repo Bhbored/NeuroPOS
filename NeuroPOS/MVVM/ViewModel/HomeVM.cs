@@ -931,9 +931,9 @@ namespace NeuroPOS.MVVM.ViewModel
             try
             {
                 var raw = await _assistant.GetRawAssistantReplyAsync(
-                  AssistantInput ?? string.Empty,
-                  Products.Select(p => p.Name),
-                  Contacts.Select(c => c.Name));
+            AssistantInput ?? string.Empty,
+            Products.Select(p => p.Name).ToList(),
+            Contacts.Select(c => c.Name).ToList());
                 AssistantInput = string.Empty;
                 var cleaned = CleanupRaw(raw);
                 var intent = JsonSerializer.Deserialize<AssistantIntent>(
@@ -1076,7 +1076,23 @@ namespace NeuroPOS.MVVM.ViewModel
                 case "delete_product":
                     return _inventory.DeleteProduct(intent.ProductName);
                 case "buy_products":
-                    return _inventory.RecordBuyTransaction(intent.Items);
+                    {
+                        var list = intent.Items;
+                        if ((list == null || list.Count == 0) &&
+                            !string.IsNullOrWhiteSpace(intent.ProductName) &&
+                            intent.Quantity.HasValue)
+                        {
+                            list = new List<ItemIntent>
+                            {
+                                new ItemIntent
+                                {
+                                    Name     = intent.ProductName,
+                                    Quantity = intent.Quantity.Value
+                                }
+                            };
+                        }
+                        return _inventory.RecordBuyTransaction(list);
+                    };         
                 case "add_order":
                     return await AiAddOrderAsync(intent);
                 case "query_orders":
@@ -1215,21 +1231,110 @@ namespace NeuroPOS.MVVM.ViewModel
         }
         private async Task<string> AiConfirmOrderAsync(AssistantIntent intent)
         {
+            /* 0. guards */
             if (intent.OrderId is null)
                 return "order_id missing.";
+
             var order = App.OrderRepo.GetItemsWithChildren()
                        .FirstOrDefault(o => o.Id == intent.OrderId);
-            if (order is null)
+
+            if (order == null)
                 return "Order not found.";
+
             if (!string.IsNullOrWhiteSpace(intent.Contact) &&
                 !order.CustomerName.Equals(intent.Contact, StringComparison.OrdinalIgnoreCase))
                 return "Contact / order mismatch.";
+
             if (order.IsConfirmed)
                 return "Order already confirmed.";
+
+            if (order.Lines == null || order.Lines.Count == 0)
+                return "Order has no products; cannot confirm an empty order.";
+
+            /* 1. Stock‑level validation */
+            var dbProducts = App.ProductRepo.GetItems().ToList();
+            var stockErrors = new List<string>();
+
+            foreach (var line in order.Lines)
+            {
+                var dbProd = dbProducts.FirstOrDefault(p => p.Name == line.Name);
+                if (dbProd == null)
+                {
+                    stockErrors.Add($"Product '{line.Name}' not found.");
+                    continue;
+                }
+
+                if (dbProd.Stock < line.Stock)
+                {
+                    stockErrors.Add(
+                        $"Insufficient stock for '{line.Name}'. " +
+                        $"Available: {dbProd.Stock}, required: {line.Stock}");
+                }
+            }
+
+            if (stockErrors.Any())
+                return "Stock validation failed:\n" + string.Join("\n", stockErrors);
+
+            /* 2. Build Transaction (sell or credit) */
+            var tx = new Transaction
+            {
+                TransactionType = "sell",
+                IsPaid = order.ContactId == 0,          // paid if no contact
+                Tax = order.CalculatedTaxAmount,
+                Discount = order.Discount,
+                TotalAmount = order.CalculatedTotalAmount,
+                ItemCount = order.Lines.Count,
+                ContactId = order.ContactId == 0 ? null : order.ContactId,
+                Lines = new List<TransactionLine>()
+            };
+
+            foreach (var line in order.Lines)
+            {
+                var dbProd = dbProducts.First(p => p.Name == line.Name);
+
+                tx.Lines.Add(new TransactionLine
+                {
+                    Name = line.Name,
+                    Price = line.Price,
+                    Stock = line.Stock,
+                    CategoryName = line.CategoryName,
+                    ImageUrl = line.ImageUrl,
+                    Product = dbProd,
+                    ProductId = dbProd.Id
+                });
+
+                dbProd.Stock -= line.Stock;
+                App.ProductRepo.UpdateItem(dbProd);
+            }
+
+            /* 3. Persist transaction */
+            if (order.ContactId != 0)
+            {
+                var customer = App.ContactRepo.GetItemsWithChildren()
+                              .FirstOrDefault(c => c.Id == order.ContactId);
+
+                if (customer != null)
+                {
+                    App.ContactRepo.AddNewChildToParentRecursively(
+                        customer,
+                        tx,
+                        (c, list) => c.Transactions = list.ToList());
+                }
+            }
+            else
+            {
+                App.TransactionRepo.InsertItemWithChildren(tx);
+            }
+
+            /* 4. Mark order confirmed & persist header + children */
             order.IsConfirmed = true;
-            App.OrderRepo.UpdateItem(order);
+            App.OrderRepo.UpdateItemWithChildren(order);
+
             await _order.RefreshOrders();
-            return $"👍 Order #{order.Id} confirmed.";
+
+            return order.ContactId == 0
+                   ? $"✅ Order #{order.Id} confirmed and paid in cash."
+                   : $"✅ Order #{order.Id} confirmed and added to {order.CustomerName}'s tab.";
         }
         private async Task<string> AiDeleteOrderAsync(AssistantIntent intent)
         {

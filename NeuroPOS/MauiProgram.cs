@@ -55,7 +55,10 @@ namespace NeuroPOS
             builder.Services.AddSingleton<StatisticsVM>();
 
             // Views
-            builder.Services.AddTransient<TransactionPage>();  
+            builder.Services.AddTransient<TransactionPage>();
+
+            //Auth
+            builder.Services.AddSingleton<AuthService>();
 
             return builder.Build();
         }

@@ -103,7 +103,7 @@ If uncertain, return this stub exactly:
         @"### Selling (Home page) ###
 • sell            → “Sell 2 Pepsi and 1 Chips in cash”
 • discount_only   → “Apply $3 discount to cart”
-• on‑tab selling  → “Sell 5 Cola on tab for loyal Ahmad”
+• on‑tab selling  → “Sell 5 Cola on tab for  Ahmad”
 • clear           → “Clear cart”
 • show_cart       → “What’s in cart?”
 • check_stock     → “How many Pepsi left?”
@@ -122,20 +122,38 @@ Return JSON per schema.";
         #endregion
 
         #region InventoryPrompt
-        private const string InventoryPrompt = @"
-[INVENTORY]
-• add_category – “Add category Drinks desc: Beverages”
-• edit_category_name – “Rename category Drinks to Bevs”
-• edit_category_desc – “Set Drinks description: Cold beverages”
-• add_product – “Add product Snickers price 3 cost 1 [category Drinks]”
-                (if category is omitted or unknown, one will be assigned automatically)
-                (tell user image must be added manually)
-• edit_product_price – “Set Pepsi price 1.4”
-• edit_product_cost – “Set Pepsi cost 0.7”
-• edit_product_category – “Move Pepsi to Snacks”
-• delete_product – “Delete product Pepsi”
-• buy_products – “Buy 30 Pepsi and 50 Cola”   (creates a buy transaction)";
+        private const string InventoryPrompt =
+        @"### Inventory & Products ###
+
+• add_category – ""Add category Drinks desc: Beverages""
+• edit_category_name – ""Rename category Drinks to Bevs""
+• edit_category_desc – ""Set Drinks description: Cold beverages""
+
+• add_product – ""Add product Snickers price 3 cost 1 [category Drinks]""
+                (if category is omitted or unknown, one will be assigned automatically;
+                 image must be added manually)
+
+• edit_product_price    – ""Set Pepsi price 1.4""
+• edit_product_cost     – ""Set Pepsi cost 0.7""
+• edit_product_category – ""Move Pepsi to Snacks""
+• delete_product        – ""Delete product Pepsi""
+
+• buy_products – ""Buy 30 Pepsi and 50 Cola""
+                 ""Buy 200 Batata""   (single-item shortcut)
+
+  JSON examples
+  – Multiple items
+    {""action"":""buy_products"",
+     ""items"":[{""name"":""Pepsi"",""quantity"":30},
+                {""name"":""Cola"",""quantity"":50}]}
+
+  – Single-item shortcut
+    {""action"":""buy_products"",
+     ""product_name"":""Cola"",
+     ""quantity"":200}";
         #endregion
+
+
 
         #region OrderPrompt
         private const string OrderPrompt =
@@ -247,7 +265,7 @@ When they name an area:
             IEnumerable<string> contactNames)
         {
 
-            var categoryNames = inventoryVM.Categories.Select(c => c.Name);
+            var categoryNames = inventoryVM.Categories.Select(c => c.Name).ToList();
             var customerName = orderVM.Orders.Select(c => c.CustomerName);
 
             string sys = CorePrompt +
