@@ -99,11 +99,11 @@ Extensible architecture to support future cloud and AI features
 
 📸 Screenshots.
 
-![Screenshot](ScreenShots/Screenshot 2025-08-02 104931.png)
-![Screenshot](ScreenShots/Screenshot 2025-08-02 105138.png)
-![Screenshot](ScreenShots/Screenshot 2025-08-02 105520.png)
-![Screenshot](ScreenShots/Screenshot 2025-08-02 105532.png)
-![Screenshot](ScreenShots/Screenshot 2025-08-02 105749.png)
+![Screenshot](ScreenShots/Screenshot%202025-08-02%20104931.png)
+![Screenshot](ScreenShots/Screenshot%202025-08-02%20105138.png)
+![Screenshot](ScreenShots/Screenshot%202025-08-02%20105520.png)
+![Screenshot](ScreenShots/Screenshot%202025-08-02%20105532.png)
+![Screenshot](ScreenShots/Screenshot%202025-08-02%20105749.png)
 
 📝 License
 MIT License
