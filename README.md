@@ -99,10 +99,11 @@ Extensible architecture to support future cloud and AI features
 
 📸 Screenshots
 
-<img width="1913" height="965" alt="image" src="https://github.com/user-attachments/assets/db5f664b-560b-4b8e-8dd7-e1b5771073f2" />
-<img width="806" height="827" alt="image" src="https://github.com/user-attachments/assets/79548d80-ad76-40fd-b6f1-ef55475bc8e2" />
-<img width="713" height="802" alt="image" src="https://github.com/user-attachments/assets/a25dcfe7-7f36-4e2d-a505-397d1f49b714" />
-<img width="591" height="700" alt="image" src="https://github.com/user-attachments/assets/5b4a391a-3e18-498f-9afd-3d7687380465" />
+
+<img width="1913" height="965" alt="image" src="https://github.com/user-attachments/assets/db5f664b-560b-4b8e-8dd7-e1b5771073f2"/>
+<img width="806" height="827" alt="image" src="https://github.com/user-attachments/assets/79548d80-ad76-40fd-b6f1-ef55475bc8e2"/>
+<img width="713" height="802" alt="image" src="https://github.com/user-attachments/assets/a25dcfe7-7f36-4e2d-a505-397d1f49b714"/>
+<img width="591" height="700" alt="image" src="https://github.com/user-attachments/assets/5b4a391a-3e18-498f-9afd-3d7687380465"/>
 
 📝 License
 MIT License
