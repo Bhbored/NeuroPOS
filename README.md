@@ -99,7 +99,7 @@ Extensible architecture to support future cloud and AI features
 
 📸 Screenshots.
 
-<img width="1915" height="978" alt="Screenshot 2025-08-02 104931" src="https://github.com/user-attachments/assets/4aef05de-3c3c-4a01-8b82-de8569dfab5b" />
+
 
 
 
