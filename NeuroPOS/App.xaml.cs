@@ -66,7 +66,7 @@ namespace NeuroPOS
             SaveCashFlowSnapshotIfNeeded();
             //var populator = new TestDataPopulator();
             //populator.PopulateAllTestData();
-            // SeedCashFlowSnapshots();
+            //SeedCashFlowSnapshots();
             //_ = SeedSnapshotsAsync();
 
         }
@@ -161,7 +161,7 @@ namespace NeuroPOS
             var random = new Random();
             var today = DateTime.Today;
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 100; i++)
             {
                 var snapshotDate = today.AddDays(-i);
                 var snapshot = new InventorySnapshot

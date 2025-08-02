@@ -742,6 +742,10 @@ namespace NeuroPOS.MVVM.ViewModel
                 App.ProductRepo.UpdateItem(prod);
             }
             App.TransactionRepo.InsertItemWithChildren(tx);
+            var bytes = await InvoicePdfService.BuildAsync(tx);   
+            var filePath = await InvoicePdfService.SaveAsync(bytes,
+                               $"Invoice_{tx.Id}.pdf");
+            await InvoicePdfService.ShareAsync(filePath);
             ClearAllSelections();
             _ = LoadDB();
         }

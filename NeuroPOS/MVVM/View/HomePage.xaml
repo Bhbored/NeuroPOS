@@ -248,13 +248,27 @@
                     </syncfusion:SfListView.EmptyView>
                 </syncfusion:SfListView>
                 <!--  ai assistant  -->
-                <Button
+
+                <Border
                     Grid.Row="1"
-                    Margin="500,500,0,0"
-                    Clicked="Button_Clicked"
+                    Margin="600,500,0,0"
+                    BackgroundColor="LightBlue"
                     HeightRequest="50"
-                    Text="Help"
-                    WidthRequest="100" />
+                    StyleClass="CategoryBadge">
+                    <HorizontalStackLayout>
+                        <Image
+                            Aspect="AspectFit"
+                            IsAnimationPlaying="True"
+                            Source="ai.gif" />
+                        <Button
+                            Background="Transparent"
+                            Clicked="Button_Clicked"
+                            Text="Help"
+                            TextColor="Black" />
+                    </HorizontalStackLayout>
+
+                </Border>
+
             </Grid>
         </Grid>
         <!--  Right Column: Order Summary  -->

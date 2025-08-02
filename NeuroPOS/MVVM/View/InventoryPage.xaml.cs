@@ -36,7 +36,7 @@ public partial class InventoryPage : ContentPage
             vm.RefreshUI();
         }
     }
-
+    #region helper class
     private class UndoData
     {
         public string ActionType { get; set; }
@@ -47,6 +47,8 @@ public partial class InventoryPage : ContentPage
         public int ProductIndex { get; set; }
         public List<int> ProductIndices { get; set; }
     }
+    #endregion
+
     #region filter and selection handling
     private void ListView_SelectionChanged(object sender, ItemSelectionChangedEventArgs e)
     {

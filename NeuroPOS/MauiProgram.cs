@@ -1,14 +1,15 @@
 ﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NeuroPOS.Data;
 using NeuroPOS.MVVM.Model;
-using NeuroPOS.MVVM.ViewModel;
 using NeuroPOS.MVVM.View;
+using NeuroPOS.MVVM.ViewModel;
+using NeuroPOS.Services;
 using Syncfusion.Maui.Core.Hosting;
 using Contact = NeuroPOS.MVVM.Model.Contact;
-using NeuroPOS.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
 namespace NeuroPOS
 {
@@ -26,6 +27,7 @@ namespace NeuroPOS
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit(options => options.SetShouldEnableSnackbarOnWindows(true))
+                .UseMauiCommunityToolkitCore()
                 .ConfigureSyncfusionCore()
                 .ConfigureFonts(fonts =>
                 {
