@@ -15,12 +15,16 @@ namespace NeuroPOS.Services
         private const string ModelId = "gpt-4o-mini-2024-07-18";
 
         private readonly HttpClient _http;
+        public bool IsApiKeyMissing { get; }
 
         public AssistantClient(IConfiguration cfg)
         {
             var apiKey = cfg["OpenAI:ApiKey"]?.Trim();
             if (string.IsNullOrWhiteSpace(apiKey))
-                throw new InvalidOperationException("OpenAI API key is missing.");
+            {
+                IsApiKeyMissing = true;
+                return;
+            }
 
             _http = new HttpClient { BaseAddress = new Uri("https://api.openai.com") };
             _http.DefaultRequestHeaders.Authorization =
@@ -263,6 +267,10 @@ When they name an area:
             IEnumerable<string> productNames,
             IEnumerable<string> contactNames)
         {
+            if (IsApiKeyMissing)
+            {
+                return "{\"error\":\"The AI assistant is not configured. Please add your OpenAI API key to the app settings.\"}";
+            }
 
             var categoryNames = inventoryVM.Categories.Select(c => c.Name).ToList();
             var customerName = orderVM.Orders.Select(c => c.CustomerName);

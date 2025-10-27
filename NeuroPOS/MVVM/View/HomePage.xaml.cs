@@ -153,12 +153,17 @@ namespace NeuroPOS.MVVM.View
 
         #endregion
 
-        private void Button_Clicked(object sender, EventArgs e)
+        private async void Button_Clicked(object sender, EventArgs e)
         {
             if (BindingContext is HomeVM vm)
             {
+                if (vm._assistant.IsApiKeyMissing)
+                {
+                    await this.ShowSnackbar("AI Assistant is not configured.");
+                    return;
+                }
                 var popup = new ChatAssistantPopup(vm);
-                AppShell.Current.ShowPopupAsync(popup);
+                await AppShell.Current.ShowPopupAsync(popup);
             }
         }
 
